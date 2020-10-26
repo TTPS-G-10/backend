@@ -5,8 +5,12 @@ const mainpage = require('./src/routes/main');
 const morgan = require('morgan');
 const app = express();
 const cors = require('cors');
+const dbAPI = require('./src/database/database');
 var env = require('node-env-file'); //.env file
 env(__dirname + '/.env');
+
+// get the client
+const mysql = require('mysql2');
 
 var corsOptions = {
     origin: 'http://localhost:3000'
@@ -18,6 +22,17 @@ app.use(auth);
 app.use(mainpage);
 app.set('port', process.env.PORT || 8080);
 
+
+
+// create the connection to database
+// @todo sacar estos datos de configuración por ambiente
+dbAPI.generateConnection({
+  host: "localhost",
+  user: "root",
+  password: "root",
+  database: "ttps_db",
+  port: 3306
+});
 
 app.listen(app.get('port'),() =>{
     console.log('Server on port: ',app.get('port'))
