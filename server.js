@@ -1,28 +1,27 @@
-const express= require('express');
-const about = require ('./src/routes/about.routes');
-const auth = require ('./src/routes/auth');
-const mainpage = require('./src/routes/main');
-const morgan = require('morgan');
+const express = require("express");
+const about = require("./src/routes/about.routes");
+const auth = require("./src/routes/auth");
+const mainpage = require("./src/routes/main");
+const morgan = require("morgan");
 const app = express();
-const cors = require('cors');
-const dbAPI = require('./src/database/database');
-var env = require('node-env-file'); //.env file
-env(__dirname + '/.env');
+const cors = require("cors");
+const dbAPI = require("./src/database/database");
+app.use(express.json({ extended: true }));
+var env = require("node-env-file"); //.env file
+env(__dirname + "/.env");
 
 // get the client
-const mysql = require('mysql2');
+const mysql = require("mysql2");
 
 var corsOptions = {
-    origin: 'http://localhost:3000'
-  }
+  origin: "http://localhost:3000",
+};
 app.use(cors(corsOptions));
-app.use(morgan('dev')); // it's a module that allows you to view http request by console
+app.use(morgan("dev")); // it's a module that allows you to view http request by console
 app.use(about);
 app.use(auth);
 app.use(mainpage);
-app.set('port', process.env.PORT || 8080);
-
-
+app.set("port", process.env.PORT || 8080);
 
 // create the connection to database
 // @todo sacar estos datos de configuración por ambiente
@@ -31,11 +30,11 @@ dbAPI.generateConnection({
   user: "root",
   password: "root",
   database: "ttps_db",
-  port: 3306
+  port: 3306,
 });
 
-app.listen(app.get('port'),() =>{
-    console.log('Server on port: ',app.get('port'))
-})
+app.listen(app.get("port"), () => {
+  console.log("Server on port: ", app.get("port"));
+});
 
 module.exports = app;
