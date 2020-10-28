@@ -9,9 +9,7 @@ const auth = async (req, res) => {
   //corroborate errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log("LOS CAMPOS QUE LLEGARON NO SON VALIDOS");
-    //return res.status(400).json({ errors: errores.array() });
-    return res.status(400).json({ errors: errors.array(), redirect: "/" });
+    return res.status(400).send({ error: "Email o Contraseña incorrecta" });
   }
 
   try {
@@ -26,17 +24,14 @@ const auth = async (req, res) => {
     await dbAPI.commit(trx);
 
     if (!queryResult) {
-      console.log("EL EMAIL NO EXISTE");
-      return res.status(400).json({ errors: errors.array(), redirect: "/" });
+      return res.status(400).send({ error: "Usuario no registrado" });
     }
-
     //check password
 
     // all ok
     res.json({ redirect: "/patients", jwt: jwtMock });
   } catch (error) {
-    console.log(error);
-    res.status(400).send("hubo un error en la validacion del usuario");
+    return res.status(400);
   }
 };
 module.exports = auth;
