@@ -2,6 +2,7 @@ const { jwtMock } = require("../mocks");
 const { validationResult } = require("express-validator");
 const queries = require("../database/queries");
 const dbAPI = require("../database/database");
+const jwt = require("jsonwebtoken");
 
 const auth = async (req, res) => {
   const { email, password } = req.body;
@@ -9,7 +10,7 @@ const auth = async (req, res) => {
   //corroborate errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).send({ error: "Email o Contraseña incorrecta" });
+    return res.status(400).send("Email o Contraseña incorrecta");
   }
 
   try {
@@ -24,11 +25,28 @@ const auth = async (req, res) => {
     await dbAPI.commit(trx);
 
     if (!queryResult) {
-      return res.status(400).send({ error: "Usuario no registrado" });
+      return res.status(400).send("Usuario no registrado");
     }
     //check password
 
     // all ok
+    //console.log(queryResult);
+    //jwt firm
+    /*const playload = {
+      usuario: queryResult,
+    };
+
+    jwt.sign(
+      playload,
+      process.env.SECRET,
+      { expiresIN: 360000 },
+      (err, token) => {
+        if (err) throw error;
+        // confirm token
+        res.json({ redirect: "/patients", token });
+      }
+    );*/
+
     res.json({ redirect: "/patients", jwt: jwtMock });
   } catch (error) {
     return res.status(400);
