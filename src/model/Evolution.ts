@@ -72,4 +72,5 @@ export class Evolution {
     
   }
   /setear todos los valores por defecto
+  //verEvolucion
 }

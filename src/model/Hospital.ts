@@ -5,7 +5,8 @@ export class Hospital {
   static instacia: Hospital;
   name: string;
   systems: System[];
-  userLoggin: User;
+  
+  
 
   constructor(name: string) {
     if (!!Hospital.instacia) {
@@ -21,7 +22,11 @@ export class Hospital {
   }
 
   createAlert(doctorID: integer, patientID: integer) {}
-  createDoctor() {}
+  createDoctor() { }
+  createEvolution(id Doctor, IDpatient) {
+    //crear evolucio
+    //verificarReglas---->>creatAlertas(idPaciente,IDdoctor,IdRegla)
+   }
 }
 
 //const hospitalSystem = new Hospital();

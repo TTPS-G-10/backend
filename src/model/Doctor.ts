@@ -30,6 +30,7 @@ export class Doctor extends User {
   //evolucionarPaciente()
   //listarSistemas()
   //ingresarPAciente()
+  //asignarMedico
 
   //listAlerts
   addAlert(alert: Alert) {

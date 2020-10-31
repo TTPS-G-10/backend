@@ -40,4 +40,8 @@ export class Patient {
     this.contactPerson = contactPerson;
     this.evolutions = [];
   }
+
+  //asignarme medico
+  //verInternacion
+  //agregarEVolucion
 }

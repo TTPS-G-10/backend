@@ -19,4 +19,7 @@ export class System {
 
   //listarSalas();
   //consultarSalas()
+  //agregarPaciente()
+  //listascamaslibres
+  //listarcamasocupadas
 }
