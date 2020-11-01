@@ -3,6 +3,7 @@ const about = require("./src/routes/about.routes");
 const auth = require("./src/routes/auth");
 const patients = require("./src/routes/patients");
 const adminsys = require("./src/routes/adminsys");
+const systems = require("./src/routes/systems");
 const morgan = require("morgan");
 const app = express();
 const cors = require("cors");
@@ -23,6 +24,7 @@ app.use(about);
 app.use(auth);
 app.use(patients);
 app.use(adminsys);
+app.use(systems);
 app.set("port", process.env.PORT || 8080);
 
 // create the connection to database

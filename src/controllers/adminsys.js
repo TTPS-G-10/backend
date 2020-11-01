@@ -7,9 +7,9 @@ const adminsys = async (req, res) => {
    */
   const trx = await dbAPI.start();
   const user = await queries.findUserByEmail("admin@gmail.com", trx);
-  const adminsystems = await queries.returnSystemForAdmin( trx);
-  const adminroom = await queries.returnRoomForAdmin( trx);
-  const adminbed = await queries.returnBedForAdmin( trx);
+  const adminsystems = await queries.returnSystems( trx);
+  const adminroom = await queries.returnRooms( trx);
+  const adminbed = await queries.returnBeds( trx);
   await dbAPI.commit(trx);
 
   
