@@ -1,8 +1,8 @@
-const mainpage = require('./../controllers/mainpage');
+const adminsys = require('./../controllers/adminsys');
 const { Router } = require('express');
 const router = Router();
 
 
-router.get('/init', mainpage);
+router.get('/adminsys',adminsys);
 
 module.exports = router;

@@ -1,4 +1,3 @@
-const { jwtMock } = require("../mocks");
 const { validationResult } = require("express-validator");
 const queries = require("../database/queries");
 const dbAPI = require("../database/database");
@@ -20,16 +19,32 @@ const auth = async (req, res) => {
      */
 
     const trx = await dbAPI.start();
-    const queryResult = await queries.findUserByEmail(email, trx);
+    const user = await queries.findUserByEmail(email, trx);
     await dbAPI.commit(trx);
 
-    if (!queryResult) {
+    if (!user) {
       return res.status(400).send({ error: "Usuario no registrado" });
     }
     //check password
 
     // all ok
-    res.json({ redirect: "/patients", jwt: jwtMock });
+    if(user.role == "ADMIN"){
+      res.json({ redirect: "/adminsys", user });
+    }  
+    if(user.role == "DOCTOR"){
+      const trx = await dbAPI.start();
+      user.system = await queries.findSystemOfUser(email, trx);
+      await dbAPI.commit(trx);
+
+      res.json({ redirect: "/patients", user});
+    }  
+    if(user.role == "ADMIN"){
+      res.json({ redirect: "/adminsys", user });
+    }  
+    if(user.role == "ADMIN"){
+      res.json({ redirect: "/adminsys", user });
+    }  
+
   } catch (error) {
     return res.status(400);
   }
