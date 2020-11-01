@@ -1,7 +1,7 @@
-const { jwtMock } = require("../mocks");
-const jwt = require("jsonwebtoken");
+import jwtMock from "../mocks";
+import { Response, Request } from "express";
 
-const logOut = async (req, res) => {
+const logOut = async (req: Request, res: Response) => {
   res.json({ redirect: "/", jwt: jwtMock });
 };
 
@@ -13,4 +13,4 @@ const auth = async (req, res) => {
     return res.status(400);
   }
 };*/
-module.exports = logOut;
+export default logOut;

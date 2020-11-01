@@ -1,5 +1,5 @@
-const auth = require("./../controllers/auth");
-const { Router } = require("express");
+import auth from "./../controllers/auth";
+import Router from "express";
 const router = Router();
 const { check } = require("express-validator");
 
@@ -16,4 +16,4 @@ router.post(
   auth
 );
 
-module.exports = router;
+export default router;

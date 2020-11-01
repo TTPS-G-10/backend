@@ -1,15 +1,14 @@
-const express = require("express");
-const about = require("./src/routes/about.routes");
-const auth = require("./src/routes/auth");
-const mainpage = require("./src/routes/main");
-const logOut = require("./src/routes/logOut");
-const morgan = require("morgan");
+import express from "express";
+import auth  from "./routes/auth";
+import mainpage from "./routes/main";
+import logOut from "./routes/logOut";
+import morgan from "morgan";
+import cors from "cors";
+import dbAPI from "./database/database";
+
 const app = express();
-const cors = require("cors");
-const dbAPI = require("./src/database/database");
-app.use(express.json({ extended: true }));
-var env = require("node-env-file"); //.env file
-env(__dirname + "/.env");
+app.use(express.json());
+
 
 // get the client
 const mysql = require("mysql2");
@@ -19,7 +18,6 @@ var corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(morgan("dev")); // it's a module that allows you to view http request by console
-app.use(about);
 app.use(auth);
 app.use(mainpage);
 app.use(logOut);
@@ -39,4 +37,4 @@ app.listen(app.get("port"), () => {
   console.log("Server on port: ", app.get("port"));
 });
 
-module.exports = app;
+export default app;

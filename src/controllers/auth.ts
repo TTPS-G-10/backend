@@ -1,10 +1,11 @@
 const { jwtMock } = require("../mocks");
 const { validationResult } = require("express-validator");
 const queries = require("../database/queries");
-const dbAPI = require("../database/database");
+import dbAPI from "../database/database";
+import { Request, Response } from "express";
 const jwt = require("jsonwebtoken");
 
-const auth = async (req, res) => {
+const auth = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   //corroborate errors
@@ -52,4 +53,4 @@ const auth = async (req, res) => {
     return res.status(400);
   }
 };
-module.exports = auth;
+export default auth;
