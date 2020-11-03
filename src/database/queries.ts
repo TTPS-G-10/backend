@@ -3,7 +3,9 @@ import { PoolConnection } from 'mysql2/promise';
 import { System } from '../model/System';
 import { User } from '../model/User';
 
-const findUserByEmail = async (email: string, transaction: PoolConnection): Promise<User | System | null> => {
+type FindUserByEmail = (email: string, transaction: PoolConnection) => Promise<User | System | null>;
+
+const findUserByEmail: FindUserByEmail = async (email: string, transaction: PoolConnection): Promise<User | System | null> => {
     const sql = `
     SELECT user.name, user.lastname, user.role, sys.name as system_name
     FROM ttps_db.user user
@@ -14,7 +16,9 @@ const findUserByEmail = async (email: string, transaction: PoolConnection): Prom
     return await dbAPI.singleOrDefault<User | System>(sql, [email], transaction);
 }
 
-const queries = {
+const queries: {
+    findUserByEmail: FindUserByEmail
+} = {
     findUserByEmail
 };
 export default queries;
