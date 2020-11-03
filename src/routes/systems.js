@@ -1,8 +1,8 @@
-const mainpage = require('./../controllers/mainpage');
+const systems = require('./../controllers/systems');
 const { Router } = require('express');
 const router = Router();
 
 
-router.get('/init', mainpage);
+router.get('/systems',systems);
 
 module.exports = router;

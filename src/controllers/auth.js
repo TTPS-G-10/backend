@@ -1,4 +1,3 @@
-const { jwtMock } = require("../mocks");
 const { validationResult } = require("express-validator");
 const queries = require("../database/queries");
 const dbAPI = require("../database/database");
@@ -21,33 +20,31 @@ const auth = async (req, res) => {
      */
 
     const trx = await dbAPI.start();
-    const queryResult = await queries.findUserByEmail(email, trx);
+    const user = await queries.findUserByEmail(email, trx);
     await dbAPI.commit(trx);
 
-    if (!queryResult) {
-      return res.status(400).send("Usuario no registrado");
+    if (!user) {
+      return res.status(400).send({ error: "Usuario no registrado" });
     }
     //check password
 
     // all ok
-    //console.log(queryResult);
-    //jwt firm
-    /*const playload = {
-      usuario: queryResult,
-    };
+    if (user.role == "ADMIN") {
+      res.json({ redirect: "/adminsys", user });
+    }
+    if (user.role == "DOCTOR") {
+      const trx = await dbAPI.start();
+      user.system = await queries.findSystemOfUser(email, trx);
+      await dbAPI.commit(trx);
 
-    jwt.sign(
-      playload,
-      process.env.SECRET,
-      { expiresIN: 360000 },
-      (err, token) => {
-        if (err) throw error;
-        // confirm token
-        res.json({ redirect: "/patients", token });
-      }
-    );*/
-
-    res.json({ redirect: "/patients", jwt: jwtMock });
+      res.json({ redirect: "/patients", user });
+    }
+    if (user.role == "ADMIN") {
+      res.json({ redirect: "/adminsys", user });
+    }
+    if (user.role == "ADMIN") {
+      res.json({ redirect: "/adminsys", user });
+    }
   } catch (error) {
     return res.status(400);
   }
