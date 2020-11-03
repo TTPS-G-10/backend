@@ -1,8 +1,10 @@
 const { jwtMock } = require("../mocks");
 const { validationResult } = require("express-validator");
-const queries = require("../database/queries");
+import queries from "../database/queries";
 import dbAPI from "../database/database";
 import { Request, Response } from "express";
+import { User } from "../model/User";
+import { System } from "../model/System";
 const jwt = require("jsonwebtoken");
 
 const auth = async (req: Request, res: Response) => {
@@ -22,7 +24,7 @@ const auth = async (req: Request, res: Response) => {
      */
 
     const trx = await dbAPI.start();
-    const queryResult = await queries.findUserByEmail(email, trx);
+    const queryResult: User | System | null = await queries.findUserByEmail(email, trx);
     await dbAPI.commit(trx);
 
     if (!queryResult) {

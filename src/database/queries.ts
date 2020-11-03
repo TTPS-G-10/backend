@@ -1,9 +1,9 @@
 import dbAPI from './database';
-import { Doctor } from '../model/Doctor';
 import { PoolConnection } from 'mysql2/promise';
 import { System } from '../model/System';
+import { User } from '../model/User';
 
-const findUserByEmail = async (email: string, transaction: PoolConnection): Promise<Doctor | System | null> => {
+const findUserByEmail = async (email: string, transaction: PoolConnection): Promise<User | System | null> => {
     const sql = `
     SELECT user.name, user.lastname, user.role, sys.name as system_name
     FROM ttps_db.user user
@@ -11,7 +11,7 @@ const findUserByEmail = async (email: string, transaction: PoolConnection): Prom
     WHERE email = ?
     LIMIT 1;
     `
-    return await dbAPI.singleOrDefault<Doctor | System>(sql, [email], transaction);
+    return await dbAPI.singleOrDefault<User | System>(sql, [email], transaction);
 }
 
 const queries = {
