@@ -17,7 +17,7 @@ const mainPage = async (req: Request, res: Response) => {
    */
   
   const trx = await dbAPI.start();
-  const queryResult: User | System | null = await queries.findUserByEmail("javier@gmail.com", trx);
+  const queryResult: User | null = await queries.findUserByEmail("javier@gmail.com", trx);
   await dbAPI.commit(trx);
   if (queryResult) {
     res.json({
