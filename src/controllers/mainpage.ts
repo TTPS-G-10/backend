@@ -6,6 +6,7 @@ import { Doctor } from "../model/Doctor";
 
 import queries  from "../database/queries";
 import { System } from "../model/System";
+import { User } from "../model/User";
 
 const mainPage = async (req: Request, res: Response) => {
   console.log("desde main");
@@ -16,7 +17,7 @@ const mainPage = async (req: Request, res: Response) => {
    */
   
   const trx = await dbAPI.start();
-  const queryResult: Doctor | System | null = await queries.findUserByEmail("javier@gmail.com", trx);
+  const queryResult: User | System | null = await queries.findUserByEmail("javier@gmail.com", trx);
   await dbAPI.commit(trx);
   if (queryResult) {
     res.json({
