@@ -1,6 +1,7 @@
 const dbAPI = require("../database/database");
 const queries = require("../database/queries");
 const { json } = require("express");
+const app = require("../../server");
 
 const patients = async (req, res) => {
   console.log("desde main");
@@ -13,23 +14,16 @@ const patients = async (req, res) => {
   const user = await queries.findUserByEmail("javier@gmail.com", trx);
   system = await queries.findSystemOfUser("javier@gmail.com", trx);
   user.system_name =system.system_name
-  const patients = await queries.returnPatientsOfAnSystemForName(user.system_name, trx);
-  const rooms_names = await queries.returnRomsOfAnSystemForName(user.system_name, trx);
-  await dbAPI.commit(trx);
-  
-  let rooms = []
+  const rooms = await queries.returnRomsOfAnSystemForName(user.system_name, trx);
 
-  rooms_names.forEach(function(name) {
-    let listOfPatiens=[]
-    patients.forEach(function(patient) {
-      if (name.room_name == patient.room_name) {
-        listOfPatiens.push(patient)}
-    })
-    name.patients = listOfPatiens
-    rooms.push( name );
-  })
+  
+  const finaldata = await Promise.all( rooms.map(async function(room) {
+       return  {...room,patients:await queries.returnPatientsForRoom(room.room_id, trx)}
+  }))
+  await dbAPI.commit(trx);
+console.log(finaldata);
   res.json({
-    user,rooms
+    user,rooms:finaldata
   });
 };
 module.exports = patients;
