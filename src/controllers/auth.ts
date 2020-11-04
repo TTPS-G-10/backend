@@ -1,14 +1,18 @@
 const { validationResult } = require("express-validator");
 const queries = require("../database/queries");
-const dbAPI = require("../database/database");
+import dbAPI from "../database/database";
+import { Request, Response } from "express";
+import { User } from "../model/User";
+import { System } from "../model/System";
+const jwt = require("jsonwebtoken");
 
-const auth = async (req, res) => {
+const auth = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   //corroborate errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).send({ error: "Email o Contraseña incorrecta" });
+    return res.status(400).send("Email o Contraseña incorrecta");
   }
 
   try {
@@ -19,7 +23,7 @@ const auth = async (req, res) => {
      */
 
     const trx = await dbAPI.start();
-    const user = await queries.findUserByEmail(email, trx);
+    const user: User | null = await queries.findUserByEmail(email, trx);
     await dbAPI.commit(trx);
 
     if (!user) {
@@ -28,25 +32,25 @@ const auth = async (req, res) => {
     //check password
 
     // all ok
-    if(user.role == "ADMIN"){
+    if (user.role == "ADMIN") {
       res.json({ redirect: "/adminsys", user });
-    }  
-    if(user.role == "DOCTOR"){
+    }
+    if (user.role == "DOCTOR") {
       const trx = await dbAPI.start();
-      user.system = await queries.findSystemOfUser(email, trx);
+      const system = await queries.findSystemOfUser(email, trx);
+      user.system = system ? system : undefined;
       await dbAPI.commit(trx);
-
-      res.json({ redirect: "/patients", user});
-    }  
-    if(user.role == "ADMIN"){
+      
+      res.json({ redirect: "/patients", user });
+    }
+    if (user.role == "ADMIN") {
       res.json({ redirect: "/adminsys", user });
-    }  
-    if(user.role == "ADMIN"){
+    }
+    if (user.role == "ADMIN") {
       res.json({ redirect: "/adminsys", user });
-    }  
-
+    }
   } catch (error) {
     return res.status(400);
   }
 };
-module.exports = auth;
+export default auth;

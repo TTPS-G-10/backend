@@ -62,4 +62,4 @@ const mocks = {
         ]
      }
  };
- module.exports = mocks;
+export default mocks;
