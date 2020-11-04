@@ -1,9 +1,12 @@
 const { validationResult } = require("express-validator");
-const queries = require("../database/queries");
-const dbAPI = require("../database/database");
+import queries from "../database/queries";
+import dbAPI from "../database/database";
+import { Request, Response } from "express";
+import { User } from "../model/User";
+import { System } from "../model/System";
 const jwt = require("jsonwebtoken");
 
-const auth = async (req, res) => {
+const auth = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   //corroborate errors
@@ -20,7 +23,7 @@ const auth = async (req, res) => {
      */
 
     const trx = await dbAPI.start();
-    const user = await queries.findUserByEmail(email, trx);
+    const user: User | null = await queries.findUserByEmail(email, trx);
     await dbAPI.commit(trx);
 
     if (!user) {
@@ -34,7 +37,8 @@ const auth = async (req, res) => {
     }
     if (user.role == "DOCTOR") {
       const trx = await dbAPI.start();
-      user.system = await queries.findSystemOfUser(email, trx);
+      const system = await queries.findSystemOfUser(email, trx);
+      user.system = system ? system : undefined;
       await dbAPI.commit(trx);
 
       res.json({ redirect: "/patients", user });
@@ -49,4 +53,4 @@ const auth = async (req, res) => {
     return res.status(400);
   }
 };
-module.exports = auth;
+export default auth;

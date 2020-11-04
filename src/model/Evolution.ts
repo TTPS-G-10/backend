@@ -18,20 +18,20 @@ enum O2SupplementaryType {
   "Mascara con Reservorio",
 }
 
-export class Evolution {
-  static editStatus: boolean = false;
-  static timing: number = 0;
+export type Evolution = {
+  editStatus: boolean;
+  timing: number;
   autor: number;
-  signosVitales: {
-    temperatura: number;
+  vitalsigns: {
+    temperature: number;
     TASistolica: number;
     TADiastolica: number;
     FC: number;
     FR: number;
   };
-  sistemaRespitarorio: {
-    mecanicaVentilatoria: MechanicType;
-    O2Suplementario: {
+  respiratorySystem: {
+    ventilatoryMechanics: MechanicType;
+    O2Suplementary: {
       done: boolean;
       type?: O2SupplementaryType;
       value?: number;
@@ -40,36 +40,21 @@ export class Evolution {
     pafi: { done: boolean; value?: number };
     tos: boolean;
     disnea: number;
-    estabilidadSintomas: boolean;
+    stabilitySymptoms: boolean;
   };
-  otrosSintomas: { somnolencia: boolean; anosmia: boolean; disgeusia: boolean };
-  estudiosHoy: {
+  otherSymptoms: { drowsiness: boolean; anosmia: boolean; dysgeusia: boolean };
+  HOYStudies: {
     RxTx: ClinicalStuides;
     TAC: ClinicalStuides;
     ECG: ClinicalStuides;
     PCR: ClinicalStuides;
   };
-  observaciones: string;
+  observations: string;
   uti: {
     ARM: boolean;
     descriptionARM: string;
-    traqueotomia: boolean;
-    vasopresores: boolean;
-    descriptionVasopresores: string;
+    tracheotomy: boolean;
+    vasopressors: boolean;
+    descriptionVasopressors: string;
   };
-
-  static getEditStatus(): boolean {
-    return this.editStatus;
-  }
-  static setEditStatus = (value: boolean) => {
-    Evolution.editStatus = value;
-  };
-
-
-  constructor(idAutor: number,idPatient:number) {
-    this.autor = idAutor;
-//resto de los campos
-    
-  }
-  /setear todos los valores por defecto
 }

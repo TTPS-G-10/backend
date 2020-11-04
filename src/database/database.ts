@@ -1,12 +1,22 @@
-const mysql = require('mysql2');
+import mysql from 'mysql2';
+import { PoolConnection } from 'mysql2/promise';
 
-let db;
+interface IConnectionData{
+    host: string,
+    user: string,
+    password: string,
+    database: string,
+    port: number,
+    connectionLimit?: number 
+}
+
+let db: mysql.Pool;
 
 function getConnectionDB() {
     return db;
 }
 
-function generateConnection(conData) {
+function generateConnection(conData: IConnectionData) {
     if (db) {
         return db;
     }
@@ -25,25 +35,23 @@ async function createTransaction() {
     return connection;
 }
 
-async function start(trx) {
+async function start(trx?: any): Promise<PoolConnection> {
     trx = trx ?  await trx.query('START TRANSACTION') : await createTransaction();
     return trx;
 }
 
-async function commit(trx) {
+async function commit(trx: any): Promise<void> {
     await trx.query('COMMIT');
     await trx.release();
 }
 
-async function rollback(trx) {
+async function rollback(trx: any): Promise<void> {
     await trx.query('ROLLBACK');
 }
 
-async function rawQuery(query, params, transaction = null) {
+async function rawQuery(query : string, params : any[], transaction?: PoolConnection) : Promise<any>{
     const conn = transaction || db.promise()
     try {
-
-        const sql = conn.format(query, params);
         const [resp = null] = await conn.query(query, params);
         return resp;
     } catch (err) {
@@ -51,9 +59,9 @@ async function rawQuery(query, params, transaction = null) {
         throw new Error(err.message + ', in query: ' + query)
     }
 }
-async function patch(name, model, id, transaction = null) {
+async function patch<T>(name: string, model: T, id: string, transaction: PoolConnection): Promise<number>{
     const query = `SELECT id FROM ${name} WHERE ${id} = ?`;
-    const record = await singleOrDefault(query, [model[id]], transaction);
+    const record: any = await singleOrDefault(query, [(model as any)[id]], transaction);
     if (record) {
         await update(name, id, { ...record, ...model }, transaction);
         return record.id;
@@ -61,7 +69,7 @@ async function patch(name, model, id, transaction = null) {
     throw new Error('Profile does not exist');
 };
 
-async function remove(name, id, transaction = null) {
+async function remove(name: string, id: number, transaction: PoolConnection): Promise<number>{
     const query = `SELECT id FROM ${name} WHERE id = ?`;
     const [record = null] = await rawQuery(query, [id], transaction);
     if (!record) {
@@ -73,25 +81,25 @@ async function remove(name, id, transaction = null) {
     return record.id;
 };
 
-async function update(name, id, model, transaction = null) {
+async function update<T>(name: string,  id: string, model: any, transaction: PoolConnection): Promise<number>{
     Object.keys(model).forEach(key => model[key] === undefined && delete model[key]);
     const updateQuery = `UPDATE ${name} SET ? WHERE ${id} = ?`;
     return (await rawQuery(updateQuery, [{ ...model, updated_at: new Date() }, model[id]], transaction)).affectedRows;
 };
 
-function processInsert(query, params) {
+function processInsert(query: any, params: any) {
     const k = Object.keys(params)
     const bindedParams = k.map(v => '?').join(',')
     const keys = `(${k.join(',')} ) values ( ${bindedParams} )`
     return `${query} ${keys}`
 }
 
-async function singleOrDefault(query, params, transaction) {
+async function singleOrDefault<T>(query: string, params: any[], transaction?: PoolConnection): Promise<T | null> {
     const [row = null] = await rawQuery(query, params, transaction);
     return row;
 }
 
-module.exports = {
+const dbAPI = {
     generateConnection,
     getConnectionDB,
     start,
@@ -100,3 +108,4 @@ module.exports = {
     rawQuery,
     rollback
 }
+export default dbAPI;
