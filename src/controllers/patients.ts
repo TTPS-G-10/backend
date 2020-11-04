@@ -2,8 +2,8 @@ import dbAPI from "../database/database";
 import { Request, Response } from "express";
 import { Room } from "../model/Room";
 import { User } from "../model/User";
-
-const queries = require("../database/queries");
+import queries from "../database/queries";
+import { addPatientsToRoom } from "../services/dataAggregation";
 
 const patients = async (req: Request, res: Response) => {
   /**
@@ -14,29 +14,20 @@ const patients = async (req: Request, res: Response) => {
     "javier@gmail.com",
     trx
   );
-  console.log("pas111a");
   if (user) {
-    const system = await queries.findSystemOfUser("javier@gmail.com", trx);
-    user.system = system ? system : undefined;
-
-
-
-   
-
-    const rooms = await queries.returnRomsOfAnSystemForName(user.system, trx);
-
-  
-    const finaldata = await Promise.all( rooms.map(async function(room:Room) {
-         return  {...room,patients:await queries.returnPatientsForRoom(room.id, trx)}
-    }))
- 
-    console.log("pasa");
-    
-    res.json({user,rooms:finaldata})
-
-
-  }else {
-    res.status(404);}
-    await dbAPI.commit(trx);
+    try {
+      const system = await queries.findSystemOfUser("javier@gmail.com", trx);
+      user.system = system ? system : undefined;
+      const rooms = await queries.returnRomsOfAnSystemForName(user.system as string, trx);
+      const roomsWithPatients = await Promise.all(rooms.map(addPatientsToRoom));
+      res.json({ user, rooms: roomsWithPatients });
+    } catch (err) {
+      console.error(err);
+      res.status(500);
+    }
+  } else {
+    res.status(404);
+  }
+  dbAPI.commit(trx);
 }
 export default patients;

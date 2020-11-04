@@ -40,7 +40,7 @@ const findSystemOfUser: FindSystemByEmail = (
   return dbAPI.singleOrDefault<string | null>(sql, [email], transaction);
 };
 
-const returnPatientsForRoom = (name: string, transaction: PoolConnection ) => {
+const returnPatientsForRoom = (id: number, transaction: PoolConnection ) => {
     const sql = `
     SELECT  rm.id as room_id , pt.name as patient_name,pt.last_name as patient_last_name,pt.id as patient_id, bd.name as bed_name, bd.id as bed_id
     FROM ttps_db.room rm 
@@ -54,12 +54,12 @@ const returnPatientsForRoom = (name: string, transaction: PoolConnection ) => {
     WHERE rm.id = ? AND sc.finish = FALSE
     ORDER BY rm.name asc
     `;
-  return dbAPI.rawQuery(sql, [name], transaction);
+  return dbAPI.rawQuery(sql, [id], transaction);
 };
 
 const returnRomsOfAnSystemForName = (name:string, transaction: PoolConnection ) => {
     const sql = `
-    SELECT  rm.name as room_name ,rm.id as room_id
+    SELECT  rm.*
     FROM ttps_db.system sys 
     INNER JOIN ttps_db.have_a_place hp ON sys.id = hp.system_id 
     INNER JOIN ttps_db.room rm on  hp.room_id = rm.id 
@@ -145,7 +145,7 @@ const returnBedsWithoutPatients = (transaction: PoolConnection) => {
         `
         return dbAPI.rawQuery(sql,[],transaction);
     }
-module.exports = {
+const queries = {
     findUserByEmail,
     returnPatientsForRoom,
     returnRomsOfAnSystemForName,
@@ -156,3 +156,5 @@ module.exports = {
     returnBedsAndPatiens,
     returnBedsWithoutPatients,
 };
+
+export default queries;
