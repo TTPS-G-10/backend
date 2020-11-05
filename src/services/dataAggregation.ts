@@ -17,7 +17,9 @@ const addPatientsToRoom = async (room: Room) => {
 const addRoomsAndPatientsToSystem = async (system: System) => {
     const trx = await dbAPI.start();
     const aux = await queries.returnRomsOfAnSystemForId(system.id, trx);
-    const rooms = await Promise.all(aux.map(addPatientsToRoom));
+    const aux1 = await Promise.all(aux.map(addPatientsToRoom));
+    const rooms = await Promise.all(aux1.map(addBedsWithoutPatientsToRoom));
+
     await dbAPI.commit(trx);
     return { ...system, rooms };
 }

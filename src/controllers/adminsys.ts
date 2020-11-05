@@ -1,44 +1,50 @@
-const dbAPI = require("../database/database");
-const queries = require("../database/queries");
+import dbAPI from "../database/database";
+import { Request, Response } from "express";
+import { Room } from "../model/Room";
+import { User } from "../model/User";
+import { System } from "../model/System";
+import queries from "../database/queries";
+import { addRoomsAndPatientsToSystem } from "../services/dataAggregation";
 
-const adminsys = async (req, res) => {
+const systems = async (req: Request, res: Response) => {
   /**
    * read JWT to find user kind
    */
   const trx = await dbAPI.start();
-  const user = await queries.findUserByEmail("admin@gmail.com", trx);
-  const adminsystems = await queries.returnSystems( trx);
-  const adminroom = await queries.returnRooms( trx);
-  const adminbed = await queries.returnBeds( trx);
-  await dbAPI.commit(trx);
+  const user: User | null = await queries.findUserByEmail(
+    "admin@gmail.com",
+    trx
+  );
+  if (user) {
+    try {
+      const system = await queries.findSystemOfUser("javier@gmail.com", trx);
 
-  
+      user.system = system ? system.name : undefined;
+      console.log(user.system);
+      const systems = Array
+      const AllSystems  = await queries.returnSystems(trx);
+      if(AllSystems){
+        try{
+        const systems = await Promise.all(AllSystems.map(addRoomsAndPatientsToSystem));
 
-  let systems = []
+       
+        res.json({ user, systems: systems });
+     
+      } catch (err) {
+        console.error(err);
+        res.status(500);
+      }
 
-  adminsystems.forEach(function(system) {
-
-    let rooms=[]
-    adminroom.forEach(function(room) {
-        if (room.system_id == system.system_id) {
-
-        let beds=[]
-        adminbed.forEach(function(bed) {
-            if (bed.room_id == room.room_id) {
-                beds.push(bed)}
-        
-        })
-        room.beds = beds    
-        rooms.push(room)
-
-
-    }})
-    system.rooms = rooms
-    systems.push(system) 
-  })
-console.log(systems);
-  res.json({
-    user,systems
-  });
-};
-module.exports = adminsys;
+      }
+      
+      res.json({ user});
+    } catch (err) {
+      console.error(err);
+      res.status(500);
+    }
+  } else {
+    res.status(404);
+  }
+  dbAPI.commit(trx);
+}
+export default systems;
