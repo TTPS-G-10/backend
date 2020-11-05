@@ -4,6 +4,7 @@ import { Room } from "../model/Room";
 import { User } from "../model/User";
 import queries from "../database/queries";
 import { addPatientsToRoom } from "../services/dataAggregation";
+import { System } from "../model/System";
 
 const patients = async (req: Request, res: Response) => {
   /**
@@ -17,11 +18,11 @@ const patients = async (req: Request, res: Response) => {
   if (user) {
     try {
       const system = await queries.findSystemOfUser("javier@gmail.com", trx);
-
       user.system = system ? system.name : undefined;
-      console.log(user.system);
-      
-      const rooms = await queries.returnRomsOfAnSystemForName(user.system as string, trx);
+      const rooms = await queries.returnRomsOfAnSystemForName(
+        user.system as string,
+        trx
+      );
       const roomsWithPatients = await Promise.all(rooms.map(addPatientsToRoom));
       res.json({ user, rooms: roomsWithPatients });
     } catch (err) {
@@ -32,5 +33,5 @@ const patients = async (req: Request, res: Response) => {
     res.status(404);
   }
   dbAPI.commit(trx);
-}
+};
 export default patients;

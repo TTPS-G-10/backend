@@ -3,7 +3,7 @@ import { Evolution } from "./Evolution";
 export type Patient = {
   id: number;
   name: string;
-  lastName: string;
+  last_name: string;
   dni: number;
   birthDate: Date;
   direction: string;
@@ -11,6 +11,6 @@ export type Patient = {
   email: string;
   socialSecurity: string;
   backgroundClinical: String;
-  contactPerson: ContactPerson;
-  evolutions: Evolution[];
-}
+  contactPerson?: ContactPerson;
+  evolutions?: Evolution[];
+};

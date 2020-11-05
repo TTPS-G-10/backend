@@ -21,23 +21,17 @@ const systems = async (req: Request, res: Response) => {
 
       user.system = system ? system.name : undefined;
       console.log(user.system);
-      const systems = Array
-      const AllSystems  = await queries.returnSystems(trx);
-      if(AllSystems){
-        try{
-        const systems = await Promise.all(AllSystems.map(addRoomsAndPatientsToSystem));
 
-       
+      const AllSystems = await queries.returnSystems(trx);
+      if (AllSystems) {
+        const systems = await Promise.all(
+          AllSystems.map(addRoomsAndPatientsToSystem)
+        );
+
         res.json({ user, systems: systems });
-     
-      } catch (err) {
-        console.error(err);
-        res.status(500);
+      } else {
+        res.json({ user });
       }
-
-      }
-      
-      res.json({ user});
     } catch (err) {
       console.error(err);
       res.status(500);
@@ -46,5 +40,5 @@ const systems = async (req: Request, res: Response) => {
     res.status(404);
   }
   dbAPI.commit(trx);
-}
+};
 export default systems;
