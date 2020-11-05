@@ -2,10 +2,11 @@ import dbAPI from "../database/database";
 import { Request, Response } from "express";
 import { Room } from "../model/Room";
 import { User } from "../model/User";
+import { System } from "../model/System";
 import queries from "../database/queries";
-import { addPatientsToRoom } from "../services/dataAggregation";
+import { addRoomsAndPatientsToSystem } from "../services/dataAggregation";
 
-const patients = async (req: Request, res: Response) => {
+const systems = async (req: Request, res: Response) => {
   /**
    * read JWT to find user kind
    */
@@ -20,10 +21,23 @@ const patients = async (req: Request, res: Response) => {
 
       user.system = system ? system.name : undefined;
       console.log(user.system);
+      const systems = Array
+      const AllSystems  = await queries.returnSystems(trx);
+      if(AllSystems){
+        try{
+        const systems = await Promise.all(AllSystems.map(addRoomsAndPatientsToSystem));
+
+       
+        res.json({ user, systems: systems });
+     
+      } catch (err) {
+        console.error(err);
+        res.status(500);
+      }
+
+      }
       
-      const rooms = await queries.returnRomsOfAnSystemForName(user.system as string, trx);
-      const roomsWithPatients = await Promise.all(rooms.map(addPatientsToRoom));
-      res.json({ user, rooms: roomsWithPatients });
+      res.json({ user});
     } catch (err) {
       console.error(err);
       res.status(500);
@@ -33,4 +47,4 @@ const patients = async (req: Request, res: Response) => {
   }
   dbAPI.commit(trx);
 }
-export default patients;
+export default systems;

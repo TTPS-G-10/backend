@@ -1,6 +1,11 @@
 import dbAPI from "./database";
 import { PoolConnection } from "mysql2/promise";
 import { User } from "../model/User";
+import { System } from "../model/System";
+import { Bed } from "../model/Bed";
+import { Room } from "../model/Room";
+import { Patient } from "../model/Patient";
+import { Evolution } from "../model/Evolution";
 
 type FindUserByEmail = (
   email: string,
@@ -26,18 +31,18 @@ const findUserByEmail: FindUserByEmail = async (
   return await dbAPI.singleOrDefault<User | null>(sql, [email], transaction);
 };
 
-const findSystemOfUser: FindSystemByEmail = (
+const findSystemOfUser= (
   email: string,
   transaction: PoolConnection
-): Promise<string | null> => {
+): Promise<System | null> => {
   const sql = `
-    SELECT sys.name as system_name
+    SELECT sys.name
     FROM ttps_db.user user
     INNER JOIN ttps_db.works_at wa on user.id = wa.user_id INNER JOIN ttps_db.system sys on wa.system_id = sys.id
     WHERE email = ?
     LIMIT 1;
     `;
-  return dbAPI.singleOrDefault<string | null>(sql, [email], transaction);
+  return dbAPI.singleOrDefault< System | null>(sql, [email], transaction);
 };
 
 const returnPatientsForRoom = (id: number, transaction: PoolConnection ) => {
@@ -59,7 +64,7 @@ const returnPatientsForRoom = (id: number, transaction: PoolConnection ) => {
 
 const returnRomsOfAnSystemForName = (name:string, transaction: PoolConnection ) => {
     const sql = `
-    SELECT  rm.*
+    SELECT  rm.name ,rm.id
     FROM ttps_db.system sys 
     INNER JOIN ttps_db.have_a_place hp ON sys.id = hp.system_id 
     INNER JOIN ttps_db.room rm on  hp.room_id = rm.id 
@@ -68,93 +73,72 @@ const returnRomsOfAnSystemForName = (name:string, transaction: PoolConnection ) 
     `
     return dbAPI.rawQuery(sql, [name], transaction);
 }
+const returnRomsOfAnSystemForId = (id:Number, transaction: PoolConnection ) => {
+  const sql = `
+  SELECT  rm.name ,rm.id
+  FROM ttps_db.system sys 
+  INNER JOIN ttps_db.have_a_place hp ON sys.id = hp.system_id 
+  INNER JOIN ttps_db.room rm on  hp.room_id = rm.id 
+  WHERE sys.id = ?
+  ORDER BY rm.name asc
+  `
+  return dbAPI.rawQuery(sql, [id], transaction);
+}
 
 const returnSystems = (transaction: PoolConnection) => {
   const sql = `
-    SELECT  sys.name as system_name , sys.id as system_id 
+    SELECT  sys.name, sys.id 
     FROM ttps_db.system sys 
     ORDER BY sys.name asc
     `;
   return dbAPI.rawQuery(sql, [], transaction);
 };
-const returnRooms = (transaction: PoolConnection) => {
+
+
+
+const returnBedsOfAnyRoomForId = (id:Number,transaction: PoolConnection) => {
   const sql = `
-    SELECT   sys.id as system_id,rm.name as room_name ,rm.id as room_id 
-    FROM ttps_db.system sys 
-    INNER JOIN ttps_db.have_a_place hp ON sys.id = hp.system_id 
-    INNER JOIN ttps_db.room rm on  hp.room_id = rm.id
-    ORDER BY sys.name,rm.name asc
-    `;
-  return dbAPI.rawQuery(sql, [], transaction);
-};
-const returnBeds = (transaction: PoolConnection) => {
-  const sql = `
-    SELECT  rm.id as room_id , bd.name as bed_name, bd.id as bed_id 
-    FROM ttps_db.system sys 
-    INNER JOIN ttps_db.have_a_place hp ON sys.id = hp.system_id 
-    INNER JOIN ttps_db.room rm on  hp.room_id = rm.id 
+    SELECT  bd.name , bd.id 
+    FROM  ttps_db.room rm 
     INNER JOIN ttps_db.belongs bs on  rm.id = bs.room_id 
     INNER JOIN ttps_db.bed bd on  bs.bed_id = bd.id
-    ORDER BY sys.name,rm.name,bd.name asc
+    WHERE rm.id = ?
+    ORDER BY bd.name asc
     `;
-  return dbAPI.rawQuery(sql, [], transaction);
+  return dbAPI.rawQuery(sql, [id], transaction);
 };
 
-const returnBedsAndPatiens = (transaction: PoolConnection) => {
+
+const returnBedsWithoutPatientsOfAnyRoomForId = (id:Number,transaction: PoolConnection) => {
   const sql = `
-        SELECT  pt.name as patient_name,pt.last_name as patient_last_name,pt.id as patient_id, bd.name as bed_name, bd.id as bed_id, rm.id as room_id
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.have_a_place hp ON sys.id = hp.system_id 
-        INNER JOIN ttps_db.room rm on  hp.room_id = rm.id 
+    SELECT  bd.name , bd.id 
+        FROM ttps_db.room rm 
         INNER JOIN ttps_db.belongs bs on  rm.id = bs.room_id 
         INNER JOIN ttps_db.bed bd on  bs.bed_id = bd.id
-        INNER JOIN ttps_db.system_changes sc on  sc.bed_id = bd.id 
-        INNER JOIN ttps_db.internment it on  it.id = sc.internment_id 
-        INNER JOIN ttps_db.patient_admission pa on  it.id = pa.internment_id 
-        INNER JOIN ttps_db.patient pt on  pt.id = pa.patient_id
-        WHERE sc.finish = FALSE
-        ORDER BY rm.name,bed_name asc
-        `;
-  return dbAPI.rawQuery(sql, [], transaction);
-};
-const returnBedsWithoutPatients = (transaction: PoolConnection) => {
-  const sql = `
-    SELECT  bd.name as bed_name, bd.id as bed_id, rm.id as room_id
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.have_a_place hp ON sys.id = hp.system_id 
-        INNER JOIN ttps_db.room rm on  hp.room_id = rm.id 
-        INNER JOIN ttps_db.belongs bs on  rm.id = bs.room_id 
-        INNER JOIN ttps_db.bed bd on  bs.bed_id = bd.id
-        WHERE
-	(  bd.name,
-           bd.id,
-           rm.id
+        WHERE rm.id = ? AND
+	(  bd.name,bd.id
 	) NOT IN(
-
-        SELECT  bd.name, bd.id, rm.id
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.have_a_place hp ON sys.id = hp.system_id 
-        INNER JOIN ttps_db.room rm on  hp.room_id = rm.id 
+        SELECT  bd.name, bd.id
+        FROM ttps_db.room rm 
         INNER JOIN ttps_db.belongs bs on  rm.id = bs.room_id 
         INNER JOIN ttps_db.bed bd on  bs.bed_id = bd.id
         INNER JOIN ttps_db.system_changes sc on  sc.bed_id = bd.id 
         INNER JOIN ttps_db.internment it on  it.id = sc.internment_id 
         INNER JOIN ttps_db.patient_admission pa on  it.id = pa.internment_id 
         INNER JOIN ttps_db.patient pt on  pt.id = pa.patient_id
-        WHERE sc.finish = FALSE )
+        WHERE rm.id = ? AND sc.finish = FALSE )
         `
-        return dbAPI.rawQuery(sql,[],transaction);
+        return dbAPI.rawQuery(sql,[id,id],transaction);
     }
 const queries = {
     findUserByEmail,
     returnPatientsForRoom,
     returnRomsOfAnSystemForName,
+    returnRomsOfAnSystemForId,
     returnSystems,
     findSystemOfUser,
-    returnBeds,
-    returnRooms,
-    returnBedsAndPatiens,
-    returnBedsWithoutPatients,
+    returnBedsWithoutPatientsOfAnyRoomForId,
+    returnBedsOfAnyRoomForId
 };
 
 export default queries;

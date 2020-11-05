@@ -7,5 +7,6 @@ export type System = {
   rooms: Room[];
   doctors: Doctor[];
   SystemChief: Doctor;
-  system_name: string;
+  name: string;
+  id: number
 }

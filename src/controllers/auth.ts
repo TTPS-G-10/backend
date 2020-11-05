@@ -34,7 +34,7 @@ const auth = async (req: Request, res: Response) => {
     if (user.role == "DOCTOR") {
       const trx = await dbAPI.start();
       const system = await queries.findSystemOfUser(email, trx);
-      user.system = system ? system : undefined;
+      user.system = system ? system.name : undefined;
       dbAPI.commit(trx);
 
       res.json({ redirect: "/patients", user });

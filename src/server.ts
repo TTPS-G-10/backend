@@ -26,7 +26,7 @@ app.use(logOut);
 app.use(patients);
 app.use(adminsys);
 app.use(systems);
-app.set("port", process.env.PORT || 8080);
+app.set("port", process.env.PORT || 9000);
 
 // create the connection to database
 // @todo sacar estos datos de configuración por ambiente
