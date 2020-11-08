@@ -3,8 +3,7 @@ import { Request, Response } from "express";
 import { Room } from "../model/Room";
 import { User } from "../model/User";
 import queries from "../database/queries";
-import { addPatientsToRoom } from "../services/dataAggregation";
-import { System } from "../model/System";
+import { addBedsAndPatientsToRoom } from "../services/dataAggregation";
 
 const patients = async (req: Request, res: Response) => {
   /**
@@ -18,12 +17,14 @@ const patients = async (req: Request, res: Response) => {
   if (user) {
     try {
       const system = await queries.findSystemOfUser("javier@gmail.com", trx);
-      user.system = system ? system.name : undefined;
-      const rooms = await queries.returnRomsOfAnSystemForName(
-        user.system as string,
+      user.systemId = system ? system.id : undefined;
+      console.log(user.systemId);
+      
+      const rooms = await queries.returnRomsOfAnSystemForId(
+        user.systemId as number,
         trx
       );
-      const roomsWithPatients = await Promise.all(rooms.map(addPatientsToRoom));
+      const roomsWithPatients = await Promise.all(rooms.map(addBedsAndPatientsToRoom));
       res.json({ user, rooms: roomsWithPatients });
     } catch (err) {
       console.error(err);
