@@ -8,15 +8,17 @@ import { Patient } from "../model/Patient";
 import { Evolution } from "../model/Evolution";
 import systems from "../controllers/adminsys";
 
-
-
 const addSystemData = async (system: System) => {
-  system.totalBeds = system.totalBeds ? system.totalBeds :0
-  system.ocupedBeds =  system.ocupedBeds ? system.ocupedBeds: 0
-  const ocupation = (( 100/system.totalBeds)* system.ocupedBeds)
-  system.occupancy = (isNaN(ocupation)) ?  100: ((ocupation == 0) ? 0 : ocupation )
-  system.freeBeds = (system.totalBeds == 0) ? 0  : system.totalBeds - system.ocupedBeds
-   return { ...system };
+  system.totalBeds = system.totalBeds ? system.totalBeds : 0;
+  system.ocupedBeds = system.ocupedBeds ? system.ocupedBeds : 0;
+  if (system.totalBeds === 0) {
+    system.occupancy = 100;
+    system.freeBeds = 0;
+  } else {
+    system.occupancy = (100 / system.totalBeds) * system.ocupedBeds;
+    system.freeBeds = system.totalBeds - system.ocupedBeds;
+  }
+  return { ...system };
 };
 
 const addBedsAndPatientsToRoom = async (room: Room) => {
@@ -32,12 +34,12 @@ const addBedsToRoom = async (room: Room) => {
   return { ...room, beds: beds };
 };
 const addBedsWithPatientToRoom = async (room: Room) => {
-    const trx = await dbAPI.start();
-    const beds = await queries.returnBedsOfAnyRoomForId(room.id, trx);
-    const bedsWithPatients = await Promise.all(beds.map(addPatientToBed));
-    await dbAPI.commit(trx);
-    return { ...room, beds: bedsWithPatients };
-  };
+  const trx = await dbAPI.start();
+  const beds = await queries.returnBedsOfAnyRoomForId(room.id, trx);
+  const bedsWithPatients = await Promise.all(beds.map(addPatientToBed));
+  await dbAPI.commit(trx);
+  return { ...room, beds: bedsWithPatients };
+};
 
 const addPatientToBed = async (bed: Bed) => {
   const trx = await dbAPI.start();
@@ -52,17 +54,16 @@ const addPatientToBed = async (bed: Bed) => {
 };
 
 const addRoomsAndBedsToSystem = async (system: System) => {
-    addSystemData(system)
-    const trx = await dbAPI.start();
-    const rooms = await queries.returnRomsOfAnSystemForId(system.id, trx);
-    const roomsWithBeds = await Promise.all(rooms.map(addBedsToRoom));
-    await dbAPI.commit(trx);
-    return { ...system, rooms: roomsWithBeds };
-  }; 
-
+  addSystemData(system);
+  const trx = await dbAPI.start();
+  const rooms = await queries.returnRomsOfAnSystemForId(system.id, trx);
+  const roomsWithBeds = await Promise.all(rooms.map(addBedsToRoom));
+  await dbAPI.commit(trx);
+  return { ...system, rooms: roomsWithBeds };
+};
 
 const addRoomsAndBedsAndPatientsToSystem = async (system: System) => {
-  addSystemData(system)
+  addSystemData(system);
   const trx = await dbAPI.start();
   const rooms = await queries.returnRomsOfAnSystemForId(system.id, trx);
   const roomsWithBeds = await Promise.all(rooms.map(addBedsWithPatientToRoom));
@@ -70,4 +71,9 @@ const addRoomsAndBedsAndPatientsToSystem = async (system: System) => {
   return { ...system, rooms: roomsWithBeds };
 };
 
-export {addBedsAndPatientsToRoom,addBedsWithPatientToRoom,addRoomsAndBedsToSystem, addRoomsAndBedsAndPatientsToSystem };
+export {
+  addBedsAndPatientsToRoom,
+  addBedsWithPatientToRoom,
+  addRoomsAndBedsToSystem,
+  addRoomsAndBedsAndPatientsToSystem,
+};

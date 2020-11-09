@@ -48,9 +48,23 @@ const findSystemOfUser = (
 //SYSTEMAS / SALAS / CAMAS / PACIENTES
 const returnSystems = (transaction: PoolConnection) => {
   const sql = `
-    SELECT  sys.name, sys.id ,sys.ocupedBeds,sys.totalBeds
-    FROM ttps_db.system sys 
-    ORDER BY sys.name asc
+     SELECT count(case when bd.patientId is not null then 1 end) as ocupedBeds, 
+count(bd.Id) as totalBeds, sys.name,sys.id
+  FROM ttps_db.system sys 
+  INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
+  INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+  group by sys.id
+ union(
+SELECT  0  as ocupedBeds, 0 as totalBeds, sys.name,sys.id
+  FROM ttps_db.system sys 
+  WHERE (sys.id) not in
+
+( SELECT sys.id
+  FROM ttps_db.system sys 
+  INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
+  INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+)
+) 
     `;
   return dbAPI.rawQuery(sql, [], transaction);
 };
@@ -73,7 +87,7 @@ const returnBedsOfAnyRoomForId = (id: Number, transaction: PoolConnection) => {
     INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
     WHERE rm.id = ?
     ORDER BY bd.name asc
-    `
+    `;
   return dbAPI.rawQuery(sql, [id], transaction);
 };
 
@@ -88,8 +102,10 @@ const returnPatientForBed = (idBed: number, transaction: PoolConnection) => {
   return dbAPI.singleOrDefault<Patient | null>(sql, [idBed], transaction);
 };
 
-// 
-const returnBedsAnDPatientsForRoomId = (id: number, transaction: PoolConnection) => {
+const returnBedsAnDPatientsForRoomId = (
+  id: number,
+  transaction: PoolConnection
+) => {
   const sql = `
     SELECT  pt.name as patientName,pt.lastName as patientLastName,pt.id as patientId, bd.name as bedName, bd.id as bedId
     FROM ttps_db.room rm 
