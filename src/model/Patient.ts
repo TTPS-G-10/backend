@@ -3,7 +3,7 @@ import { Evolution } from "./Evolution";
 export type Patient = {
   id: number;
   name: string;
-  last_name: string;
+  lastName: string;
   dni: number;
   birthDate: Date;
   direction: string;

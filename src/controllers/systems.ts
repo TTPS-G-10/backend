@@ -4,7 +4,7 @@ import { Room } from "../model/Room";
 import { User } from "../model/User";
 import { System } from "../model/System";
 import queries from "../database/queries";
-import { addRoomsAndPatientsToSystem } from "../services/dataAggregation";
+import { addRoomsAndBedsAndPatientsToSystem } from "../services/dataAggregation";
 
 const systems = async (req: Request, res: Response) => {
   /**
@@ -19,13 +19,13 @@ const systems = async (req: Request, res: Response) => {
     try {
       const system = await queries.findSystemOfUser("javier@gmail.com", trx);
 
-      user.system = system ? system.name : undefined;
-      console.log(user.system);
+      user.systemId = system ? system.id : undefined;
+      console.log(user.systemId);
 
       const AllSystems = await queries.returnSystems(trx);
       if (AllSystems) {
         const systems = await Promise.all(
-          AllSystems.map(addRoomsAndPatientsToSystem)
+          AllSystems.map(addRoomsAndBedsAndPatientsToSystem)
         );
 
         res.json({ user, systems: systems });
