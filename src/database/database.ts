@@ -98,6 +98,21 @@ async function singleOrDefault<T>(query: string, params: any[], transaction?: Po
     const [row = null] = await rawQuery(query, params, transaction);
     return row;
 }
+async function insert(query : string, params : object, transaction: PoolConnection) : Promise<any> {
+
+    const conn = transaction || db.promise()
+    const insertQry = processInsert(query.replace(/(\r\n|\n|\r)/gm, ""), params)
+    const values =  Object.values(params)
+    
+    try {
+      const sql = conn.format(insertQry, values);
+      const idInsert = conn.execute(insertQry, values); 
+      return idInsert;
+    }catch(err){
+      console.warn(err.message);
+      throw new Error(err.message)
+    }
+  }
 
 const dbAPI = {
     generateConnection,
@@ -106,6 +121,7 @@ const dbAPI = {
     commit,
     singleOrDefault,
     rawQuery,
-    rollback
+    rollback,
+    insert
 }
 export default dbAPI;
