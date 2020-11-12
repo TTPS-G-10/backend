@@ -7,6 +7,10 @@ import { Room } from "../model/Room";
 import { Patient } from "../model/Patient";
 import { Evolution } from "../model/Evolution";
 
+type Cant = {
+  cant: Number;
+};
+
 type FindUserByEmail = (
   email: string,
   transaction: PoolConnection
@@ -69,6 +73,18 @@ SELECT  0  as ocupedBeds, 0 as totalBeds, sys.name,sys.id
   return dbAPI.rawQuery(sql, [], transaction);
 };
 
+const returnCantOfSistemsChangesOfAnySystemForId = (
+  id: Number,
+  transaction: PoolConnection
+) => {
+  const sql = `
+ SELECT count(case when sc.systemId is not null then 1 end) as cant
+  FROM ttps_db.systemChanges sc
+   WHERE sc.systemId = ?
+  `;
+  return dbAPI.singleOrDefault<Cant>(sql, [id], transaction);
+};
+
 const returnRomsOfAnSystemForId = (id: Number, transaction: PoolConnection) => {
   const sql = `
   SELECT  rm.name ,rm.id
@@ -119,6 +135,7 @@ const returnBedsAnDPatientsForRoomId = (
 
 const queries = {
   findUserByEmail,
+  returnCantOfSistemsChangesOfAnySystemForId,
   returnBedsAnDPatientsForRoomId,
   returnRomsOfAnSystemForId,
   returnSystems,
