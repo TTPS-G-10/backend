@@ -1,5 +1,5 @@
 import express from "express";
-import auth  from "./routes/auth";
+import auth from "./routes/auth";
 import logOut from "./routes/logOut";
 import patients from "./routes/patients";
 import adminsys from "./routes/adminsys";
@@ -9,6 +9,7 @@ import systems from "./routes/systems";
 import morgan from "morgan";
 import cors from "cors";
 import dbAPI from "./database/database";
+import queries from "./database/queries";
 
 const app = express();
 app.use(express.json());

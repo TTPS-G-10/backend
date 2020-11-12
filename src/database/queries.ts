@@ -133,6 +133,41 @@ const returnBedsAnDPatientsForRoomId = (
   return dbAPI.rawQuery(sql, [id], transaction);
 };
 
+const insert = async (query: string, values: object): Promise<boolean> => {
+  const trx = await dbAPI.start();
+  try {
+    const result = await dbAPI.insert(query, values, trx);
+    trx.commit();
+    return true;
+  } catch {
+    return false;
+  }
+};
+const update = async (name: string, id: string,  model: any): Promise<boolean> => {
+  const trx = await dbAPI.start();
+  try {
+    const result = await dbAPI.update(name, id, model, trx);
+    trx.commit();
+    return true;
+  } catch {
+    return false;
+  }
+};
+const remove = async (name: string, col: string, value: string): Promise<boolean> => {
+  const trx = await dbAPI.start();
+  try {
+    const result = await dbAPI.remove(name, col, value, trx);
+    trx.commit();
+    return result;
+  } catch {
+    return false;
+  }
+};
+
+// queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
+// queries.update('bed', 'id', { set: "name = 'cama_modificada_1'", id: 1 }).then((ok) => console.log('modificó bien?', ok));
+// queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
+
 const queries = {
   findUserByEmail,
   returnCantOfSistemsChangesOfAnySystemForId,
@@ -142,6 +177,9 @@ const queries = {
   findSystemOfUser,
   returnBedsOfAnyRoomForId,
   returnPatientForBed,
+  insert,
+  update,
+  remove
 };
 
 export default queries;
