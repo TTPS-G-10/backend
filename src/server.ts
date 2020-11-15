@@ -4,24 +4,20 @@ import logOut from "./routes/logOut";
 import patients from "./routes/patients";
 import adminsys from "./routes/adminsys";
 import systems from "./routes/systems";
-
-
 import morgan from "morgan";
 import cors from "cors";
 import dbAPI from "./database/database";
-import queries from "./database/queries";
+import authorization from "./middlewares/authorization";
 
 const app = express();
 app.use(express.json());
-
-// get the client
-const mysql = require("mysql2");
 
 var corsOptions = {
   origin: "http://localhost:3000",
 };
 app.use(cors(corsOptions));
 app.use(morgan("dev")); // it's a module that allows you to view http request by console
+app.use(authorization);
 app.use(auth);
 app.use(logOut);
 app.use(patients);

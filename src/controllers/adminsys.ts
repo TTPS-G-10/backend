@@ -10,8 +10,7 @@ const adminsys = async (req: Request, res: Response) => {
   
     const trx = await dbAPI.start();
     const user: User | null = await queries.findUserByEmail(
-      "javier@gmail.com",
-      trx
+      "javier@gmail.com"
     );
     if (user) {
       try {
