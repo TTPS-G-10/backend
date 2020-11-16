@@ -2,7 +2,7 @@ import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import dbAPI from "../database/database";
 import { Request, Response } from "express";
-import { User } from "../model/User";
+import { User, Role } from "../model/User";
 import * as fs from "fs";
 import * as path from "path";
 import jwt from 'jsonwebtoken';
@@ -38,10 +38,10 @@ const auth = async (req: Request, res: Response) => {
         const token = jwt.sign({ user }, { key: privateKey, passphrase: 'ttps10' }, { algorithm: 'RS256' });
         res.cookie('jwt', token, { httpOnly: true, secure: false, maxAge: 2147483647 });
         // all ok
-        if (user.role == "ADMIN") {
+        if (user.role == Role.Admin) {
           res.json({ redirect: "/adminsys", user, jwt: token });
         }
-        if (user.role == "DOCTOR") {
+        if (user.role == Role.Doctor) {
           const trx = await dbAPI.start();
           const system = await queries.findSystemOfUser(email, trx);
           user.systemId = system ? system.id : undefined;

@@ -4,6 +4,8 @@ import * as path from "path";
 import jwt from 'jsonwebtoken';
 import { User } from "../model/User";
 import MissingAuthorizationError from "../model/Errors";
+import { CustomRequest } from "../model/Request";
+
 const authorization = (req: Request, res: Response, next: NextFunction) => {
     if (req.path === '/authenticate' || req.headers['unsecure']) {
         next();
@@ -16,7 +18,8 @@ const authorization = (req: Request, res: Response, next: NextFunction) => {
             }
             const cert = fs.readFileSync(path.resolve(__dirname, "../../.certificates/public_key.pem"));  // get public key
             const { user } = jwt.verify(token, cert, { algorithms: ['RS256'] }) as { user: User, iat: number };
-            if ((user as User).role) {
+            if (user) {
+                (req as CustomRequest).user = user;
                 next();
             } else {
                 console.log(user);
