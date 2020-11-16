@@ -21,6 +21,22 @@ const addSystemData = async (system: System) => {
   return { ...system };
 };
 
+const addSystemRetirable = async (system: System) => {
+  const trx = await dbAPI.start();
+  const cant = await queries.returnCantOfSistemsChangesOfAnySystemForId(
+    system.id,
+    trx
+  );
+  console.log(cant?.cant);
+  await dbAPI.commit(trx);
+  if (cant?.cant === 0) {
+    system.retirable = true;
+  } else {
+    system.retirable = false;
+  }
+  return { ...system, retirable: system.retirable };
+};
+
 const addBedsAndPatientsToRoom = async (room: Room) => {
   const trx = await dbAPI.start();
   const patients = await queries.returnBedsAnDPatientsForRoomId(room.id, trx);
@@ -54,10 +70,12 @@ const addPatientToBed = async (bed: Bed) => {
 };
 
 const addRoomsAndBedsToSystem = async (system: System) => {
-  addSystemData(system);
+  await addSystemData(system);
+  await addSystemRetirable(system);
   const trx = await dbAPI.start();
   const rooms = await queries.returnRomsOfAnSystemForId(system.id, trx);
   const roomsWithBeds = await Promise.all(rooms.map(addBedsToRoom));
+
   await dbAPI.commit(trx);
   return { ...system, rooms: roomsWithBeds };
 };

@@ -7,6 +7,10 @@ import { Room } from "../model/Room";
 import { Patient } from "../model/Patient";
 import { Evolution } from "../model/Evolution";
 
+type Cant = {
+  cant: Number;
+};
+
 type FindUserByEmail = (
   email: string,
   transaction: PoolConnection
@@ -89,6 +93,18 @@ SELECT  0  as ocupedBeds, 0 as totalBeds, sys.name,sys.id
   return dbAPI.rawQuery(sql, [], transaction);
 };
 
+const returnCantOfSistemsChangesOfAnySystemForId = (
+  id: Number,
+  transaction: PoolConnection
+) => {
+  const sql = `
+ SELECT count(case when sc.systemId is not null then 1 end) as cant
+  FROM ttps_db.systemChanges sc
+   WHERE sc.systemId = ?
+  `;
+  return dbAPI.singleOrDefault<Cant>(sql, [id], transaction);
+};
+
 const returnRomsOfAnSystemForId = (id: Number, transaction: PoolConnection) => {
   const sql = `
   SELECT  rm.name ,rm.id
@@ -137,8 +153,44 @@ const returnBedsAnDPatientsForRoomId = (
   return dbAPI.rawQuery(sql, [id], transaction);
 };
 
+const insert = async (query: string, values: object): Promise<boolean> => {
+  const trx = await dbAPI.start();
+  try {
+    const result = await dbAPI.insert(query, values, trx);
+    trx.commit();
+    return true;
+  } catch {
+    return false;
+  }
+};
+const update = async (name: string, id: string,  model: any): Promise<boolean> => {
+  const trx = await dbAPI.start();
+  try {
+    const result = await dbAPI.update(name, id, model, trx);
+    trx.commit();
+    return true;
+  } catch {
+    return false;
+  }
+};
+const remove = async (name: string, col: string, value: string): Promise<boolean> => {
+  const trx = await dbAPI.start();
+  try {
+    const result = await dbAPI.remove(name, col, value, trx);
+    trx.commit();
+    return result;
+  } catch {
+    return false;
+  }
+};
+
+// queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
+// queries.update('bed', 'id', { set: "name = 'cama_modificada_1'", id: 1 }).then((ok) => console.log('modificó bien?', ok));
+// queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
+
 const queries = {
   findUserByEmail,
+  returnCantOfSistemsChangesOfAnySystemForId,
   returnBedsAnDPatientsForRoomId,
   returnRomsOfAnSystemForId,
   returnSystems,
@@ -146,6 +198,9 @@ const queries = {
   findPatientByDNI,
   returnBedsOfAnyRoomForId,
   returnPatientForBed,
+  insert,
+  update,
+  remove
 };
 
 export default queries;

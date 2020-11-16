@@ -10,6 +10,7 @@ import validatePatient from "./routes/validatePatient";
 import morgan from "morgan";
 import cors from "cors";
 import dbAPI from "./database/database";
+import queries from "./database/queries";
 
 const app = express();
 app.use(express.json());
