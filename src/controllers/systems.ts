@@ -5,18 +5,17 @@ import { User } from "../model/User";
 import { System } from "../model/System";
 import queries from "../database/queries";
 import { addRoomsAndBedsAndPatientsToSystem } from "../services/dataAggregation";
+import { CustomRequest } from "../model/Request";
 
 const systems = async (req: Request, res: Response) => {
   /**
    * read JWT to find user kind
    */
   const trx = await dbAPI.start();
-  const user: User | null = await queries.findUserByEmail(
-    "javier@gmail.com"
-  );
+  const user: User = (req as CustomRequest).user;
   if (user) {
     try {
-      const system = await queries.findSystemOfUser("javier@gmail.com", trx);
+      const system = await queries.findSystemOfUser(user.email, trx);
 
       user.systemId = system ? system.id : undefined;
       console.log(user.systemId);
