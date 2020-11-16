@@ -14,7 +14,7 @@ const authorization = (req: Request, res: Response, next: NextFunction) => {
             if (!token) {
                 throw new MissingAuthorizationError(token);
             }
-            const cert = fs.readFileSync(path.resolve(__dirname, "../../public_key.pem"));  // get public key
+            const cert = fs.readFileSync(path.resolve(__dirname, "../../.certificates/public_key.pem"));  // get public key
             const { user } = jwt.verify(token, cert, { algorithms: ['RS256'] }) as { user: User, iat: number };
             if ((user as User).role) {
                 next();

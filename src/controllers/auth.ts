@@ -34,9 +34,9 @@ const auth = async (req: Request, res: Response) => {
       if (!validatePassword) {
         res.sendStatus(401);
       } else {
-        const privateKey = fs.readFileSync(path.resolve(__dirname, "../../private_key.pem"));
+        const privateKey = fs.readFileSync(path.resolve(__dirname, "../../.certificates/private_key.pem"));
         const token = jwt.sign({ user }, { key: privateKey, passphrase: 'ttps10' }, { algorithm: 'RS256' });
-        res.cookie('jwt', token, { httpOnly: true, secure: true, maxAge: 2147483647 });
+        res.cookie('jwt', token, { httpOnly: true, secure: false, maxAge: 2147483647 });
         // all ok
         if (user.role == "ADMIN") {
           res.json({ redirect: "/adminsys", user, jwt: token });

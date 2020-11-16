@@ -9,13 +9,23 @@ import cors from "cors";
 import dbAPI from "./database/database";
 import authorization from "./middlewares/authorization";
 import cookieParser from 'cookie-parser';
+import fs from 'fs';
+import https from 'https';
+
+const key = fs.readFileSync(__dirname + '/../.certificates/localhost.key');
+const cert = fs.readFileSync(__dirname + '/../.certificates/localhost.crt');
+const options = {
+  key: key,
+  cert: cert
+};
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
 var corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "https://localhost:3000",
+  credentials: true
 };
 app.use(cors(corsOptions));
 app.use(morgan("dev")); // it's a module that allows you to view http request by console
@@ -37,7 +47,9 @@ dbAPI.generateConnection({
   port: 3306,
 });
 
-app.listen(app.get("port"), () => {
+var server = https.createServer(options, app);
+
+server.listen(app.get("port"), () => {
   console.log("Server on port: ", app.get("port"));
 });
 
