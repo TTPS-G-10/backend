@@ -8,9 +8,11 @@ import morgan from "morgan";
 import cors from "cors";
 import dbAPI from "./database/database";
 import authorization from "./middlewares/authorization";
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 var corsOptions = {
   origin: "http://localhost:3000",

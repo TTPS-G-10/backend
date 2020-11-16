@@ -9,14 +9,19 @@ const authorization = (req: Request, res: Response, next: NextFunction) => {
         next();
     } else {
         try {
-            const token = req.headers.authorization?.split(' ')[1] || '';
+            // search jwt by header or cookie
+            const token = req.headers.authorization?.split(' ')[1] || req.cookies.jwt;
             if (!token) {
                 throw new MissingAuthorizationError(token);
             }
-            console.log('token', token === '');
             const cert = fs.readFileSync(path.resolve(__dirname, "../../public_key.pem"));  // get public key
-            const user: User = jwt.verify(token, cert, { algorithms: ['RS256'] }) as User;
-            if ((user as User).role) { next(); } // dejo pasar a todos ahora. De acá en más hay que poner lógica de authorización acá.
+            const { user } = jwt.verify(token, cert, { algorithms: ['RS256'] }) as { user: User, iat: number };
+            if ((user as User).role) {
+                next();
+            } else {
+                console.log(user);
+                res.sendStatus(401);
+            }
         }
         catch (error) {
             if (error.hasOwnProperty('token')) {

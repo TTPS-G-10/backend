@@ -10,7 +10,6 @@ import jwt from 'jsonwebtoken';
 
 const auth = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  console.log(req.body);
 
   //corroborate errors
   /*   const errors = validationResult(req);
@@ -31,7 +30,7 @@ const auth = async (req: Request, res: Response) => {
     } else {
       const privateKey = fs.readFileSync(path.resolve(__dirname, "../../private_key.pem"));
       const token = jwt.sign({ user }, { key: privateKey, passphrase: 'ttps10' }, { algorithm: 'RS256' });
-
+      res.cookie('jwt', token, { httpOnly: true, secure: true, maxAge: 2147483647 });
       // all ok
       if (user.role == "ADMIN") {
         res.json({ redirect: "/adminsys", user, jwt: token });
