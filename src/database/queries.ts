@@ -11,28 +11,24 @@ type Cant = {
   cant: Number;
 };
 
-type FindUserByEmail = (
-  email: string,
-  transaction: PoolConnection
-) => Promise<User | null>;
-
 //tiene que existir una mejor manera de hacer esto
 type FindSystemByEmail = (
   system: string,
   transaction: PoolConnection
 ) => Promise<string | null>;
 
-const findUserByEmail: FindUserByEmail = async (
-  email: string,
-  transaction: PoolConnection
+const findUserByEmail = async (
+  email: string
 ): Promise<User | null> => {
+  const trx = await dbAPI.start();
   const sql = `
-    SELECT user.name, user.lastName, user.role
+    SELECT *
     FROM ttps_db.user user
     WHERE email = ?
     LIMIT 1;
     `;
-  return await dbAPI.singleOrDefault<User | null>(sql, [email], transaction);
+  await trx.commit();
+  return await dbAPI.singleOrDefault<User | null>(sql, [email], trx);
 };
 
 const findSystemOfUser = (
