@@ -32,7 +32,7 @@ const auth = async (req: Request, res: Response) => {
       // we know md5 isn't best way to do this, we let this way for convenience  
       const validatePassword = md5(password) === user.password;
       if (!validatePassword) {
-        res.sendStatus(401);
+        res.sendStatus(403);
       } else {
         const privateKey = fs.readFileSync(path.resolve(__dirname, "../../.certificates/private_key.pem"));
         const token = jwt.sign({ user }, { key: privateKey, passphrase: 'ttps10' }, { algorithm: 'RS256' });
