@@ -163,7 +163,27 @@ const insert = async (query: string, values: object): Promise<boolean> => {
     return false;
   }
 };
-const update = async (name: string, id: string,  model: any): Promise<boolean> => {
+const insertPatient = async (query: string, values: object): Promise<any> => {
+  const trx = await dbAPI.start();
+  const result = await dbAPI.insert(query, values, trx);
+  trx.commit();
+  return result;
+};
+
+const insertContactPerson = async (
+  query: string,
+  values: object
+): Promise<any> => {
+  const trx = await dbAPI.start();
+  const result = await dbAPI.insert(query, values, trx);
+  trx.commit();
+  return result;
+};
+const update = async (
+  name: string,
+  id: string,
+  model: any
+): Promise<boolean> => {
   const trx = await dbAPI.start();
   try {
     const result = await dbAPI.update(name, id, model, trx);
@@ -173,7 +193,11 @@ const update = async (name: string, id: string,  model: any): Promise<boolean> =
     return false;
   }
 };
-const remove = async (name: string, col: string, value: string): Promise<boolean> => {
+const remove = async (
+  name: string,
+  col: string,
+  value: string
+): Promise<boolean> => {
   const trx = await dbAPI.start();
   try {
     const result = await dbAPI.remove(name, col, value, trx);
@@ -199,8 +223,10 @@ const queries = {
   returnBedsOfAnyRoomForId,
   returnPatientForBed,
   insert,
+  insertPatient,
+  insertContactPerson,
   update,
-  remove
+  remove,
 };
 
 export default queries;
