@@ -22,7 +22,7 @@ const findUserByEmail = async (
 ): Promise<User | null> => {
   const trx = await dbAPI.start();
   const sql = `
-    SELECT user.name, user.lastName, user.role
+    SELECT *
     FROM ttps_db.user user
     WHERE email = ?
     LIMIT 1;
