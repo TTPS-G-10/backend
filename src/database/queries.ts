@@ -12,11 +12,18 @@ type FindUserByEmail = (
   transaction: PoolConnection
 ) => Promise<User | null>;
 
-//tiene que existir una mejor manera de hacer esto
-type FindSystemByEmail = (
-  system: string,
+type FindPatientByDNI = (
+  name: string,
+  lastName: string,
+  dni: number,
+  birthDate: Date,
+  direction: string,
+  phone: string,
+  email: string,
+  socialSecurity: string,
+  backgroundClinical: string,
   transaction: PoolConnection
-) => Promise<string | null>;
+) => Promise<Patient | null>;
 
 const findUserByEmail: FindUserByEmail = async (
   email: string,
@@ -29,6 +36,19 @@ const findUserByEmail: FindUserByEmail = async (
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<User | null>(sql, [email], transaction);
+};
+
+const findPatientByDNI = async (
+  dni: number,
+  transaction: PoolConnection
+): Promise<Patient | null> => {
+  const sql = `
+    SELECT *
+    FROM ttps_db.patient
+    WHERE dni =	?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<Patient | null>(sql, [dni], transaction);
 };
 
 const findSystemOfUser = (
@@ -123,6 +143,7 @@ const queries = {
   returnRomsOfAnSystemForId,
   returnSystems,
   findSystemOfUser,
+  findPatientByDNI,
   returnBedsOfAnyRoomForId,
   returnPatientForBed,
 };

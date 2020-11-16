@@ -1,10 +1,11 @@
 import express from "express";
-import auth  from "./routes/auth";
+import auth from "./routes/auth";
 import logOut from "./routes/logOut";
 import patients from "./routes/patients";
 import adminsys from "./routes/adminsys";
 import systems from "./routes/systems";
-
+import addPattient from "./routes/addPattient";
+import validatePatient from "./routes/validatePatient";
 
 import morgan from "morgan";
 import cors from "cors";
@@ -26,6 +27,8 @@ app.use(logOut);
 app.use(patients);
 app.use(adminsys);
 app.use(systems);
+app.use(addPattient);
+app.use(validatePatient);
 app.set("port", process.env.PORT || 9000);
 
 // create the connection to database
