@@ -12,6 +12,25 @@ const validatePatient = async (req: Request, res: Response) => {
   }
   console.log("me llega del front");
   console.log(req.body);
+  const contactPerson = {
+    name: req.body.contactPerson_name,
+    lastName: req.body.contactPerson_lastName,
+    relationship: req.body.contactPerson_relationship,
+    phone: req.body.contactPerson_phone,
+  };
+  const data = {
+    id: null,
+    name: req.body.name,
+    lastName: req.body.lastName,
+    dni: req.body.dni,
+    birthDate: req.body.birthDate.slice(0, 10),
+    direction: req.body.direction,
+    phone: req.body.phone,
+    email: req.body.email,
+    socialSecurity: req.body.socialSecurity,
+    backgroundClinical: req.body.background_clinical,
+    contactPerson: contactPerson,
+  };
   //guardarlo en la DB el paciente;
   queries
     .insertPatient("INSERT INTO `patient`", {
@@ -38,8 +57,12 @@ const validatePatient = async (req: Request, res: Response) => {
           patientId: idPatient,
         })
         .then((okey) => {
-          //return res.json({ redirect: "/patient/id", data: {} });
+          data.id = idPatient;
           console.log("se inserto la persona de contacto:", okey);
+          return res.json({
+            redirect: "/patient/" + idPatient,
+            data: data,
+          });
         })
         .catch(() => {
           console.log("no se inserto persona de contacto:");

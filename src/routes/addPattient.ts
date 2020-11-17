@@ -1,4 +1,4 @@
-import addPattient from "../controllers/addPatients";
+import searchPattient from "../controllers/searchPatient";
 import Router from "express";
 import { check } from "express-validator";
 const router = Router();
@@ -12,7 +12,7 @@ router.post(
       min: 6,
     }),
   ],
-  addPattient
+  searchPattient
 );
 
 export default router;

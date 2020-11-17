@@ -6,6 +6,7 @@ import { Bed } from "../model/Bed";
 import { Room } from "../model/Room";
 import { Patient } from "../model/Patient";
 import { Evolution } from "../model/Evolution";
+import { ContactPerson } from "../model/ContactPerson";
 
 type Cant = {
   cant: Number;
@@ -53,6 +54,23 @@ const findPatientByDNI = async (
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<Patient | null>(sql, [dni], transaction);
+};
+
+const findContactPersonByPatientID = async (
+  idPatient: number,
+  transaction: PoolConnection
+): Promise<ContactPerson | null> => {
+  const sql = `
+    SELECT *
+    FROM ttps_db.contactPerson
+    WHERE patientID =	?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<ContactPerson | null>(
+    sql,
+    [idPatient],
+    transaction
+  );
 };
 
 const findSystemOfUser = (
@@ -220,6 +238,7 @@ const queries = {
   returnSystems,
   findSystemOfUser,
   findPatientByDNI,
+  findContactPersonByPatientID,
   returnBedsOfAnyRoomForId,
   returnPatientForBed,
   insert,
