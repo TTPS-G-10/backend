@@ -33,6 +33,7 @@ const auth = async (req: Request, res: Response) => {
       if (!validatePassword) {
         res.sendStatus(403);
       } else {
+        delete user.password;
         const privateKey = fs.readFileSync(
           path.resolve(__dirname, "../../.certificates/private_key.pem")
         );
