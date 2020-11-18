@@ -5,13 +5,11 @@ import { User } from "../model/User";
 import { System } from "../model/System";
 import queries from "../database/queries";
 import { addRoomsAndBedsToSystem } from "../services/dataAggregation";
+import { CustomRequest } from "../model/Request";
 
 const adminsys = async (req: Request, res: Response) => {
   const trx = await dbAPI.start();
-  const user: User | null = await queries.findUserByEmail(
-    "javier@gmail.com",
-    trx
-  );
+  const user: User = (req as CustomRequest).user;
   if (user) {
     try {
       const AllSystems = await queries.returnSystems(trx);
