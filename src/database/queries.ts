@@ -30,17 +30,21 @@ type FindPatientByDNI = (
   transaction: PoolConnection
 ) => Promise<Patient | null>;
 
-const findUserByEmail: FindUserByEmail = async (
-  email: string,
+type FindSystemByEmail = (
+  system: string,
   transaction: PoolConnection
-): Promise<User | null> => {
+) => Promise<Patient | null>;
+
+const findUserByEmail = async (email: string): Promise<User | null> => {
+  const trx = await dbAPI.start();
   const sql = `
-    SELECT user.name, user.lastName, user.role
+    SELECT *
     FROM ttps_db.user user
     WHERE email = ?
     LIMIT 1;
     `;
-  return await dbAPI.singleOrDefault<User | null>(sql, [email], transaction);
+  await trx.commit();
+  return await dbAPI.singleOrDefault<User | null>(sql, [email], trx);
 };
 
 const findPatientByDNI = async (
@@ -56,6 +60,18 @@ const findPatientByDNI = async (
   return await dbAPI.singleOrDefault<Patient | null>(sql, [dni], transaction);
 };
 
+const findPatientByID = async (
+  id: number,
+  transaction: PoolConnection
+): Promise<Patient | null> => {
+  const sql = `
+    SELECT *
+    FROM ttps_db.patient
+    WHERE id =	?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<Patient | null>(sql, [id], transaction);
+};
 const findContactPersonByPatientID = async (
   idPatient: number,
   transaction: PoolConnection
@@ -238,6 +254,7 @@ const queries = {
   returnSystems,
   findSystemOfUser,
   findPatientByDNI,
+  findPatientByID,
   findContactPersonByPatientID,
   returnBedsOfAnyRoomForId,
   returnPatientForBed,
