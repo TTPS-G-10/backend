@@ -15,11 +15,6 @@ const systems = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
   if (user) {
     try {
-      const system = await queries.findSystemOfUser(user.email, trx);
-
-      user.systemId = system ? system.id : undefined;
-      console.log(user.systemId);
-
       const AllSystems = await queries.returnSystems(trx);
       if (AllSystems) {
         const systems = await Promise.all(

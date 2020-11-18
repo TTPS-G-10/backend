@@ -12,11 +12,6 @@ const adminsys = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
   if (user) {
     try {
-      const system = await queries.findSystemOfUser(user.email, trx);
-
-      user.systemId = system ? system.id : undefined;
-      console.log(user.systemId);
-
       const AllSystems = await queries.returnSystems(trx);
       if (AllSystems) {
         const systems = await Promise.all(
@@ -31,6 +26,8 @@ const adminsys = async (req: Request, res: Response) => {
       console.error(err);
       res.status(500);
     }
+  } else {
+    res.status(404);
   }
   dbAPI.commit(trx);
 };

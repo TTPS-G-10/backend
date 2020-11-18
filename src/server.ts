@@ -7,6 +7,9 @@ import systems from "./routes/systems";
 import searchPatient from "./routes/searchPatient";
 import validatePatient from "./routes/validatePatient";
 import infoPatient from "./routes/infoPatient";
+import bed from "./routes/bed";
+import room from "./routes/room";
+import system from "./routes/system";
 
 import morgan from "morgan";
 import cors from "cors";
@@ -42,6 +45,10 @@ app.use(adminsys);
 app.use(systems);
 app.use(searchPatient);
 app.use(validatePatient);
+app.use(bed);
+app.use(room);
+app.use(system);
+
 app.set("port", process.env.PORT || 9000);
 
 // create the connection to database

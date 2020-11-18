@@ -27,7 +27,6 @@ const addSystemRetirable = async (system: System) => {
     system.id,
     trx
   );
-  console.log(cant?.cant);
   await dbAPI.commit(trx);
   if (cant?.cant === 0) {
     system.retirable = true;

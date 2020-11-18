@@ -7,22 +7,11 @@ import * as fs from "fs";
 import * as path from "path";
 import jwt from "jsonwebtoken";
 import md5 from "md5";
+import { Path } from "../model/Paths";
 
 const auth = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
-  //corroborate errors
-  /*   const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      console.log(errors);
-      return res.status(400).send("Email o Contraseña incorrecta");
-    } */
   try {
-    /**
-     * call DB lookup for user
-     *  if succeed -> 200 and redirect page
-     *  if failure -> 403 FORBIDDEN
-     */
     const user: User | null = await queries.findUserByEmail(email);
 
     if (!user) {
@@ -33,6 +22,7 @@ const auth = async (req: Request, res: Response) => {
       if (!validatePassword) {
         res.sendStatus(403);
       } else {
+        delete user.password;
         const privateKey = fs.readFileSync(
           path.resolve(__dirname, "../../.certificates/private_key.pem")
         );
@@ -43,19 +33,28 @@ const auth = async (req: Request, res: Response) => {
         );
         res.cookie("jwt", token, {
           httpOnly: true,
-          secure: false,
+          secure: true,
           maxAge: 2147483647,
         });
         // all ok
         if (user.role == Role.Admin) {
-          res.json({ redirect: "/adminsys", user, jwt: token });
+          res.json({ redirect: Path.ADMINSYS, user, jwt: token });
         }
         if (user.role == Role.Doctor) {
           const trx = await dbAPI.start();
           const system = await queries.findSystemOfUser(email, trx);
           user.systemId = system ? system.id : undefined;
+          user.systemName = system ? system.name : undefined;
           dbAPI.commit(trx);
-          res.json({ redirect: "/patients", user, jwt: token });
+          res.json({ redirect: Path.PATIENTS, user, jwt: token });
+        }
+        if (user.role == Role.SystemChief) {
+          const trx = await dbAPI.start();
+          const system = await queries.findSystemOfUser(email, trx);
+          user.systemId = system ? system.id : undefined;
+          user.systemName = system ? system.name : undefined;
+          dbAPI.commit(trx);
+          res.json({ redirect: Path.SYSTEMS, user, jwt: token });
         }
       }
     }

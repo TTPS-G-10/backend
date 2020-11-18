@@ -107,13 +107,13 @@ const findSystemOfUser = (
 const returnSystems = (transaction: PoolConnection) => {
   const sql = `
      SELECT count(case when bd.patientId is not null then 1 end) as ocupedBeds, 
-count(bd.Id) as totalBeds, sys.name,sys.id
+count(bd.Id) as totalBeds, sys.name,sys.id,sys.infinitBeds
   FROM ttps_db.system sys 
   INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
   INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
   group by sys.id
  union(
-SELECT  0  as ocupedBeds, 0 as totalBeds, sys.name,sys.id
+SELECT  0  as ocupedBeds, 0 as totalBeds, sys.name,sys.id,sys.infinitBeds
   FROM ttps_db.system sys 
   WHERE (sys.id) not in
 
@@ -243,7 +243,15 @@ const remove = async (
 };
 
 // queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
-// queries.update('bed', 'id', { set: "name = 'cama_modificada_1'", id: 1 }).then((ok) => console.log('modificó bien?', ok));
+
+// update con systemId y nombre
+// queries
+//      .update("`system`", "id", {
+//      set: "name = '" + nombre + "'",
+//    id: systemId,
+//})
+
+//queries.update('bed', 'id', { set: "name = 'cama_modificada_1'", id: 1 }).then((ok) => console.log('modificó bien?', ok));
 // queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
 
 const queries = {

@@ -1,7 +1,7 @@
 import { Room } from "./Room";
 import { Doctor } from "./Doctor";
 export type System = {
-  infinitBed: boolean;
+  infinitBeds: boolean;
   totalBeds: number;
   ocupedBeds: number;
   freeBeds: number;
