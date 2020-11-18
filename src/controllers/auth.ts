@@ -10,19 +10,7 @@ import md5 from "md5";
 
 const auth = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
-  //corroborate errors
-  /*   const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      console.log(errors);
-      return res.status(400).send("Email o Contraseña incorrecta");
-    } */
   try {
-    /**
-     * call DB lookup for user
-     *  if succeed -> 200 and redirect page
-     *  if failure -> 403 FORBIDDEN
-     */
     const user: User | null = await queries.findUserByEmail(email);
 
     if (!user) {
@@ -44,7 +32,7 @@ const auth = async (req: Request, res: Response) => {
         );
         res.cookie("jwt", token, {
           httpOnly: true,
-          secure: false,
+          secure: true,
           maxAge: 2147483647,
         });
         // all ok
