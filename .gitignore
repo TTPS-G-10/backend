@@ -1,4 +1,8 @@
 /node_modules
 /build
+<<<<<<< HEAD
 ./certificates
 
+=======
+/.certificates
+>>>>>>> 1d475c9d021a1997e654d4a588c4b24086b56f59
