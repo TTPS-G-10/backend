@@ -1,6 +1,7 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
+import { Path } from "../model/Paths";
 
 const editStructure = async (req: Request, res: Response) => {
   const { nombre, bedId } = req.body;
@@ -20,7 +21,7 @@ const editStructure = async (req: Request, res: Response) => {
       })
       .then((ok) => console.log("modificó bien?", ok));
 
-    res.json({ redirect: "/adminsys" });
+    res.json({ redirect: Path.ADMINSYS });
   } catch (error) {
     return res.status(400);
   }

@@ -1,6 +1,7 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
+import { Path } from "../model/Paths";
 
 const newStructure = async (req: Request, res: Response) => {
   const { nombre, roomId } = req.body;
@@ -20,7 +21,7 @@ const newStructure = async (req: Request, res: Response) => {
       })
       .then((ok) => console.log("insertó cama?", ok));
 
-    res.json({ redirect: "/adminsys" });
+    res.json({ redirect: Path.ADMINSYS });
   } catch (error) {
     return res.status(400);
   }

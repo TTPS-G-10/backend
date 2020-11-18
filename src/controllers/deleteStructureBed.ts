@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import dbAPI from "../database/database";
 import { Request, Response } from "express";
+import { Path } from "../model/Paths";
 
 const deleteStructure = async (req: Request, res: Response) => {
   const { bedId } = req.body;
@@ -23,7 +24,7 @@ const deleteStructure = async (req: Request, res: Response) => {
         .remove("bed", "id", bedId)
         .then((ok) => console.log("borró bien?", ok));
     }
-    res.json({ redirect: "/adminsys" });
+    res.json({ redirect: Path.ADMINSYS });
   } catch (error) {
     return res.status(400);
   }
