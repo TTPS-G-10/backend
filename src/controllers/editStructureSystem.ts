@@ -1,7 +1,7 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
-
+import dbAPI from "../database/database";
 const editStructure = async (req: Request, res: Response) => {
   const { key, value, systemId } = req.body;
   console.log(key, value, systemId);
@@ -13,14 +13,24 @@ const editStructure = async (req: Request, res: Response) => {
     return res.status(400).send("Email o Contraseña incorrecta");
   }
   try {
-    queries
-      .update("`system`", "id", {
-        set: key + " = '" + value + "'",
-        id: systemId,
-      })
-      .then((ok) => console.log("modificó bien?", ok));
+    const trx = await dbAPI.start();
 
-    res.json({ redirect: "/adminsys" });
+    const sistemChanges = await queries.returnCantOfSistemsChangesOfAnySystemForId(
+      systemId,
+      trx
+    );
+    dbAPI.commit(trx);
+    const sc = sistemChanges ? sistemChanges : 0;
+    if (sc === 0) {
+      queries
+        .update("`system`", "id", {
+          set: key + " = '" + value + "'",
+          id: systemId,
+        })
+        .then((ok) => console.log("modificó bien?", ok));
+
+      res.json({ redirect: "/adminsys" });
+    }
   } catch (error) {
     return res.status(400);
   }
