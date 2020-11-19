@@ -13,7 +13,7 @@ const deleteStructure = async (req: Request, res: Response) => {
   console.log(errors);
 
   if (!errors.isEmpty()) {
-    return res.status(400).send("Email o Contraseña incorrecta");
+    return res.status(400);
   }
   try {
     const trx = await dbAPI.start();

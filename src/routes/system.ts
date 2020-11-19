@@ -41,8 +41,8 @@ router.put(
   path,
   checkPermissionByRole,
   [
-    check("value", "El valor es obligatorio").not().isEmpty(),
-    check("key", "El identificador es obligatorio").not().isEmpty(),
+    check("nombre", "El valor es obligatorio").not().isEmpty(),
+    check("clave", "El identificador es obligatorio").not().isEmpty(),
     check("systemId", "El id del systema es obligatorio").not().isEmpty(),
   ],
   editStructureSystem
