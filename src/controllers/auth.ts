@@ -15,7 +15,7 @@ const auth = async (req: Request, res: Response) => {
     const user: User | null = await queries.findUserByEmail(email);
 
     if (!user) {
-      return res.status(403).send({ error: "Usuario no registrado" });
+      return res.sendStatus(403).send({ error: "Usuario no registrado" });
     } else {
       // we know md5 isn't best way to do this, we let this way for convenience
       const validatePassword = md5(password) === user.password;

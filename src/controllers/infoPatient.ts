@@ -14,7 +14,7 @@ const infoPatient = async (req: Request, res: Response) => {
     const id: number = parseInt(idString, 10);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400);
+      return res.sendStatus(400);
     }
     try {
       const trx = await dbAPI.start();
@@ -24,7 +24,8 @@ const infoPatient = async (req: Request, res: Response) => {
       );
       await dbAPI.commit(trx);
       if (!patient) {
-        return res.status(404);
+        console.log("no se encontro el paciente");
+        return res.sendStatus(404);
       }
       const contact:
         | ContactPerson
@@ -38,10 +39,11 @@ const infoPatient = async (req: Request, res: Response) => {
       const data = { ...patient, contactPerson: contactPerson };
       return res.json(data);
     } catch (error) {
-      return res.status(500);
+      console.log("DNI no existente");
+      return res.sendStatus(500);
     }
   } else {
-    res.status(404);
+    res.sendStatus(404);
   }
 };
 export default infoPatient;

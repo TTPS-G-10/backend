@@ -24,10 +24,10 @@ const adminsys = async (req: Request, res: Response) => {
       }
     } catch (err) {
       console.error(err);
-      res.status(500);
+      res.sendStatus(500);
     }
   } else {
-    res.status(404);
+    res.sendStatus(404);
   }
   dbAPI.commit(trx);
 };

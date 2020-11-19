@@ -1,4 +1,4 @@
-import searchPattient from "../controllers/searchPatient";
+import searchPatient from "../controllers/searchPatient";
 import createPatient from "../controllers/createPatient";
 import infoPatient from "../controllers/infoPatient";
 import { check } from "express-validator";
@@ -27,11 +27,8 @@ router.post(
   [
     check("dni", "El DNI es obligatorio").not().isEmpty(),
     check("dni", "El DNI tiene que ser un numero").isNumeric(),
-    check("dni", "El DNI tiene que tener minimo 6 digitos").isLength({
-      min: 6,
-    }),
   ],
-  searchPattient
+  searchPatient
 );
 
 router.get(

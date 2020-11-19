@@ -11,7 +11,7 @@ const validatePatient = async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log("ERRORES DEL FORMULARIO PARA AGREGAR UN PACIENTE:", errors);
-      return res.status(400);
+      return res.sendStatus(400);
     }
     queries
       .insertPatient("INSERT INTO `patient`", {
@@ -44,20 +44,20 @@ const validatePatient = async (req: Request, res: Response) => {
             console.log(
               "no se inserto persona de contacto:  Algo salio mal al ingregar la persona de contacto.Datos del paciente cargados en el sistema, pero no los de las personas de contacto "
             );
-            return res.status(500);
+            return res.sendStatus(500);
           });
       })
       .catch(() => {
         console.log(
           "no se inserto el paciente:Algo salio mal al ingresar el paciente. No se pudo ingresar sus datos al sistema"
         );
-        return res.status(500);
+        return res.sendStatus(500);
       });
   } else {
     console.log(
       "no se inserto el paciente:Algo salio mal al ingresar el paciente. No se pudo ingresar sus datos al sistema"
     );
-    res.status(404);
+    res.sendStatus(404);
   }
 };
 export default validatePatient;

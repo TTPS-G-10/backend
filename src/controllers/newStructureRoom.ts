@@ -11,7 +11,7 @@ const newStructure = async (req: Request, res: Response) => {
   console.log(errors);
 
   if (!errors.isEmpty()) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
   try {
     queries
@@ -23,7 +23,7 @@ const newStructure = async (req: Request, res: Response) => {
 
     res.json({ redirect: Path.ADMINSYS });
   } catch (error) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
 };
 export default newStructure;
