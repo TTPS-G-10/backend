@@ -4,12 +4,10 @@ import logOut from "./routes/logOut";
 import patients from "./routes/patients";
 import adminsys from "./routes/adminsys";
 import systems from "./routes/systems";
-import searchPatient from "./routes/searchPatient";
-import validatePatient from "./routes/validatePatient";
-import infoPatient from "./routes/infoPatient";
 import bed from "./routes/bed";
 import room from "./routes/room";
 import system from "./routes/system";
+import patient from "./routes/patient";
 
 import morgan from "morgan";
 import cors from "cors";
@@ -39,12 +37,10 @@ app.use(morgan("dev")); // it's a module that allows you to view http request by
 app.use(authorization);
 app.use(auth);
 app.use(logOut);
-app.use(infoPatient);
 app.use(patients);
 app.use(adminsys);
 app.use(systems);
-app.use(searchPatient);
-app.use(validatePatient);
+app.use(patient);
 app.use(bed);
 app.use(room);
 app.use(system);

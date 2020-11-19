@@ -1,8 +1,11 @@
-import validatePatient from "../controllers/validatePatient";
+import searchPattient from "../controllers/searchPatient";
+import createPatient from "../controllers/createPatient";
+import infoPatient from "../controllers/infoPatient";
 import { check } from "express-validator";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
 import Router, { Response, NextFunction, Request } from "express";
+
 const router = Router();
 
 const checkPermissionByRole = (
@@ -10,7 +13,7 @@ const checkPermissionByRole = (
   res: Response,
   next: NextFunction
 ) => {
-  const allowedRoles = [Role.Doctor, Role.Doctor];
+  const allowedRoles = [Role.Doctor, Role.SystemChief];
   if (allowedRoles.includes((req as CustomRequest).user.role)) {
     next();
   } else {
@@ -19,7 +22,27 @@ const checkPermissionByRole = (
 };
 
 router.post(
-  "/validatePatient",
+  "/patient",
+  checkPermissionByRole,
+  [
+    check("dni", "El DNI es obligatorio").not().isEmpty(),
+    check("dni", "El DNI tiene que ser un numero").isNumeric(),
+    check("dni", "El DNI tiene que tener minimo 6 digitos").isLength({
+      min: 6,
+    }),
+  ],
+  searchPattient
+);
+
+router.get(
+  "/patient",
+  checkPermissionByRole,
+  [check("id").not().isEmpty()],
+  infoPatient
+);
+
+router.put(
+  "/patient",
   checkPermissionByRole,
   [
     check("dni", "El DNI es obligatorio").not().isEmpty(),
@@ -66,7 +89,7 @@ router.post(
     check("contactPerson_phone", "El telefono es obligatorio").not().isEmpty(),
     check("contactPerson_phone").isString(),
   ],
-  validatePatient
+  createPatient
 );
 
 export default router;

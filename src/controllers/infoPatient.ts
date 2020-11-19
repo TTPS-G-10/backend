@@ -14,7 +14,7 @@ const infoPatient = async (req: Request, res: Response) => {
     const id: number = parseInt(idString, 10);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).send("id no valido");
+      return res.status(400);
     }
     try {
       const trx = await dbAPI.start();
@@ -36,9 +36,9 @@ const infoPatient = async (req: Request, res: Response) => {
       await dbAPI.commit(trx);
       const contactPerson = { ...contact };
       const data = { ...patient, contactPerson: contactPerson };
-      return res.json({ data: data });
+      return res.json(data);
     } catch (error) {
-      return res.status(500).send("upps! algo salio mal :(");
+      return res.status(500);
     }
   } else {
     res.status(404);

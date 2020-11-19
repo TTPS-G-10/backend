@@ -12,7 +12,7 @@ const searchPatient = async (req: Request, res: Response) => {
     const { dni } = req.body;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).send("DNI no valido");
+      return res.status(400);
     }
     try {
       const trx = await dbAPI.start();
@@ -26,7 +26,7 @@ const searchPatient = async (req: Request, res: Response) => {
       }
       return res.json({ redirect: "/patient/" + patient.id });
     } catch (error) {
-      return res.status(500).send("upps! algo salio mal :(");
+      return res.status(500);
     }
   } else {
     res.status(404);
