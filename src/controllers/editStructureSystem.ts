@@ -14,12 +14,9 @@ const editStructure = async (req: Request, res: Response) => {
     return res.status(400);
   }
   try {
-    const trx = await dbAPI.start();
     const sistemChanges = await queries.returnCantOfSistemsChangesOfAnySystemForId(
-      systemId,
-      trx
+      systemId
     );
-    dbAPI.commit(trx);
     const sc = sistemChanges ? sistemChanges.cant : 0;
     if (sc === 0 || clave === "infinitBeds") {
       await queries

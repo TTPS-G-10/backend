@@ -15,13 +15,10 @@ const deleteStructure = async (req: Request, res: Response) => {
     return res.status(400);
   }
   try {
-    const trx = await dbAPI.start();
-    const rooms = await queries.returnBedsOfAnyRoomForId(systemId, trx);
+    const rooms = await queries.returnBedsOfAnyRoomForId(systemId);
     const sistemChanges = await queries.returnRomsOfAnSystemForId(
-      systemId,
-      trx
+      systemId
     );
-    dbAPI.commit(trx);
     const sc = sistemChanges ? sistemChanges.length : 0;
     const rm = rooms ? rooms.length : 0;
     if (rm === 0 && sc === 0) {

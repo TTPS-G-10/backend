@@ -16,11 +16,7 @@ const deleteStructure = async (req: Request, res: Response) => {
     return res.status(400);
   }
   try {
-    const trx = await dbAPI.start();
-    const beds = await queries.returnBedsOfAnyRoomForId(roomId, trx);
-    dbAPI.commit(trx);
-    console.log(beds);
-
+    const beds = await queries.returnBedsOfAnyRoomForId(roomId);
     if (beds.length === 0) {
       await queries.remove("room", "id", roomId);
       res.sendStatus(204);

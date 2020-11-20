@@ -8,9 +8,7 @@ import { addRoomsAndBedsToSystem } from "../services/dataAggregation";
 
 const adminsys = async (req: Request, res: Response) => {
   try {
-    const trx = await dbAPI.start();
-    const AllSystems = await queries.returnSystems(trx);
-    await dbAPI.commit(trx);
+    const AllSystems = await queries.returnSystems();
     if (AllSystems) {
       const systems = await Promise.all(
         AllSystems.map(addRoomsAndBedsToSystem)

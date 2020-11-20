@@ -16,9 +16,7 @@ const deleteStructure = async (req: Request, res: Response) => {
     return res.status(400);
   }
   try {
-    const trx = await dbAPI.start();
-    const patient = await queries.returnPatientForBed(bedId, trx);
-    dbAPI.commit(trx);
+    const patient = await queries.returnPatientForBed(bedId);
     if (patient == null) {
       await queries.remove("bed", "id", bedId);
       res.sendStatus(204);

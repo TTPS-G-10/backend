@@ -1,7 +1,6 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
-import { FrontendPaths } from "../model/Paths";
 
 const newStructure = async (req: Request, res: Response) => {
   const { nombre } = req.body;

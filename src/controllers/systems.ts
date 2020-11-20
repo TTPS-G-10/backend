@@ -4,10 +4,8 @@ import queries from "../database/queries";
 import { addRoomsAndBedsAndPatientsToSystem } from "../services/dataAggregation";
 
 const systems = async (req: Request, res: Response) => {
-  const trx = await dbAPI.start();
   try {
-    const AllSystems = await queries.returnSystems(trx);
-    dbAPI.commit(trx);
+    const AllSystems = await queries.returnSystems();
     if (AllSystems) {
       const systems = await Promise.all(
         AllSystems.map(addRoomsAndBedsAndPatientsToSystem)

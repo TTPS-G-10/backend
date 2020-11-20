@@ -41,19 +41,15 @@ const auth = async (req: Request, res: Response) => {
           res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
         }
         if (user.role == Role.Doctor) {
-          const trx = await dbAPI.start();
-          const system = await queries.findSystemOfUser(email, trx);
+          const system = await queries.findSystemOfUser(email);
           user.systemId = system ? system.id : undefined;
           user.systemName = system ? system.name : undefined;
-          dbAPI.commit(trx);
           res.json({ redirect: FrontendPaths.PATIENTS, user, jwt: token });
         }
         if (user.role == Role.SystemChief) {
-          const trx = await dbAPI.start();
-          const system = await queries.findSystemOfUser(email, trx);
+          const system = await queries.findSystemOfUser(email);
           user.systemId = system ? system.id : undefined;
           user.systemName = system ? system.name : undefined;
-          dbAPI.commit(trx);
           res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
         }
       }
