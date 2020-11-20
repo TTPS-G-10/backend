@@ -30,3 +30,9 @@ Where Nodejs is used together with Express framework, to create the server. And 
 
 - moduleName.routes.js
 - we have a path for our application module.
+
+## RUN
+- npm install
+- npm run dev
+
+don't forget to start DB service!
