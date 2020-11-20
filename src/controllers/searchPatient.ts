@@ -12,7 +12,7 @@ const searchPatient = async (req: Request, res: Response) => {
     const { dni } = req.body;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log("dni no valido");
+      console.log("invalid DNI");
       return res.sendStatus(400);
     }
     try {

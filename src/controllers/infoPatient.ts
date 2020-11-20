@@ -24,7 +24,7 @@ const infoPatient = async (req: Request, res: Response) => {
       );
       await dbAPI.commit(trx);
       if (!patient) {
-        console.log("no se encontro el paciente");
+        console.log("the patient was not found");
         return res.sendStatus(404);
       }
       const contact:
@@ -39,7 +39,7 @@ const infoPatient = async (req: Request, res: Response) => {
       const data = { ...patient, contactPerson: contactPerson };
       return res.json(data);
     } catch (error) {
-      console.log("DNI no existente");
+      console.log("DNI invalid");
       return res.sendStatus(500);
     }
   } else {

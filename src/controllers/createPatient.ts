@@ -10,7 +10,7 @@ const validatePatient = async (req: Request, res: Response) => {
   if (user) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log("ERRORES DEL FORMULARIO PARA AGREGAR UN PACIENTE:", errors);
+      console.log("form errors to add a patient:", errors);
       return res.sendStatus(400);
     }
     queries
@@ -42,21 +42,16 @@ const validatePatient = async (req: Request, res: Response) => {
           })
           .catch(() => {
             console.log(
-              "no se inserto persona de contacto:  Algo salio mal al ingregar la persona de contacto.Datos del paciente cargados en el sistema, pero no los de las personas de contacto "
+              "Contact person was not inserted. Patient data uploaded in the system, but not those of contact persons"
             );
             return res.sendStatus(500);
           });
       })
       .catch(() => {
-        console.log(
-          "no se inserto el paciente:Algo salio mal al ingresar el paciente. No se pudo ingresar sus datos al sistema"
-        );
+        console.log("the patient was not inserted into the system");
         return res.sendStatus(500);
       });
   } else {
-    console.log(
-      "no se inserto el paciente:Algo salio mal al ingresar el paciente. No se pudo ingresar sus datos al sistema"
-    );
     res.sendStatus(404);
   }
 };

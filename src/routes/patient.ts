@@ -25,8 +25,8 @@ router.post(
   "/patient",
   checkPermissionByRole,
   [
-    check("dni", "El DNI es obligatorio").not().isEmpty(),
-    check("dni", "El DNI tiene que ser un numero").isNumeric(),
+    check("dni", "The DNI is mandatory").not().isEmpty(),
+    check("dni", "The DNI has to be a number").isNumeric(),
   ],
   searchPatient
 );
@@ -42,48 +42,40 @@ router.put(
   "/patient",
   checkPermissionByRole,
   [
-    check("dni", "El DNI es obligatorio").not().isEmpty(),
-    check("dni", "El DNI tiene que ser un numero").isNumeric(),
-    check("dni", "El DNI tiene que tener minimo 6 digitos").isLength({
+    check("dni", "The DNI is mandatory").not().isEmpty(),
+    check("dni", "The DNI has to be a number").isNumeric(),
+    check("dni", "The DNI must have a minimum of 6 digits").isLength({
       min: 6,
     }),
-    check("birthDate", "La fecha es obligatoria").not().isEmpty(),
+    check("birthDate", "The date is mandatory").not().isEmpty(),
     check("birthDate").isString(),
-    check("lastName", "El apellido es obligatorio").not().isEmpty(),
+    check("lastName", "The last name is mandatory").not().isEmpty(),
     check("lastName").isString(),
-    check("name", "El nombre es obligatorio").not().isEmpty(),
+    check("name", "The name is mandatory").not().isEmpty(),
     check("name").isString(),
-    check("direction", "La direccion es obligatoria").not().isEmpty(),
+    check("direction", "The adress is mandatory").not().isEmpty(),
     check("direction").isString(),
-    check("phone", "El telefono es obligatorio").not().isEmpty(),
+    check("phone", "The phone is mandatory").not().isEmpty(),
     check("phone").isString(),
-    check("email", "El email es obligatorio").not().isEmpty(),
-    check("email", "El email es invalido").isEmail(),
+    check("email", "The email is mandatory").not().isEmpty(),
+    check("email", "The email is invalid").isEmail(),
     check("socialSecurity").not().isEmpty(),
     check("socialSecurity").isString(),
-    check("background_clinical", "campo obligatorio").not(),
+    check("background_clinical", "Obligatory field").not(),
     check(
       "contactPerson_lastName",
-      "El apellido de la persona de contacto es obligatorio"
+      "The last name of the contact person is required"
     )
       .not()
       .isEmpty(),
     check("contactPerson_lastName").isString(),
-    check(
-      "contactPerson_name",
-      "El nombre de la persona de contacto es obligatorio"
-    )
+    check("contactPerson_name", "The name of the contact person is required")
       .not()
       .isEmpty(),
     check("contactPerson_name").isString(),
-    check(
-      "contactPerson_relationship",
-      "El nombre de la persona de contacto es obligatorio"
-    )
-      .not()
-      .isEmpty(),
+    check("contactPerson_relationship", "Obligatory field").not().isEmpty(),
     check("contactPerson_relationship").isString(),
-    check("contactPerson_phone", "El telefono es obligatorio").not().isEmpty(),
+    check("contactPerson_phone", "Obligatory field").not().isEmpty(),
     check("contactPerson_phone").isString(),
   ],
   createPatient
