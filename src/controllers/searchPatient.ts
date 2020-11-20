@@ -8,14 +8,12 @@ import { CustomRequest } from "../model/Request";
 
 const searchPatient = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
-  console.log("llego al controller");
   if (user) {
-    console.log("entro porque hay un usuario logeado");
     const { dni } = req.body;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log("dni no valido");
-      return res.sendStatus(400).send("algo salio mal");
+      return res.sendStatus(400);
     }
     try {
       const trx = await dbAPI.start();
@@ -25,10 +23,8 @@ const searchPatient = async (req: Request, res: Response) => {
         | undefined = await queries.findPatientByDNI(dni, trx);
       await dbAPI.commit(trx);
       if (!patient) {
-        console.log("entro para crear un nuevo usuario");
         return res.json({ redirect: "/patient/create" });
       }
-      console.log("entro para mostrar usuario");
       return res.json({ redirect: "/patient/" + patient.id });
     } catch (error) {
       console.log("err:", error);
