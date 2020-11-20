@@ -1,7 +1,6 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
-import { Path } from "../model/Paths";
 
 const newStructure = async (req: Request, res: Response) => {
   const { nombre } = req.body;
@@ -14,16 +13,15 @@ const newStructure = async (req: Request, res: Response) => {
     return res.status(400);
   }
   try {
-    queries
-      .insert("INSERT INTO `system`", {
-        name: nombre,
-        infinitBeds: false,
-      })
-      .then((ok) => console.log("insertó system?", ok));
-
-    res.json({ redirect: Path.ADMINSYS });
+    await queries
+    .insert("INSERT INTO `system`", {
+      name: nombre,
+      infinitBeds: false,
+    });
+    console.log('inserto bien');
+    res.sendStatus(201);
   } catch (error) {
-    return res.status(400);
+    return res.status(500);
   }
 };
 export default newStructure;

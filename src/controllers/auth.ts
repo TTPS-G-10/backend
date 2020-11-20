@@ -7,7 +7,7 @@ import * as fs from "fs";
 import * as path from "path";
 import jwt from "jsonwebtoken";
 import md5 from "md5";
-import { Path } from "../model/Paths";
+import { FrontendPaths } from "../model/Paths";
 
 const auth = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -38,23 +38,19 @@ const auth = async (req: Request, res: Response) => {
         });
         // all ok
         if (user.role == Role.Admin) {
-          res.json({ redirect: Path.ADMINSYS, user, jwt: token });
+          res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
         }
         if (user.role == Role.Doctor) {
-          const trx = await dbAPI.start();
-          const system = await queries.findSystemOfUser(email, trx);
+          const system = await queries.findSystemOfUser(email);
           user.systemId = system ? system.id : undefined;
           user.systemName = system ? system.name : undefined;
-          dbAPI.commit(trx);
-          res.json({ redirect: Path.PATIENTS, user, jwt: token });
+          res.json({ redirect: FrontendPaths.PATIENTS, user, jwt: token });
         }
         if (user.role == Role.SystemChief) {
-          const trx = await dbAPI.start();
-          const system = await queries.findSystemOfUser(email, trx);
+          const system = await queries.findSystemOfUser(email);
           user.systemId = system ? system.id : undefined;
           user.systemName = system ? system.name : undefined;
-          dbAPI.commit(trx);
-          res.json({ redirect: Path.SYSTEMS, user, jwt: token });
+          res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
         }
       }
     }

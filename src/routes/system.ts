@@ -4,9 +4,9 @@ import editStructureSystem from "./../controllers/editStructureSystem";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
+import { ServicePaths } from "../model/Paths";
 
 const router = Router();
-const path = "/system";
 
 const checkPermissionByRole = (
   req: Request,
@@ -24,7 +24,7 @@ const checkPermissionByRole = (
 const { check } = require("express-validator");
 
 router.post(
-  path,
+  ServicePaths.SYSTEM,
   [check("nombre", "El nombre es obligatorio").not().isEmpty()],
   checkPermissionByRole,
 
@@ -32,13 +32,13 @@ router.post(
 );
 
 router.delete(
-  path,
+  ServicePaths.SYSTEM,
   checkPermissionByRole,
   check("systemId", "El id del systema es obligatorio").not().isEmpty(),
   deleteStructureSystem
 );
 router.put(
-  path,
+  ServicePaths.SYSTEM,
   checkPermissionByRole,
   [
     check("nombre", "El valor es obligatorio").not().isEmpty(),
