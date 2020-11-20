@@ -1,4 +1,3 @@
-import dbAPI from "../database/database";
 import { Request, Response } from "express";
 import { User } from "../model/User";
 import queries from "../database/queries";
@@ -13,18 +12,20 @@ const patients = async (req: Request, res: Response) => {
   if (user) {
     try {
       const system = await queries.findSystemOfUser(user.email);
-      user.systemId = system ? system.id : undefined;     
+      user.systemId = system ? system.id : undefined;
       const rooms = await queries.returnRomsOfAnSystemForId(
         user.systemId as number
       );
-      const roomsWithPatients = await Promise.all(rooms.map(addBedsAndPatientsToRoom));
+      const roomsWithPatients = await Promise.all(
+        rooms.map(addBedsAndPatientsToRoom)
+      );
       res.json({ user, rooms: roomsWithPatients });
     } catch (err) {
       console.error(err);
-      res.status(500);
+      res.sendStatus(500);
     }
   } else {
-    res.status(404);
+    res.sendStatus(404);
   }
 };
 export default patients;

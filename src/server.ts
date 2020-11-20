@@ -4,10 +4,10 @@ import logOut from "./routes/logOut";
 import patients from "./routes/patients";
 import adminsys from "./routes/adminsys";
 import systems from "./routes/systems";
-
 import bed from "./routes/bed";
 import room from "./routes/room";
 import system from "./routes/system";
+import patient from "./routes/patient";
 
 import morgan from "morgan";
 import cors from "cors";
@@ -40,6 +40,7 @@ app.use(logOut);
 app.use(patients);
 app.use(adminsys);
 app.use(systems);
+app.use(patient);
 app.use(bed);
 app.use(room);
 app.use(system);

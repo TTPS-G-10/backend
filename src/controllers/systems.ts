@@ -1,4 +1,3 @@
-import dbAPI from "../database/database";
 import { Request, Response } from "express";
 import queries from "../database/queries";
 import { addRoomsAndBedsAndPatientsToSystem } from "../services/dataAggregation";

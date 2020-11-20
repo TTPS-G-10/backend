@@ -11,7 +11,7 @@ const editStructure = async (req: Request, res: Response) => {
   console.log(errors);
 
   if (!errors.isEmpty()) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
   try {
     await queries
@@ -21,7 +21,7 @@ const editStructure = async (req: Request, res: Response) => {
     });
     res.sendStatus(204);
   } catch (error) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
 };
 export default editStructure;

@@ -1,8 +1,4 @@
-import dbAPI from "../database/database";
 import { Request, Response } from "express";
-import { Room } from "../model/Room";
-import { User } from "../model/User";
-import { System } from "../model/System";
 import queries from "../database/queries";
 import { addRoomsAndBedsToSystem } from "../services/dataAggregation";
 

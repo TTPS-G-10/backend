@@ -1,16 +1,14 @@
 import dbAPI from "./database";
-import { PoolConnection } from "mysql2/promise";
 import { User } from "../model/User";
 import { System } from "../model/System";
 import { Patient } from "../model/Patient";
+import { ContactPerson } from "../model/ContactPerson";
 
 type Cant = {
   cant: Number;
 };
 
-const findUserByEmail = async (
-  email: string
-): Promise<User | null> => {
+const findUserByEmail = async (email: string): Promise<User | null> => {
   const sql = `
     SELECT *
     FROM ttps_db.user user
@@ -20,9 +18,38 @@ const findUserByEmail = async (
   return await dbAPI.singleOrDefault<User | null>(sql, [email]);
 };
 
-const findSystemOfUser = async (
-  email: string
-): Promise<System | null> => {
+const findPatientByDNI = async (dni: number): Promise<Patient | null> => {
+  const sql = `
+    SELECT *
+    FROM ttps_db.patient
+    WHERE dni =	?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<Patient | null>(sql, [dni]);
+};
+
+const findPatientByID = async (id: number): Promise<Patient | null> => {
+  const sql = `
+    SELECT *
+    FROM ttps_db.patient
+    WHERE id =	?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<Patient | null>(sql, [id]);
+};
+const findContactPersonByPatientID = async (
+  idPatient: number
+): Promise<ContactPerson | null> => {
+  const sql = `
+    SELECT *
+    FROM ttps_db.contactPerson
+    WHERE patientID =	?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<ContactPerson | null>(sql, [idPatient]);
+};
+
+const findSystemOfUser = async (email: string): Promise<System | null> => {
   const sql = `
     SELECT sys.name , sys.id
     FROM ttps_db.user user
@@ -55,14 +82,12 @@ const returnSystems = async () => {
       )
       ) 
     `;
-    
+
   const result = await dbAPI.rawQuery(sql, []);
   return result;
 };
 
-const returnCantOfSistemsChangesOfAnySystemForId = async (
-  id: Number
-) => {
+const returnCantOfSistemsChangesOfAnySystemForId = async (id: Number) => {
   const sql = `
  SELECT count(case when sc.systemId is not null then 1 end) as cant
   FROM ttps_db.systemChanges sc
@@ -104,9 +129,7 @@ const returnPatientForBed = async (idBed: number) => {
   return await dbAPI.singleOrDefault<Patient | null>(sql, [idBed]);
 };
 
-const returnBedsAnDPatientsForRoomId = async (
-  id: number
-) => {
+const returnBedsAnDPatientsForRoomId = async (id: number) => {
   const sql = `
     SELECT  pt.name as patientName,pt.lastName as patientLastName,pt.id as patientId, bd.name as bedName, bd.id as bedId
     FROM ttps_db.room rm 
@@ -125,6 +148,18 @@ const insert = async (query: string, values: object): Promise<boolean> => {
   } catch {
     return false;
   }
+};
+const insertPatient = async (query: string, values: object): Promise<any> => {
+  const result = await dbAPI.insert(query, values);
+  return result;
+};
+
+const insertContactPerson = async (
+  query: string,
+  values: object
+): Promise<any> => {
+  const result = await dbAPI.insert(query, values);
+  return result;
 };
 const update = async (
   name: string,
@@ -165,9 +200,14 @@ const queries = {
   returnRomsOfAnSystemForId,
   returnSystems,
   findSystemOfUser,
+  findPatientByDNI,
+  findPatientByID,
+  findContactPersonByPatientID,
   returnBedsOfAnyRoomForId,
   returnPatientForBed,
   insert,
+  insertPatient,
+  insertContactPerson,
   update,
   remove,
 };

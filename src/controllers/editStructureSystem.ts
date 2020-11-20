@@ -1,8 +1,6 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
-import dbAPI from "../database/database";
-import { FrontendPaths } from "../model/Paths";
 const editStructure = async (req: Request, res: Response) => {
   const { clave, nombre, systemId } = req.body;
   console.log(clave, nombre, systemId);
@@ -11,7 +9,7 @@ const editStructure = async (req: Request, res: Response) => {
   console.log(errors);
 
   if (!errors.isEmpty()) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
   try {
     const sistemChanges = await queries.returnCantOfSistemsChangesOfAnySystemForId(
@@ -19,8 +17,7 @@ const editStructure = async (req: Request, res: Response) => {
     );
     const sc = sistemChanges ? sistemChanges.cant : 0;
     if (sc === 0 || clave === "infinitBeds") {
-      await queries
-      .update("`system`", "id", {
+      await queries.update("`system`", "id", {
         set: clave + " = '" + nombre + "'",
         id: systemId,
       });

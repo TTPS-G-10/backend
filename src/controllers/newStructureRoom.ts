@@ -1,7 +1,6 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
-import { FrontendPaths } from "../model/Paths";
 
 const newStructure = async (req: Request, res: Response) => {
   const { nombre, systemId } = req.body;
@@ -11,11 +10,10 @@ const newStructure = async (req: Request, res: Response) => {
   console.log(errors);
 
   if (!errors.isEmpty()) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
   try {
-    await queries
-    .insert("INSERT INTO `room`", {
+    await queries.insert("INSERT INTO `room`", {
       name: nombre,
       systemId: systemId,
     });

@@ -1,8 +1,6 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
-import dbAPI from "../database/database";
 import { Request, Response } from "express";
-import { FrontendPaths } from "../model/Paths";
 
 const deleteStructure = async (req: Request, res: Response) => {
   const { systemId } = req.body;
@@ -12,13 +10,11 @@ const deleteStructure = async (req: Request, res: Response) => {
   console.log(errors);
 
   if (!errors.isEmpty()) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
   try {
     const rooms = await queries.returnBedsOfAnyRoomForId(systemId);
-    const sistemChanges = await queries.returnRomsOfAnSystemForId(
-      systemId
-    );
+    const sistemChanges = await queries.returnRomsOfAnSystemForId(systemId);
     const sc = sistemChanges ? sistemChanges.length : 0;
     const rm = rooms ? rooms.length : 0;
     if (rm === 0 && sc === 0) {

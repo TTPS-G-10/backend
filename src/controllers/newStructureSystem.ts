@@ -10,15 +10,14 @@ const newStructure = async (req: Request, res: Response) => {
   console.log(errors);
 
   if (!errors.isEmpty()) {
-    return res.status(400);
+    return res.sendStatus(400);
   }
   try {
-    await queries
-    .insert("INSERT INTO `system`", {
+    await queries.insert("INSERT INTO `system`", {
       name: nombre,
       infinitBeds: false,
     });
-    console.log('inserto bien');
+    console.log("inserto bien");
     res.sendStatus(201);
   } catch (error) {
     return res.status(500);
