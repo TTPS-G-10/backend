@@ -2,7 +2,7 @@ import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
 import dbAPI from "../database/database";
-import { Path } from "../model/Paths";
+import { FrontendPaths } from "../model/Paths";
 const editStructure = async (req: Request, res: Response) => {
   const { clave, nombre, systemId } = req.body;
   console.log(clave, nombre, systemId);
@@ -22,17 +22,15 @@ const editStructure = async (req: Request, res: Response) => {
     dbAPI.commit(trx);
     const sc = sistemChanges ? sistemChanges.cant : 0;
     if (sc === 0 || clave === "infinitBeds") {
-      queries
-        .update("`system`", "id", {
-          set: clave + " = '" + nombre + "'",
-          id: systemId,
-        })
-        .then((ok) => console.log("modificó bien?", ok));
-
-      res.json({ redirect: Path.ADMINSYS });
+      await queries
+      .update("`system`", "id", {
+        set: clave + " = '" + nombre + "'",
+        id: systemId,
+      });
+      res.sendStatus(204);
     }
   } catch (error) {
-    return res.status(400);
+    return res.status(500);
   }
 };
 export default editStructure;

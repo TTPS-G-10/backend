@@ -133,7 +133,7 @@ const insert = async (query: string, values: object): Promise<boolean> => {
   const trx = await dbAPI.start();
   try {
     const result = await dbAPI.insert(query, values, trx);
-    trx.commit();
+    await trx.commit();
     return true;
   } catch {
     return false;
@@ -147,7 +147,7 @@ const update = async (
   const trx = await dbAPI.start();
   try {
     const result = await dbAPI.update(name, id, model, trx);
-    trx.commit();
+    await trx.commit();
     return true;
   } catch {
     return false;
@@ -161,7 +161,7 @@ const remove = async (
   const trx = await dbAPI.start();
   try {
     const result = await dbAPI.remove(name, col, value, trx);
-    trx.commit();
+    await trx.commit();
     return result;
   } catch {
     return false;

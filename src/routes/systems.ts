@@ -2,7 +2,7 @@ import systems from "./../controllers/systems";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
-import { Path } from "../model/Paths";
+import { ServicePaths } from "../model/Paths";
 const router = Router();
 
 const checkPermissionByRole = (
@@ -18,6 +18,6 @@ const checkPermissionByRole = (
   }
 };
 
-router.get(Path.SYSTEMS, checkPermissionByRole, systems);
+router.get(ServicePaths.SYSTEMS, checkPermissionByRole, systems);
 
 export default router;

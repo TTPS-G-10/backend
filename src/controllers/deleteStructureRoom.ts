@@ -3,7 +3,7 @@ import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import dbAPI from "../database/database";
 import { Request, Response } from "express";
-import { Path } from "../model/Paths";
+import { FrontendPaths } from "../model/Paths";
 
 const deleteStructure = async (req: Request, res: Response) => {
   const { roomId } = req.body;
@@ -22,13 +22,13 @@ const deleteStructure = async (req: Request, res: Response) => {
     console.log(beds);
 
     if (beds.length === 0) {
-      queries
-        .remove("room", "id", roomId)
-        .then((ok) => console.log("borró bien?", ok));
+      await queries.remove("room", "id", roomId);
+      res.sendStatus(204);
+    } else {
+      res.sendStatus(400);
     }
-    res.json({ redirect: Path.ADMINSYS });
   } catch (error) {
-    return res.status(400);
+    return res.status(500);
   }
 };
 export default deleteStructure;
