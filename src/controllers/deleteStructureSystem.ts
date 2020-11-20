@@ -1,8 +1,6 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
-import dbAPI from "../database/database";
 import { Request, Response } from "express";
-import { Path } from "../model/Paths";
 
 const deleteStructure = async (req: Request, res: Response) => {
   const { systemId } = req.body;
@@ -15,23 +13,18 @@ const deleteStructure = async (req: Request, res: Response) => {
     return res.sendStatus(400);
   }
   try {
-    const trx = await dbAPI.start();
-    const rooms = await queries.returnBedsOfAnyRoomForId(systemId, trx);
-    const sistemChanges = await queries.returnRomsOfAnSystemForId(
-      systemId,
-      trx
-    );
-    dbAPI.commit(trx);
+    const rooms = await queries.returnBedsOfAnyRoomForId(systemId);
+    const sistemChanges = await queries.returnRomsOfAnSystemForId(systemId);
     const sc = sistemChanges ? sistemChanges.length : 0;
     const rm = rooms ? rooms.length : 0;
     if (rm === 0 && sc === 0) {
-      queries
-        .remove("`system`", "id", systemId)
-        .then((ok) => console.log("borró bien?", ok));
+      await queries.remove("`system`", "id", systemId);
+      res.sendStatus(204);
+    } else {
+      res.sendStatus(400);
     }
-    res.json({ redirect: Path.ADMINSYS });
   } catch (error) {
-    return res.sendStatus(400);
+    return res.status(500);
   }
 };
 export default deleteStructure;

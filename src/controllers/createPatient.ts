@@ -13,7 +13,7 @@ const validatePatient = async (req: Request, res: Response) => {
       console.log("form errors to add a patient:", errors);
       return res.sendStatus(400);
     }
-    queries
+    await queries
       .insertPatient("INSERT INTO `patient`", {
         name: req.body.name,
         lastName: req.body.lastName,
@@ -25,9 +25,9 @@ const validatePatient = async (req: Request, res: Response) => {
         socialSecurity: req.body.socialSecurity,
         backgroundClinical: req.body.background_clinical,
       })
-      .then((ok) => {
+      .then(async (ok) => {
         const idPatient = ok[0].insertId;
-        queries
+        await queries
           .insertContactPerson("INSERT INTO `contactPerson`", {
             name: req.body.contactPerson_name,
             lastName: req.body.contactPerson_lastName,

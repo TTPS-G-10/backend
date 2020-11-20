@@ -16,12 +16,11 @@ const searchPatient = async (req: Request, res: Response) => {
       return res.sendStatus(400);
     }
     try {
-      const trx = await dbAPI.start();
       const patient:
         | Patient
         | null
-        | undefined = await queries.findPatientByDNI(dni, trx);
-      await dbAPI.commit(trx);
+        | undefined = await queries.findPatientByDNI(dni);
+
       if (!patient) {
         return res.json({ redirect: "/patient/create" });
       }

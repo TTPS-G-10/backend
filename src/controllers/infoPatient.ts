@@ -1,6 +1,5 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
-import dbAPI from "../database/database";
 import { Request, Response } from "express";
 import { Patient } from "../model/Patient";
 import { ContactPerson } from "../model/ContactPerson";
@@ -17,12 +16,9 @@ const infoPatient = async (req: Request, res: Response) => {
       return res.sendStatus(400);
     }
     try {
-      const trx = await dbAPI.start();
       const patient: Patient | null | undefined = await queries.findPatientByID(
-        id,
-        trx
+        id
       );
-      await dbAPI.commit(trx);
       if (!patient) {
         console.log("the patient was not found");
         return res.sendStatus(404);
@@ -30,11 +26,8 @@ const infoPatient = async (req: Request, res: Response) => {
       const contact:
         | ContactPerson
         | null
-        | undefined = await queries.findContactPersonByPatientID(
-        patient.id,
-        trx
-      );
-      await dbAPI.commit(trx);
+        | undefined = await queries.findContactPersonByPatientID(patient.id);
+
       const contactPerson = { ...contact };
       const data = { ...patient, contactPerson: contactPerson };
       return res.json(data);

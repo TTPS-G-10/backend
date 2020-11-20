@@ -2,7 +2,7 @@ import patients from '../controllers/patients';
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from '../model/Request';
 import { Role } from '../model/User';
-import { Path } from '../model/Paths';
+import { ServicePaths } from '../model/Paths';
 const router = Router();
 
 const checkPermissionByRole = (req: Request, res: Response, next: NextFunction) => {
@@ -14,6 +14,6 @@ const checkPermissionByRole = (req: Request, res: Response, next: NextFunction) 
     }
 };
 
-router.get(Path.PATIENTS, checkPermissionByRole, patients);
+router.get(ServicePaths.PATIENTS, checkPermissionByRole, patients);
 
 export default router;

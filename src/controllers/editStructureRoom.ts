@@ -1,7 +1,7 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
-import { Path } from "../model/Paths";
+import { FrontendPaths } from "../model/Paths";
 
 const editStructure = async (req: Request, res: Response) => {
   const { nombre, roomId } = req.body;
@@ -14,14 +14,12 @@ const editStructure = async (req: Request, res: Response) => {
     return res.sendStatus(400);
   }
   try {
-    queries
-      .update("`room`", "id", {
-        set: "name = '" + nombre + "'",
-        id: roomId,
-      })
-      .then((ok) => console.log("modificó bien?", ok));
-
-    res.json({ redirect: Path.ADMINSYS });
+    await queries
+    .update("`room`", "id", {
+      set: "name = '" + nombre + "'",
+      id: roomId,
+    });
+    res.sendStatus(204);
   } catch (error) {
     return res.sendStatus(400);
   }

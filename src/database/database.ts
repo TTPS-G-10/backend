@@ -11,12 +11,13 @@ interface IConnectionData {
 }
 
 let db: mysql.Pool;
+let TTPS_DB_POOL: PoolConnection;
 
 function getConnectionDB() {
     return db;
 }
 
-function generateConnection(conData: IConnectionData) {
+async function generateConnection(conData: IConnectionData) {
     if (db) {
         return db;
     }
@@ -25,66 +26,73 @@ function generateConnection(conData: IConnectionData) {
         user: conData.user,
         password: conData.password,
         database: conData.database,
-        port: conData.port
+        port: conData.port,
+        waitForConnections: true,
+        connectionLimit: 1,
     });
+    TTPS_DB_POOL = await db.promise().getConnection(); 
 }
 
 async function createTransaction() {
     const connection = await db.promise().getConnection();
-    connection.beginTransaction();
+    await connection.beginTransaction();
     return connection;
 }
 
-async function start(trx?: any): Promise<PoolConnection> {
-    trx = trx ? await trx.query('START TRANSACTION') : await createTransaction();
+async function start(): Promise<PoolConnection> {
+    const trx = await createTransaction();
     return trx;
 }
 
-async function commit(trx: any): Promise<void> {
-    await trx.query('COMMIT');
-    await trx.release();
+async function commit(trx: PoolConnection): Promise<void> {
+    try { 
+      await trx.commit();
+    } catch {
+      trx.rollback();
+    }
 }
 
 async function rollback(trx: any): Promise<void> {
     await trx.query('ROLLBACK');
 }
 
-async function rawQuery(query: string, params: any[], transaction?: PoolConnection): Promise<any> {
-    const conn = transaction || db.promise()
+async function rawQuery(query: string, params: any[]): Promise<any> {
+    await TTPS_DB_POOL.beginTransaction();
     try {
-        const [resp = null] = await conn.query(query, params);
+        const [resp = null] = await TTPS_DB_POOL.query(query, params);
+        await TTPS_DB_POOL.commit();
+        TTPS_DB_POOL.release();
         return resp;
     } catch (err) {
+        await TTPS_DB_POOL.rollback();
         console.warn(err.message);
-        throw new Error(err.message + ', in query: ' + query)
+        throw new Error(err.message + ', in query: ' + query);
     }
 }
-async function patch<T>(name: string, model: T, id: string, transaction: PoolConnection): Promise<number> {
-    const query = `SELECT id FROM ${name} WHERE ${id} = ?`;
-    const record: any = await singleOrDefault(query, [(model as any)[id]], transaction);
-    if (record) {
-        await update(name, id, { ...record, ...model }, transaction);
-        return record.id;
-    }
-    throw new Error('Profile does not exist');
-};
 
-async function logic_remove(name: string, id: number, transaction: PoolConnection): Promise<number> {
-    const query = `SELECT id FROM ${name} WHERE id = ?`;
-    const [record = null] = await rawQuery(query, [id], transaction);
-    if (!record) {
-        throw new Error(`Record does not exist: ${name}: ${id}`)
-    }
+async function insert(query: string, params: object): Promise<any> {
 
-    const updateQuery = `UPDATE ${name} SET ? WHERE id = ?`;
-    await rawQuery(updateQuery, [{ deleted_at: new Date() }, record.id], transaction);
-    return record.id;
-};
+    await TTPS_DB_POOL.beginTransaction();
+    const insertQry = processInsert(query.replace(/(\r\n|\n|\r)/gm, ""), params)
+    const values = Object.values(params)
+
+    try {
+        const sql = TTPS_DB_POOL.format(insertQry, values);
+        const idInsert = await TTPS_DB_POOL.query(sql, values);
+        await TTPS_DB_POOL.commit();
+        TTPS_DB_POOL.release();
+        return idInsert;
+    } catch (err) {
+        await TTPS_DB_POOL.rollback();
+        console.warn(err.message);
+        throw new Error(err.message);
+    }
+}
 
 async function remove(name: string, col: string, value: string, transaction: PoolConnection): Promise<boolean> {
     const query = `DELETE FROM ${name} WHERE ${col} = ${value};`;
     try {
-        const result: { affectedRows: number} = await rawQuery(query, [], transaction);
+        const result: { affectedRows: number } = await rawQuery(query, []);
         console.log(result);
         return result.affectedRows === 0 ? false : true;
     }
@@ -94,11 +102,12 @@ async function remove(name: string, col: string, value: string, transaction: Poo
     };
 };
 
-async function update<T>(name: string, id: string, model: { id: string, set: string }, transaction: PoolConnection): Promise<number> {
+async function update<T>(name: string, id: string, model: { id: string, set: string }): Promise<number> {
     // Object.keys(model).forEach(key => model[key] === undefined && delete model[key]);
     const updateQuery = `UPDATE ${name} SET ${model.set} WHERE ${id} = ${model.id}`;
     console.log('query', updateQuery);
-    return (await rawQuery(updateQuery, [], transaction)).affectedRows;
+    const result = (await rawQuery(updateQuery, [])).affectedRows;
+    return result;
 };
 
 function processInsert(query: any, params: any) {
@@ -108,24 +117,9 @@ function processInsert(query: any, params: any) {
     return `${query} ${keys}`
 }
 
-async function singleOrDefault<T>(query: string, params: any[], transaction?: PoolConnection): Promise<T | null> {
-    const [row = null] = await rawQuery(query, params, transaction);
+async function singleOrDefault<T>(query: string, params: any[]): Promise<T | null> {
+    const [row = null] = await rawQuery(query, params);
     return row;
-}
-async function insert(query: string, params: object, transaction: PoolConnection): Promise<any> {
-
-    const conn = transaction || db.promise()
-    const insertQry = processInsert(query.replace(/(\r\n|\n|\r)/gm, ""), params)
-    const values = Object.values(params)
-
-    try {
-        const sql = conn.format(insertQry, values);
-        const idInsert = conn.execute(insertQry, values);
-        return idInsert;
-    } catch (err) {
-        console.warn(err.message);
-        throw new Error(err.message)
-    }
 }
 
 const dbAPI = {
