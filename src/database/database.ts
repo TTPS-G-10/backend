@@ -31,7 +31,7 @@ function generateConnection(conData: IConnectionData) {
 
 async function createTransaction() {
     const connection = await db.promise().getConnection();
-    connection.beginTransaction();
+    await connection.beginTransaction();
     return connection;
 }
 
@@ -40,9 +40,9 @@ async function start(trx?: any): Promise<PoolConnection> {
     return trx;
 }
 
-async function commit(trx: any): Promise<void> {
+async function commit(trx: PoolConnection): Promise<void> {
     await trx.query('COMMIT');
-    await trx.release();
+    trx.release();
 }
 
 async function rollback(trx: any): Promise<void> {

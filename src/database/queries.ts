@@ -136,6 +136,7 @@ const insert = async (query: string, values: object): Promise<boolean> => {
     await trx.commit();
     return true;
   } catch {
+    dbAPI.rollback(trx);
     return false;
   }
 };
@@ -150,6 +151,7 @@ const update = async (
     await trx.commit();
     return true;
   } catch {
+    dbAPI.rollback(trx);
     return false;
   }
 };
@@ -164,6 +166,7 @@ const remove = async (
     await trx.commit();
     return result;
   } catch {
+    dbAPI.rollback(trx);
     return false;
   }
 };
