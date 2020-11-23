@@ -1,5 +1,5 @@
 import { ContactPerson } from "./ContactPerson";
-import { Evolution } from "./Evolution";
+
 export type Patient = {
   id: number;
   name: string;
@@ -12,5 +12,4 @@ export type Patient = {
   socialSecurity: string;
   backgroundClinical: String;
   contactPerson?: ContactPerson;
-  evolutions?: Evolution[];
 };

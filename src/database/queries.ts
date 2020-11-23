@@ -1,7 +1,9 @@
 import dbAPI from "./database";
 import { User } from "../model/User";
 import { System } from "../model/System";
+import { Internment } from "../model/Internment";
 import { Patient } from "../model/Patient";
+import { Location } from "../model/Location";
 import { ContactPerson } from "../model/ContactPerson";
 
 type Cant = {
@@ -49,6 +51,21 @@ const findContactPersonByPatientID = async (
   return await dbAPI.singleOrDefault<ContactPerson | null>(sql, [idPatient]);
 };
 
+const LocationOfPatientWhitPatientId = async (
+  idPatient: number
+): Promise<Location | null> => {
+  const sql = `
+  SELECT system.id as systemId, system.name as systemName, room.id as roomId, room.name as roomName,bed.id as bedId, bed.name as bedName
+    FROM ttps_db.system 
+        INNER JOIN ttps_db.room on  system.id = room.systemId 
+        INNER JOIN ttps_db.bed on  room.id = bed.roomId
+        INNER JOIN ttps_db.patient on  bed.patientId = patient.id
+        WHERE patient.id = ?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<Location | null>(sql, [idPatient]);
+};
+
 const findSystemOfUser = async (email: string): Promise<System | null> => {
   const sql = `
     SELECT sys.name , sys.id
@@ -59,6 +76,46 @@ const findSystemOfUser = async (email: string): Promise<System | null> => {
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<System | null>(sql, [email]);
+};
+
+const findOpenInternmentWithPatientId = async (
+  patientId: number
+): Promise<Internment | null> => {
+  const sql = `
+ SELECT internment.*
+    FROM ttps_db.internment
+    INNER JOIN ttps_db.patient ON patient.id = internment.patientId
+    WHERE (patient.id = ?) AND (internment.egressDate IS NULL) AND  (internment.obitoDate IS NULL)
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<Internment | null>(sql, [patientId]);
+};
+
+const findSystemChangesOfInternmentWithInternmentId = async (
+  internmentId: number
+) => {
+  const sql = `
+  SELECT systemChange.*,system.name as systemName
+    FROM ttps_db.systemChange
+    INNER JOIN ttps_db.internment ON systemChange.internmentId = internment.id
+    INNER JOIN ttps_db.system ON systemChange.systemId = system.id
+    WHERE (internment.id = ?)
+    ORDER BY createtime desc
+    `;
+  return await dbAPI.rawQuery(sql, [internmentId]);
+};
+
+const findAcotedEvaluationsOfSystemChangeWhitSystemChangeId = async (
+  internmentId: number
+) => {
+  const sql = `
+SELECT evaluation.id, evaluation.userId, evaluation.patientId, evaluation.systemChangeId, evaluation.createTime
+    FROM ttps_db.evaluation
+    INNER JOIN ttps_db.systemChange ON systemChange.Id = evaluation.systemChangeId
+    WHERE (systemChange.id = ?)
+    ORDER BY createTime desc
+    `;
+  return await dbAPI.rawQuery(sql, [internmentId]);
 };
 
 //SYSTEMAS / SALAS / CAMAS / PACIENTES
@@ -90,7 +147,7 @@ const returnSystems = async () => {
 const returnCantOfSistemsChangesOfAnySystemForId = async (id: Number) => {
   const sql = `
  SELECT count(case when sc.systemId is not null then 1 end) as cant
-  FROM ttps_db.systemChanges sc
+  FROM ttps_db.systemChange sc
    WHERE sc.systemId = ?
   `;
   return await dbAPI.singleOrDefault<Cant>(sql, [id]);
@@ -195,9 +252,13 @@ const remove = async (
 
 const queries = {
   findUserByEmail,
+  LocationOfPatientWhitPatientId,
   returnCantOfSistemsChangesOfAnySystemForId,
   returnBedsAnDPatientsForRoomId,
+  findSystemChangesOfInternmentWithInternmentId,
+  findAcotedEvaluationsOfSystemChangeWhitSystemChangeId,
   returnRomsOfAnSystemForId,
+  findOpenInternmentWithPatientId,
   returnSystems,
   findSystemOfUser,
   findPatientByDNI,

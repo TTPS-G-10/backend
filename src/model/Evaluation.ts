@@ -18,10 +18,13 @@ enum O2SupplementaryType {
   "Mascara con Reservorio",
 }
 
-export type Evolution = {
-  editStatus: boolean;
-  timing: number;
-  autor: number;
+export type Evaluation = {
+  id: number;
+  userId: number;
+  patientId: number;
+  systemChangeId: number;
+  creationTime: Date;
+
   vitalsigns: {
     temperature: number;
     TASistolica: number;
@@ -57,4 +60,4 @@ export type Evolution = {
     vasopressors: boolean;
     descriptionVasopressors: string;
   };
-}
+};

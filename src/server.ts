@@ -8,6 +8,7 @@ import bed from "./routes/bed";
 import room from "./routes/room";
 import system from "./routes/system";
 import patient from "./routes/patient";
+import internment from "./routes/internment";
 
 import morgan from "morgan";
 import cors from "cors";
@@ -42,6 +43,7 @@ app.use(adminsys);
 app.use(systems);
 app.use(patient);
 app.use(bed);
+app.use(internment);
 app.use(room);
 app.use(system);
 

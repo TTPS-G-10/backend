@@ -6,7 +6,7 @@ export type System = {
   ocupedBeds: number;
   freeBeds: number;
   occupancy: number;
-  retirable: boolean;
+  removable: boolean;
   rooms: Room[];
   doctors: Doctor[];
   SystemChief: Doctor;
