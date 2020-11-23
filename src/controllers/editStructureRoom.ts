@@ -1,7 +1,6 @@
 import { validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
-import { FrontendPaths } from "../model/Paths";
 
 const editStructure = async (req: Request, res: Response) => {
   const { nombre, roomId } = req.body;
@@ -14,8 +13,7 @@ const editStructure = async (req: Request, res: Response) => {
     return res.sendStatus(400);
   }
   try {
-    await queries
-    .update("`room`", "id", {
+    await queries.update("`room`", "id", {
       set: "name = '" + nombre + "'",
       id: roomId,
     });
