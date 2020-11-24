@@ -1,4 +1,4 @@
-import { validationResult } from "express-validator";
+import { Location, validationResult } from "express-validator";
 import queries from "../database/queries";
 import { Request, Response } from "express";
 import { Internment } from "../model/Internment";
@@ -25,6 +25,19 @@ const infoInternment = async (req: Request, res: Response) => {
       if (!internment) {
         console.log("the internment was not found");
         return res.sendStatus(404);
+      }
+      const patientLocation = await queries.LocationOfPatientWhitPatientId(id);
+      if (patientLocation) {
+        if (
+          user.systemId == patientLocation.systemId &&
+          user.role == "JEFE DE SISTEMA"
+        ) {
+        } else {
+          console.log(
+            "you do not have permission to view internments from another system"
+          );
+          return res.sendStatus(403);
+        }
       }
       const internmentData = await addSystemchangesAndEvaluationToInternment(
         internment

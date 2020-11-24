@@ -21,7 +21,12 @@ const checkPermissionByRole = (
   }
 };
 
-router.get("/internment", [check("id").not().isEmpty()], infoInternment);
+router.get(
+  "/internment",
+  checkPermissionByRole,
+  [check("id").not().isEmpty()],
+  infoInternment
+);
 
 router.post(
   "/internment",

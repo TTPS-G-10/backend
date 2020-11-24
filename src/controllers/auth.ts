@@ -27,7 +27,6 @@ const auth = async (req: Request, res: Response) => {
           user.systemId = system ? system.id : undefined;
           user.systemName = system ? system.name : undefined;
         }
-
         delete user.password;
         const privateKey = fs.readFileSync(
           path.resolve(__dirname, "../../.certificates/private_key.pem")
@@ -42,6 +41,7 @@ const auth = async (req: Request, res: Response) => {
           secure: true,
           maxAge: 2147483647,
         });
+
         // all ok
         switch (user.role) {
           case Role.Admin:
