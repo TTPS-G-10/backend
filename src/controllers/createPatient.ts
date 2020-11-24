@@ -8,6 +8,7 @@ const validatePatient = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
 
   if (user) {
+    console.log("user", user);
     //user.systemId === 1
     //tambien controlo que me llame un usuario de guardia
     const errors = validationResult(req);

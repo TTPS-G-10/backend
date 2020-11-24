@@ -22,6 +22,12 @@ const auth = async (req: Request, res: Response) => {
       if (!validatePassword) {
         res.sendStatus(403);
       } else {
+        if (user.role == Role.Doctor || user.role == Role.SystemChief) {
+          const system = await queries.findSystemOfUser(email);
+          user.systemId = system ? system.id : undefined;
+          user.systemName = system ? system.name : undefined;
+        }
+
         delete user.password;
         const privateKey = fs.readFileSync(
           path.resolve(__dirname, "../../.certificates/private_key.pem")
@@ -37,21 +43,30 @@ const auth = async (req: Request, res: Response) => {
           maxAge: 2147483647,
         });
         // all ok
+        switch (user.role) {
+          case Role.Admin:
+            res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
+            break;
+          case Role.Doctor:
+            res.json({ redirect: FrontendPaths.PATIENTS, user, jwt: token });
+            break;
+          case Role.SystemChief:
+            res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
+            break;
+          default:
+            //ruta para rules
+            break;
+        }
+        /*
         if (user.role == Role.Admin) {
           res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
         }
         if (user.role == Role.Doctor) {
-          const system = await queries.findSystemOfUser(email);
-          user.systemId = system ? system.id : undefined;
-          user.systemName = system ? system.name : undefined;
           res.json({ redirect: FrontendPaths.PATIENTS, user, jwt: token });
         }
         if (user.role == Role.SystemChief) {
-          const system = await queries.findSystemOfUser(email);
-          user.systemId = system ? system.id : undefined;
-          user.systemName = system ? system.name : undefined;
           res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
-        }
+        }*/
       }
     }
   } catch (error) {
