@@ -18,7 +18,7 @@ const calculateOcupancyAndFreeBeds = async (system: System) => {
     system.occupancy = (100 / system.totalBeds) * system.ocupedBeds;
     system.freeBeds = system.totalBeds - system.ocupedBeds;
   }
-  return { ...system };
+  return { ...system, occupancy: system.occupancy, freeBeds: system.freeBeds };
 };
 
 const calculateRemovableProperty = async (system: System) => {
@@ -67,6 +67,7 @@ const addRoomsAndBedsToSystem = async (system: System) => {
 };
 
 const addRoomsAndBedsAndPatientsToSystem = async (system: System) => {
+  await calculateOcupancyAndFreeBeds(system);
   const rooms = await queries.returnRomsOfAnSystemForId(system.id);
   const roomsWithBeds = await Promise.all(rooms.map(addBedsWithPatientToRoom));
   return { ...system, rooms: roomsWithBeds };
