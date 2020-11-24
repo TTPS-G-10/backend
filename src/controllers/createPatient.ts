@@ -7,13 +7,9 @@ import { CustomRequest } from "../model/Request";
 const validatePatient = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
 
-  if (user) {
-    console.log("user", user);
-    //user.systemId === 1
-    //tambien controlo que me llame un usuario de guardia
+  if (user && user.systemId === 1) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log("form errors to add a patient:", errors);
       return res.sendStatus(400);
     }
     await queries
@@ -55,7 +51,7 @@ const validatePatient = async (req: Request, res: Response) => {
         return res.sendStatus(500);
       });
   } else {
-    res.sendStatus(404);
+    res.sendStatus(403);
   }
 };
 export default validatePatient;
