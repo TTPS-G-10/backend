@@ -1,4 +1,5 @@
 import infoInternment from "../controllers/infoInternment";
+import createInternment from "../controllers/createInternment";
 import { check } from "express-validator";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
@@ -21,5 +22,12 @@ const checkPermissionByRole = (
 };
 
 router.get("/internment", [check("id").not().isEmpty()], infoInternment);
+
+router.post(
+  "/internment",
+  checkPermissionByRole,
+  [check("id").not().isEmpty()],
+  createInternment
+);
 
 export default router;

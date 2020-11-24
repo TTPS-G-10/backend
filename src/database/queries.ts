@@ -198,6 +198,31 @@ const returnBedsAnDPatientsForRoomId = async (id: number) => {
   return await dbAPI.rawQuery(sql, [id]);
 };
 
+const returCountFreeBedsInSystemId = async (id: number) => {
+  try {
+    const sql = `
+    SELECT COUNT(*) as cantFree
+    FROM bed INNER JOIN room ON bed.roomId=room.id
+    WHERE patientId is NULL and systemId=?
+    `;
+    return await dbAPI.rawQuery(sql, [id]);
+  } catch (error) {
+    return false;
+  }
+};
+const returInfinitBedsOfSystem = async (id: number) => {
+  try {
+    const sql = `
+    SELECT infinitBeds
+    FROM ttps_db.system
+    WHERE id=?
+    `;
+    return await dbAPI.rawQuery(sql, [id]);
+  } catch (error) {
+    return false;
+  }
+};
+
 const insert = async (query: string, values: object): Promise<boolean> => {
   try {
     const result = await dbAPI.insert(query, values);
@@ -271,6 +296,8 @@ const queries = {
   insertContactPerson,
   update,
   remove,
+  returCountFreeBedsInSystemId,
+  returInfinitBedsOfSystem,
 };
 
 export default queries;
