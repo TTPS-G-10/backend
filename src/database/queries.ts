@@ -119,6 +119,44 @@ SELECT evaluation.id, evaluation.userId, evaluation.patientId, evaluation.system
 };
 
 //SYSTEMAS / SALAS / CAMAS / PACIENTES
+
+const returnSystemsWithSpace = async () => {
+  const sql = `
+       SELECT sys.name,sys.id,sys.infinitBeds
+        FROM ttps_db.system sys 
+        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
+        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        WHERE (bd.patientId is NULL) OR (sys.infinitBeds = true)
+        GROUP BY sys.id
+     
+    `;
+  const result = await dbAPI.rawQuery(sql, []);
+  return result;
+};
+
+const returnRoomsWithSpaceOfSystemForSystemId = async (id: Number) => {
+  const sql = `
+       SELECT rm.name,rm.id
+        FROM  ttps_db.room rm 
+        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        WHERE (rm.systemId=?) AND (bd.patientId is NULL)
+        GROUP BY rm.id
+    `;
+  const result = await dbAPI.rawQuery(sql, [id]);
+  return result;
+};
+
+const returnBedsWithSpaceOfRoomForRoomId = async (id: Number) => {
+  const sql = `
+         SELECT bd.name,bd.id
+        FROM ttps_db.bed bd 
+        WHERE (bd.roomId='?') AND (bd.patientId is NULL)
+        GROUP BY bd.id
+    `;
+  const result = await dbAPI.rawQuery(sql, [id]);
+  return result;
+};
+
 const returnSystems = async () => {
   const sql = `
       SELECT count(case when bd.patientId is not null then 1 end) as ocupedBeds, 
@@ -298,6 +336,9 @@ const remove = async (
 
 const queries = {
   findUserByEmail,
+  returnSystemsWithSpace,
+  returnBedsWithSpaceOfRoomForRoomId,
+  returnRoomsWithSpaceOfSystemForSystemId,
   LocationOfPatientWhitPatientId,
   returnCantOfSistemsChangesOfAnySystemForId,
   returnBedsAnDPatientsForRoomId,
