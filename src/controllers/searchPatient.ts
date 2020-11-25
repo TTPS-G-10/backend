@@ -1,6 +1,6 @@
 import { validationResult } from "express-validator";
-import queries from "../database/queries";
-import dbAPI from "../database/database";
+import queries from "../DAL/queries";
+import dbAPI from "../DAL/database";
 import { Request, Response } from "express";
 import { Patient } from "../model/Patient";
 import { User } from "../model/User";

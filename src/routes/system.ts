@@ -1,6 +1,6 @@
-import newStructureSystem from "../controllers/newStructureSystem";
-import deleteStructureSystem from "./../controllers/deleteStructureSystem";
-import editStructureSystem from "./../controllers/editStructureSystem";
+import newStructureSystem from "../controllers/CRUD/SYSTEM/newStructureSystem";
+import deleteStructureSystem from "./../controllers/CRUD/SYSTEM/deleteStructureSystem";
+import editStructureSystem from "./../controllers/CRUD/SYSTEM/editStructureSystem";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";

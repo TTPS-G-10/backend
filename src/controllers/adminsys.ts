@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import queries from "../database/queries";
+import queries from "../DAL/queries";
 import { addRoomsAndBedsToSystem } from "../services/dataAggregation";
 
 const adminsys = async (req: Request, res: Response) => {

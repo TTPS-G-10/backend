@@ -1,10 +1,10 @@
 import { validationResult } from "express-validator";
-import queries from "../database/queries";
+import queries from "../../../DAL/queries";
 import { Request, Response } from "express";
 
 const newStructure = async (req: Request, res: Response) => {
-  const { nombre, roomId } = req.body;
-  console.log(nombre, roomId);
+  const { nombre } = req.body;
+  console.log(nombre);
   //corroborate errors
   const errors = validationResult(req);
   console.log(errors);
@@ -13,10 +13,11 @@ const newStructure = async (req: Request, res: Response) => {
     return res.sendStatus(400);
   }
   try {
-    await queries.insert("INSERT INTO `bed`", {
+    await queries.insert("INSERT INTO `system`", {
       name: nombre,
-      roomId: roomId,
+      infinitBeds: false,
     });
+    console.log("inserto bien");
     res.sendStatus(201);
   } catch (error) {
     return res.status(500);

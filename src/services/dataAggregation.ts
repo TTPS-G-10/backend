@@ -1,5 +1,5 @@
-import dbAPI from "../database/database";
-import queries from "../database/queries";
+import dbAPI from "../DAL/database";
+import queries from "../DAL/queries";
 import { Room } from "../model/Room";
 import { Internment } from "../model/Internment";
 import { SystemChange } from "../model/SystemChange";
