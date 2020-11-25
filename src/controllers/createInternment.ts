@@ -18,14 +18,16 @@ const createInternment = async (req: Request, res: Response) => {
       .then(async (camas) => {
         console.log("respuesta de cantidad de camas libres", camas[0].cantFree);
         if (camas > 0) {
-          return res.json({ redirect: "/internment/create" });
+          return res.json({ redirect: "/internment/create", createBed: false });
         } else {
           await queries.returInfinitBedsOfSystem(1).then((infinitBeds) => {
             console.log("respuesta decamas infinitas", infinitBeds[0]);
             if (infinitBeds[0].infinitBeds === 1) {
               console.log("crear internacion");
-              //crear la cama con sistema
-              return res.json({ redirect: "/internment/create" });
+              return res.json({
+                redirect: "/internment/create",
+                createBed: true,
+              });
             } else {
               return res.json({ redirect: "/internment/create" });
             }

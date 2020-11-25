@@ -222,6 +222,27 @@ const returInfinitBedsOfSystem = async (id: number) => {
     return false;
   }
 };
+const returnRoomsWhitSpaceOfSystemForSystemId = async (id: Number) => {
+  const sql = `
+       SELECT rm.name,rm.id
+        FROM  JOIN ttps_db.room rm 
+        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        WHERE (rm.systemId=?) AND (bd.patientId is NULL)
+        GROUP BY rm.id `;
+  const result = await dbAPI.rawQuery(sql, [id]);
+  return result;
+};
+
+const returnBedsWhitSpaceOfRoomForRoomId = async (id: Number) => {
+  const sql = `
+         SELECT bd.name,bd.id
+        FROM ttps_db.bed bd 
+        WHERE (bd.roomId='?') AND (bd.patientId is NULL)
+        GROUP BY bd.id `;
+
+  const result = await dbAPI.rawQuery(sql, [id]);
+  return result;
+};
 
 const insert = async (query: string, values: object): Promise<boolean> => {
   try {
@@ -298,6 +319,8 @@ const queries = {
   remove,
   returCountFreeBedsInSystemId,
   returInfinitBedsOfSystem,
+  returnRoomsWhitSpaceOfSystemForSystemId,
+  returnBedsWhitSpaceOfRoomForRoomId,
 };
 
 export default queries;
