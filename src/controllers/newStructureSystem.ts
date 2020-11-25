@@ -13,12 +13,10 @@ const newStructure = async (req: Request, res: Response) => {
     return res.sendStatus(400);
   }
   try {
-    await queries.insert("INSERT INTO `system`", {
+    queries.insert("INSERT INTO `system`", {
       name: nombre,
       infinitBeds: false,
-    });
-    console.log("inserto bien");
-    res.sendStatus(201);
+    }).then(() => res.sendStatus(201));
   } catch (error) {
     return res.status(500);
   }

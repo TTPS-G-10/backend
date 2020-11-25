@@ -95,10 +95,10 @@ const findSystemChangesOfInternmentWithInternmentId = async (
   internmentId: number
 ) => {
   const sql = `
-  SELECT systemChange.*,system.name as systemName
-    FROM ttps_db.systemChange
-    INNER JOIN ttps_db.internment ON systemChange.internmentId = internment.id
-    INNER JOIN ttps_db.system ON systemChange.systemId = system.id
+  SELECT systemChanges.*,system.name as systemName
+    FROM ttps_db.systemChanges
+    INNER JOIN ttps_db.internment ON systemChanges.internmentId = internment.id
+    INNER JOIN ttps_db.system ON systemChanges.systemId = system.id
     WHERE (internment.id = ?)
     ORDER BY createtime desc
     `;
@@ -109,10 +109,10 @@ const findAcotedEvaluationsOfSystemChangeWhitSystemChangeId = async (
   internmentId: number
 ) => {
   const sql = `
-SELECT evaluation.id, evaluation.userId, evaluation.patientId, evaluation.systemChangeId, evaluation.createTime
+SELECT evaluation.id, evaluation.userId, evaluation.patientId, evaluation.systemChangesId, evaluation.createTime
     FROM ttps_db.evaluation
-    INNER JOIN ttps_db.systemChange ON systemChange.Id = evaluation.systemChangeId
-    WHERE (systemChange.id = ?)
+    INNER JOIN ttps_db.systemChanges ON systemChanges.Id = evaluation.systemChangesId
+    WHERE (systemChanges.id = ?)
     ORDER BY createTime desc
     `;
   return await dbAPI.rawQuery(sql, [internmentId]);
@@ -147,7 +147,7 @@ const returnSystems = async () => {
 const returnCantOfSistemsChangesOfAnySystemForId = async (id: Number) => {
   const sql = `
  SELECT count(case when sc.systemId is not null then 1 end) as cant
-  FROM ttps_db.systemChange sc
+  FROM ttps_db.systemChanges sc
    WHERE sc.systemId = ?
   `;
   return await dbAPI.singleOrDefault<Cant>(sql, [id]);
@@ -241,7 +241,6 @@ const remove = async (
     await trx.commit();
     return result;
   } catch {
-    await dbAPI.rollback(trx);
     return false;
   }
 };
