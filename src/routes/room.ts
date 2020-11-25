@@ -1,6 +1,6 @@
-import newStructureRoom from "../controllers/newStructureRoom";
-import deleteStructureRoom from "../controllers/deleteStructureRoom";
-import editStructureRoom from "./../controllers/editStructureRoom";
+import newStructureRoom from "../controllers/CRUD/ROOM/newStructureRoom";
+import deleteStructureRoom from "../controllers/CRUD/ROOM/deleteStructureRoom";
+import editStructureRoom from "./../controllers/CRUD/ROOM/editStructureRoom";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";

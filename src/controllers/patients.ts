@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { User } from "../model/User";
-import queries from "../database/queries";
+import queries from "../DAL/queries";
 import { addBedsAndPatientsToRoom } from "../services/dataAggregation";
 import { CustomRequest } from "../model/Request";
 

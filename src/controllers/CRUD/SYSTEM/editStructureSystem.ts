@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator";
-import queries from "../database/queries";
+import queries from "../../../DAL/queries";
 import { Request, Response } from "express";
 const editStructure = async (req: Request, res: Response) => {
   const { clave, nombre, systemId } = req.body;

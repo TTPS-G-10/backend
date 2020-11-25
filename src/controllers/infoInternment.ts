@@ -1,5 +1,5 @@
 import { Location, validationResult } from "express-validator";
-import queries from "../database/queries";
+import queries from "../DAL/queries";
 import { Request, Response } from "express";
 import { Internment } from "../model/Internment";
 import { User } from "../model/User";
