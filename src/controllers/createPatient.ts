@@ -34,7 +34,7 @@ const validatePatient = async (req: Request, res: Response) => {
             phone: req.body.contactPerson_phone,
             patientId: idPatient,
           })
-          .then((okey) => {
+          .then(() => {
             return res.json({
               redirect: "/patient/" + idPatient,
             });

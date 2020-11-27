@@ -24,11 +24,9 @@ const authorization = (req: Request, res: Response, next: NextFunction) => {
         iat: number;
       };
       if (user) {
-        console.log("user", user);
         (req as CustomRequest).user = user;
         next();
       } else {
-        console.log(user);
         res.sendStatus(401);
       }
     } catch (error) {

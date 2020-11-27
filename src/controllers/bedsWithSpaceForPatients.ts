@@ -6,8 +6,8 @@ import { CustomRequest } from "../model/Request";
 
 const bedsWithSpaceForPatients = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
-  console.log("llega", req.body);
-  if (true) {
+  console.log("llega a beds con espacio", req.param);
+  if (user) {
     const idString = req.query.id as string;
     const id: number = parseInt(idString, 10);
     const errors = validationResult(req);
@@ -21,7 +21,7 @@ const bedsWithSpaceForPatients = async (req: Request, res: Response) => {
         console.log("the beds was not found, the system dont have free beds");
         return res.sendStatus(404);
       }
-      res.json({ beds });
+      res.json(beds);
     } catch (error) {
       console.log("user invalid");
       return res.sendStatus(500);

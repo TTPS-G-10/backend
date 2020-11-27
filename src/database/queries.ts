@@ -282,6 +282,74 @@ const returnBedsWhitSpaceOfRoomForRoomId = async (id: Number) => {
   return result;
 };
 
+const patientHasCurrentHospitalization = async (idPatient: number) => {
+  const sql = `
+  SELECT *
+  FROM internment
+  WHERE egressDate IS NULL AND obitoDate IS NULL AND patientId='?'`;
+
+  const result = await dbAPI.rawQuery(sql, [idPatient]);
+  return result;
+};
+
+const stillFreeBed = async (
+  idSystem: number,
+  idBed: number,
+  idRoom: number
+) => {
+  const sql = `
+  SELECT patientId 
+  FROM bed
+  INNER JOIN room ON bed.roomId = room.Id
+  WHERE (room.systemId = '?') AND (bed.id='?') AND (room.id='?')
+ `;
+
+  const result = await dbAPI.rawQuery(sql, [idSystem, idBed, idRoom]);
+  return result;
+};
+const createSystemChange = async (internmentId: number, systemId: number) => {
+  const sql = `
+  INSERT INTO systemChanges (internmentId, systemId)
+  VALUES (?, ? )
+ `;
+  const result = await dbAPI.rawQuery(sql, [internmentId, systemId]);
+  return result;
+};
+const createInternment = async (
+  historyOfDisease: string,
+  dateOfSymptoms: Date,
+  dateOfDiagnosis: Date,
+  idPatientN: number
+) => {
+  const sql = `
+  INSERT INTO internment (historyOfDisease, dateOfSymptoms, dateOfDiagnosis, patientId)
+  VALUES (?, ?, ?, ?)
+ `;
+
+  const result = await dbAPI.rawQuery(sql, [
+    historyOfDisease,
+    dateOfSymptoms,
+    dateOfDiagnosis,
+    idPatientN,
+  ]);
+  return result;
+};
+
+const unassingPatientToInternment = async (idInternment: number) => {
+  const sql = `UPDATE internment SET
+                patientId = NULL
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [idInternment]);
+  return result;
+};
+
+const deleteInternment = async (idInternment: number) => {
+  const sql = `DELETE FROM internment
+              WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [idInternment]);
+  return result;
+};
+
 const insert = async (query: string, values: object): Promise<boolean> => {
   try {
     const result = await dbAPI.insert(query, values);
@@ -290,6 +358,27 @@ const insert = async (query: string, values: object): Promise<boolean> => {
     return false;
   }
 };
+
+const assignPatientToBed = async (
+  idPatient: number,
+  idBed: number,
+  idRoom: number
+) => {
+  const sql = `UPDATE bed
+              SET  patientId = '?'
+              WHERE bed.id='?' AND roomId = '?'`;
+  const result = await dbAPI.rawQuery(sql, [idPatient, idBed, idRoom]);
+  return result;
+};
+
+const unassingPatientToBed = async (idBed: number) => {
+  const sql = `UPDATE patient SET
+                patientId = NULL
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [idBed]);
+  return result;
+};
+
 const insertPatient = async (query: string, values: object): Promise<any> => {
   const result = await dbAPI.insert(query, values);
   return result;
@@ -362,6 +451,14 @@ const queries = {
   returInfinitBedsOfSystem,
   returnRoomsWhitSpaceOfSystemForSystemId,
   returnBedsWhitSpaceOfRoomForRoomId,
+  stillFreeBed,
+  assignPatientToBed,
+  createInternment,
+  createSystemChange,
+  unassingPatientToInternment,
+  unassingPatientToBed,
+  deleteInternment,
+  patientHasCurrentHospitalization,
 };
 
 export default queries;

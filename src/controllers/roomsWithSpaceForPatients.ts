@@ -5,9 +5,9 @@ import { User } from "../model/User";
 import { CustomRequest } from "../model/Request";
 
 const roomsWithSpaceForPatients = async (req: Request, res: Response) => {
+  console.log("llego a rooms with space for patients");
   const user: User = (req as CustomRequest).user;
-  console.log("llega", req.body);
-  if (true) {
+  if (user) {
     const idString = req.query.id as string;
     const id: number = parseInt(idString, 10);
     const errors = validationResult(req);
@@ -21,10 +21,11 @@ const roomsWithSpaceForPatients = async (req: Request, res: Response) => {
         console.log("the rooms was not found, the system dont have free beds");
         return res.sendStatus(404);
       }
-      res.json({ rooms });
+      console.log("rooms", rooms);
+      res.json(rooms);
     } catch (error) {
       console.log("user invalid");
-      return res.sendStatus(500);
+      return res.sendStatus(403);
     }
   } else {
     res.sendStatus(404);

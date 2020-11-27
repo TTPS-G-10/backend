@@ -1,5 +1,6 @@
 import infoInternment from "../controllers/infoInternment";
 import createInternment from "../controllers/createInternment";
+import createInternmentWithData from "../controllers/createInternmentWithData";
 import { check } from "express-validator";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
@@ -33,6 +34,20 @@ router.post(
   checkPermissionByRole,
   [check("id").not().isEmpty()],
   createInternment
+);
+
+router.put(
+  "/internment",
+  checkPermissionByRole,
+  [
+    check("idPatient").not().isEmpty(),
+    check("bed").not().isEmpty(),
+    check("room").not().isEmpty(),
+    check("historyOfDisease").not().isEmpty(),
+    check("dateOfSymptoms").not().isEmpty(),
+    check("dateOfDiagnosis").not().isEmpty(),
+  ],
+  createInternmentWithData
 );
 
 export default router;

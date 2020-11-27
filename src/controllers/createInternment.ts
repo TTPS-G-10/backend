@@ -17,7 +17,8 @@ const createInternment = async (req: Request, res: Response) => {
       .returCountFreeBedsInSystemId(1)
       .then(async (camas) => {
         console.log("respuesta de cantidad de camas libres", camas[0].cantFree);
-        if (camas > 0) {
+        if (camas[0].cantFree > 0) {
+          console.log("entro por donde tien las camas libres");
           return res.json({ redirect: "/internment/create", createBed: false });
         } else {
           await queries.returInfinitBedsOfSystem(1).then((infinitBeds) => {
