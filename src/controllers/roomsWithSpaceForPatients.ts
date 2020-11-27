@@ -5,7 +5,7 @@ import { User } from "../model/User";
 import { CustomRequest } from "../model/Request";
 
 const roomsWithSpaceForPatients = async (req: Request, res: Response) => {
-  console.log("llego a rooms with space for patients");
+  console.log("llego a rooms with space for patients", req.query);
   const user: User = (req as CustomRequest).user;
   if (user) {
     const idString = req.query.id as string;
@@ -16,6 +16,7 @@ const roomsWithSpaceForPatients = async (req: Request, res: Response) => {
       return res.sendStatus(400);
     }
     try {
+      console.log("id:", idString, id);
       const rooms = await queries.returnRoomsWithSpaceOfSystemForSystemId(id);
       if (!rooms) {
         console.log("the rooms was not found, the system dont have free beds");
