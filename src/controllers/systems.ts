@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import queries from "../database/queries";
+import queries from "../DAL/queries";
 import { addRoomsAndBedsAndPatientsToSystem } from "../services/dataAggregation";
 
 const systems = async (req: Request, res: Response) => {

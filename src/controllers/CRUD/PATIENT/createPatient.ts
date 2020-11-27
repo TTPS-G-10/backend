@@ -1,8 +1,8 @@
 import { validationResult } from "express-validator";
-import queries from "../database/queries";
+import queries from "../../../DAL/queries";
 import { Request, Response } from "express";
-import { User } from "../model/User";
-import { CustomRequest } from "../model/Request";
+import { User } from "../../../model/User";
+import { CustomRequest } from "../../../model/Request";
 
 const validatePatient = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;

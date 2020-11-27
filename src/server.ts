@@ -14,7 +14,7 @@ import internment from "./routes/internment";
 
 import morgan from "morgan";
 import cors from "cors";
-import dbAPI from "./database/database";
+import dbAPI from "./DAL/database";
 import authorization from "./middlewares/authorization";
 import cookieParser from "cookie-parser";
 import fs from "fs";
