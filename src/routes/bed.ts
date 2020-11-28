@@ -1,6 +1,6 @@
-import newStructureBed from "./../controllers/newStructureBed";
-import deleteStructureBed from "./../controllers/deleteStructureBed";
-import editStructureBed from "./../controllers/editStructureBed";
+import newStructureBed from "./../controllers/CRUD/BED/newStructureBed";
+import deleteStructureBed from "../controllers/CRUD/BED/deleteStructureBed";
+import editStructureBed from "./../controllers/CRUD/BED/editStructureBed";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";

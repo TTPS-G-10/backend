@@ -1,10 +1,10 @@
 import { Location, validationResult } from "express-validator";
-import queries from "../database/queries";
+import queries from "../DAL/queries";
 import { Request, Response } from "express";
 import { User } from "../model/User";
 import { CustomRequest } from "../model/Request";
 
-const systemsWhitSpaceForPatients = async (req: Request, res: Response) => {
+const systemsWithSpaceForPatients = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
   if (user) {
     const errors = validationResult(req);
@@ -27,4 +27,4 @@ const systemsWhitSpaceForPatients = async (req: Request, res: Response) => {
     res.sendStatus(404);
   }
 };
-export default systemsWhitSpaceForPatients;
+export default systemsWithSpaceForPatients;

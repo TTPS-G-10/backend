@@ -2,6 +2,7 @@ import roomsWithSpaceForPatients from "./../controllers/roomsWithSpaceForPatient
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
+import { check } from "express-validator";
 import { ServicePaths } from "../model/Paths";
 const router = Router();
 
@@ -18,6 +19,11 @@ const checkPermissionByRole = (
   }
 };
 
-router.get("/rooms/withSpace", roomsWithSpaceForPatients);
+router.get(
+  "/rooms/withSpace",
+  checkPermissionByRole,
+  [check("id").not().isEmpty()],
+  roomsWithSpaceForPatients
+);
 
 export default router;

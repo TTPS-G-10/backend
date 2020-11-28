@@ -1,6 +1,6 @@
 import { validationResult } from "express-validator";
-import queries from "../database/queries";
-import dbAPI from "../database/database";
+import queries from "../DAL/queries";
+import dbAPI from "../DAL/database";
 import { Request, Response } from "express";
 import { User, Role } from "../model/User";
 import * as fs from "fs";
@@ -43,6 +43,21 @@ const auth = async (req: Request, res: Response) => {
         });
 
         // all ok
+        switch (user.role) {
+          case Role.Admin:
+            res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
+            break;
+          case Role.Doctor:
+            res.json({ redirect: FrontendPaths.PATIENTS, user, jwt: token });
+            break;
+          case Role.SystemChief:
+            res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
+            break;
+          default:
+            //ruta para rules
+            break;
+        }
+        /*
         if (user.role == Role.Admin) {
           res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
         }
@@ -51,7 +66,7 @@ const auth = async (req: Request, res: Response) => {
         }
         if (user.role == Role.SystemChief) {
           res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
-        }
+        }*/
       }
     }
   } catch (error) {

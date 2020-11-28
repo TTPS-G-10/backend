@@ -1,5 +1,5 @@
 import { Location, validationResult } from "express-validator";
-import queries from "../database/queries";
+import queries from "../DAL/queries";
 import { Request, Response } from "express";
 import { Internment } from "../model/Internment";
 import { User } from "../model/User";
@@ -26,7 +26,7 @@ const infoInternment = async (req: Request, res: Response) => {
         console.log("the internment was not found");
         return res.sendStatus(404);
       }
-      const patientLocation = await queries.LocationOfPatientWhitPatientId(id);
+      const patientLocation = await queries.LocationOfPatientWithPatientId(id);
       if (patientLocation) {
         if (
           user.systemId == patientLocation.systemId ||

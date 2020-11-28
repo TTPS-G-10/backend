@@ -1,5 +1,5 @@
-import dbAPI from "../database/database";
-import queries from "../database/queries";
+import dbAPI from "../DAL/database";
+import queries from "../DAL/queries";
 import { Room } from "../model/Room";
 import { Internment } from "../model/Internment";
 import { SystemChange } from "../model/SystemChange";
@@ -79,22 +79,22 @@ const addSystemchangesAndEvaluationToInternment = async (
   const systemChanges: SystemChange[] = await queries.findSystemChangesOfInternmentWithInternmentId(
     internment.id
   );
-  const systemChangesWhitEvaluations = await Promise.all(
+  const systemChangesWithEvaluations = await Promise.all(
     systemChanges.map(addEvaluationsToSystemChanges)
   );
   const patient = await queries.findPatientByID(internment.patientId);
 
-  const location = await queries.LocationOfPatientWhitPatientId(
+  const location = await queries.LocationOfPatientWithPatientId(
     internment.patientId
   );
   patient ? (internment.patient = patient) : patient;
   location ? (internment.location = location) : location;
-  internment.systemChanges = systemChangesWhitEvaluations;
+  internment.systemChanges = systemChangesWithEvaluations;
   return { ...internment };
 };
 
 const addEvaluationsToSystemChanges = async (systemChange: SystemChange) => {
-  const evaluations: Evaluation[] = await queries.findAcotedEvaluationsOfSystemChangeWhitSystemChangeId(
+  const evaluations: Evaluation[] = await queries.findAcotedEvaluationsOfSystemChangeWithSystemChangeId(
     systemChange.id
   );
   return { ...systemChange, evaluations: evaluations };

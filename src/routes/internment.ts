@@ -1,4 +1,7 @@
 import infoInternment from "../controllers/infoInternment";
+import createInternment from "../controllers/CRUD/INTERNMENT/createInternment";
+import createInternmentWithData from "../controllers/CRUD/INTERNMENT/createInternmentWithData";
+import createInternmentWithNewBed from "../controllers/CRUD/INTERNMENT/createInternmentWithNewBed";
 import { check } from "express-validator";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
@@ -21,10 +24,45 @@ const checkPermissionByRole = (
 };
 
 router.get(
-  "/internment",
+  ServicePaths.INTERNMENT,
   checkPermissionByRole,
   [check("id").not().isEmpty()],
   infoInternment
+);
+
+router.post(
+  ServicePaths.INTERNMENT,
+  checkPermissionByRole,
+  [check("id").not().isEmpty()],
+  createInternment
+);
+
+router.put(
+  ServicePaths.INTERNMENT,
+  checkPermissionByRole,
+  [
+    check("idPatient").not().isEmpty(),
+    check("bed").not().isEmpty(),
+    check("room").not().isEmpty(),
+    check("historyOfDisease").not().isEmpty(),
+    check("dateOfSymptoms").not().isEmpty(),
+    check("dateOfDiagnosis").not().isEmpty(),
+  ],
+  createInternmentWithData
+);
+
+router.put(
+  "/internmentWithNewBed",
+  checkPermissionByRole,
+  [
+    check("idPatient").not().isEmpty(),
+    check("bed").not().isEmpty(),
+    check("room").not().isEmpty(),
+    check("historyOfDisease").not().isEmpty(),
+    check("dateOfSymptoms").not().isEmpty(),
+    check("dateOfDiagnosis").not().isEmpty(),
+  ],
+  createInternmentWithNewBed
 );
 
 export default router;
