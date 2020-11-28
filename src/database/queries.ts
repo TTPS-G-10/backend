@@ -128,7 +128,6 @@ const returnSystemsWithSpace = async () => {
         INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
         WHERE (bd.patientId is NULL) OR (sys.infinitBeds = true)
         GROUP BY sys.id
-     
     `;
   const result = await dbAPI.rawQuery(sql, []);
   return result;
