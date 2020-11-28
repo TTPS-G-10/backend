@@ -32,7 +32,9 @@ function createInternment(
     })
     .catch(() => {
       console.log("Hospitalization could not be created");
-      queries.unassingPatientToBed(bedN);
+      queries.unassingPatientToBed(bedN).then(() => {
+        queries.removeBed(bedN);
+      });
       return res.sendStatus(500);
     });
 }
@@ -97,28 +99,20 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
     }
 
     queries
-      .insertBed(bedName, roomN, idPatientN)
+      .insertBedWithPatient(bedName, roomN, idPatientN)
       .then((newBed) => {
         console.log("newBed:", newBed);
         if (newBed.insertId) {
           const bedN = newBed.insertId;
-          queries
-            .assignPatientToBed(idPatientN, bedN, roomN)
-            .then(() => {
-              createInternment(
-                historyOfDisease,
-                dateOfSymptoms,
-                dateOfDiagnosis,
-                idPatientN,
-                systemId,
-                bedN,
-                res
-              );
-            })
-            .catch(
-              () => console.log("salio sin poder asignar paciente a cama")
-              //eliminar cama
-            );
+          createInternment(
+            historyOfDisease,
+            dateOfSymptoms,
+            dateOfDiagnosis,
+            idPatientN,
+            systemId,
+            bedN,
+            res
+          );
         }
       })
       .catch(() => {

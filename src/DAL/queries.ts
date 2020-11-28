@@ -364,10 +364,21 @@ const unassingPatientToBed = async (idBed: number) => {
   const result = await dbAPI.rawQuery(sql, [idBed]);
   return result;
 };
-const insertBed = async (name: string, roomId: number, patientId: number) => {
+const insertBedWithPatient = async (
+  name: string,
+  roomId: number,
+  patientId: number
+) => {
   const sql = `INSERT INTO bed (name,  roomId, patientId)
         VALUES (?, ?, ?)`;
   const result = await dbAPI.rawQuery(sql, [name, roomId, patientId]);
+  return result;
+};
+
+const removeBed = async (idBed: number) => {
+  const sql = `DELETE FROM bed
+              WHERE (id = '?')`;
+  const result = await dbAPI.rawQuery(sql, [idBed]);
   return result;
 };
 
@@ -437,7 +448,8 @@ const queries = {
   insert,
   insertPatient,
   insertContactPerson,
-  insertBed,
+  insertBedWithPatient,
+  removeBed,
   update,
   remove,
   returCountFreeBedsInSystemId,
