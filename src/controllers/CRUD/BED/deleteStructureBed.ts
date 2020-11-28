@@ -21,7 +21,7 @@ const deleteStructure = async (req: Request, res: Response) => {
       res.sendStatus(400);
     }
   } catch (error) {
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 export default deleteStructure;

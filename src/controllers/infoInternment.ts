@@ -26,15 +26,21 @@ const infoInternment = async (req: Request, res: Response) => {
         console.log("the internment was not found");
         return res.sendStatus(404);
       }
-      const patientLocation = await queries.LocationOfPatientWhitPatientId(id);
+      const patientLocation = await queries.LocationOfPatientWithPatientId(id);
       if (patientLocation) {
         if (
-          user.systemId == patientLocation.systemId &&
+          user.systemId == patientLocation.systemId ||
           user.role == "JEFE DE SISTEMA"
         ) {
         } else {
           console.log(
             "you do not have permission to view internments from another system"
+          );
+          console.log(
+            "your system",
+            user.systemId,
+            "patient system",
+            patientLocation.systemId
           );
           return res.sendStatus(403);
         }
