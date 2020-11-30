@@ -3,6 +3,9 @@ import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
 import { ServicePaths } from "../model/Paths";
+import EngineRule from "../rule-engine/engine";
+import { InternmentStatuses } from "../model/Internment";
+import { SYSTEM_CHANGE_RULE } from "../rule-engine/systemChangesRule";
 const { check } = require("express-validator");
 
 const router = Router();
@@ -20,6 +23,32 @@ const checkPermissionByRole = (
   }
 };
 
+const checkRulesRestrictions = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const engine = EngineRule.getEngine();
+  const fact = {
+    // lado izquiero sistema actual
+    [InternmentStatuses.GUARDIA]: InternmentStatuses.UTI, // lado derecho sistema al cual se solicita el pase
+  };
+  engine
+    .run(fact)
+    .then((result) => {
+      const found = result.events.find(
+        (event) => event.type === SYSTEM_CHANGE_RULE.SUCCESS
+      );
+      if (found) {
+        // si pasa la regla lo dejamos seguir.
+        next();
+      } else {
+        res.sendStatus(412);
+      }
+    })
+    .catch((err) => res.sendStatus(500));
+};
+
 router.post(
   ServicePaths.SYSTEMCHANGE,
   [
@@ -28,6 +57,7 @@ router.post(
     check("room", "El id de sala es obligatorio").not().isEmpty(),
   ],
   checkPermissionByRole,
+  checkRulesRestrictions,
   createSystemChange
 );
 

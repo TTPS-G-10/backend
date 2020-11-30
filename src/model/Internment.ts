@@ -1,6 +1,7 @@
 import { Patient } from "./Patient";
 import { SystemChange } from "./SystemChange";
 import { Location } from "./Location";
+import { SystemNames } from "./System";
 
 export type Internment = {
   id: number;
@@ -15,3 +16,13 @@ export type Internment = {
   location: Location;
   systemChanges: SystemChange[];
 };
+
+export enum InternmentStatuses {
+  OBITO = "OBITO",
+  EGRESS = "EGRESS",
+  GUARDIA = "GUARDIA",
+  UTI = "UTI",
+  DOMICILIO = "DOMICILIO",
+  PISO_COVID = "PISO COVID",
+  HOTEL = "HOTEL",
+}

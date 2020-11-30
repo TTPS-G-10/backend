@@ -20,6 +20,8 @@ import authorization from "./middlewares/authorization";
 import cookieParser from "cookie-parser";
 import fs from "fs";
 import https from "https";
+import EngineRule from "./rule-engine/engine";
+import { InternmentStatuses } from "./model/Internment";
 
 const key = fs.readFileSync(__dirname + "/../.certificates/localhost.key");
 const cert = fs.readFileSync(__dirname + "/../.certificates/localhost.crt");
@@ -64,6 +66,8 @@ dbAPI.generateConnection({
   database: "ttps_db",
   port: 3306,
 });
+
+EngineRule.init();
 
 var server = https.createServer(options, app);
 
