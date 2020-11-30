@@ -1,0 +1,44 @@
+import { validationResult } from "express-validator";
+import queries from "../DAL/queries";
+import { Request, Response } from "express";
+import { Evaluation } from "../model/Evaluation";
+import { ContactPerson } from "../model/ContactPerson";
+import { User } from "../model/User";
+import { CustomRequest } from "../model/Request";
+import { Patient } from "../model/Patient";
+
+const infoEvolution = async (req: Request, res: Response) => {
+  const user: User = (req as CustomRequest).user;
+  if (user) {
+    const idString = req.query.id as string;
+    const id: number = parseInt(idString, 10);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.sendStatus(400);
+    }
+    try {
+      const evolution:
+        | Evaluation
+        | null
+        | undefined = await queries.findEvolutionByID(id);
+      if (!evolution) {
+        console.log("the evolution was not found");
+        return res.sendStatus(404);
+      }
+      console.log("evolucion data:", evolution);
+      const patient: Patient | null | undefined = await queries.findPatientByID(
+        id
+      );
+      console.log("patien data:", patient);
+      const lastName = patient?.lastName;
+      const name = patient?.name;
+      return res.json({ evolution, lastName, name });
+    } catch (error) {
+      console.log("evolution id invalid");
+      return res.sendStatus(500);
+    }
+  } else {
+    res.sendStatus(404);
+  }
+};
+export default infoEvolution;

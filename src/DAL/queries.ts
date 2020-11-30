@@ -5,6 +5,7 @@ import { Internment } from "../model/Internment";
 import { Patient } from "../model/Patient";
 import { Location } from "../model/Location";
 import { ContactPerson } from "../model/ContactPerson";
+import { Evaluation } from "../model/Evaluation";
 
 type Cant = {
   cant: Number;
@@ -268,6 +269,16 @@ const findRoomsFromASystemtByID = async (id: number) => {
   const result = await dbAPI.rawQuery(sql, [id]);
   return result;
 };
+
+const findEvolutionByID = async (id: number) => {
+  const sql = `
+         SELECT *
+  FROM evaluation 
+  WHERE id='?' `;
+
+  const result = await dbAPI.singleOrDefault<Evaluation | null>(sql, [id]);
+  return result;
+};
 const patientHasCurrentHospitalization = async (idPatient: number) => {
   const sql = `
   SELECT *
@@ -443,6 +454,7 @@ const queries = {
   findPatientByDNI,
   findPatientByID,
   findContactPersonByPatientID,
+  findEvolutionByID,
   returnBedsOfAnyRoomForId,
   returnPatientForBed,
   insert,
