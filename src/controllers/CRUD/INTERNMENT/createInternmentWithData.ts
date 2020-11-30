@@ -13,11 +13,13 @@ function createInternment(
   bedN: number,
   res: Response<any>
 ) {
+  const dateOfHospitalization = Date.now();
   queries
     .createInternment(
       historyOfDisease,
       new Date(dateOfSymptoms),
       new Date(dateOfDiagnosis),
+      new Date(dateOfHospitalization),
       idPatientN
     )
     .then((okey) => {

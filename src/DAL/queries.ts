@@ -359,17 +359,19 @@ const createInternment = async (
   historyOfDisease: string,
   dateOfSymptoms: Date,
   dateOfDiagnosis: Date,
+  dateOfHospitalization: Date,
   idPatientN: number
 ) => {
   const sql = `
-  INSERT INTO internment (historyOfDisease, dateOfSymptoms, dateOfDiagnosis, patientId)
-  VALUES (?, ?, ?, ?)
+  INSERT INTO internment (historyOfDisease, dateOfSymptoms, dateOfDiagnosis,dateOfHospitalization, patientId)
+  VALUES (?, ?, ?,?, ?)
  `;
 
   const result = await dbAPI.rawQuery(sql, [
     historyOfDisease,
     dateOfSymptoms,
     dateOfDiagnosis,
+    dateOfHospitalization,
     idPatientN,
   ]);
   return result;
