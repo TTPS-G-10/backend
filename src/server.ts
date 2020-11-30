@@ -21,7 +21,6 @@ import cookieParser from "cookie-parser";
 import fs from "fs";
 import https from "https";
 import EngineRule from "./rule-engine/engine";
-import { InternmentStatuses } from "./model/Internment";
 
 const key = fs.readFileSync(__dirname + "/../.certificates/localhost.key");
 const cert = fs.readFileSync(__dirname + "/../.certificates/localhost.crt");
@@ -68,7 +67,6 @@ dbAPI.generateConnection({
 });
 
 EngineRule.init();
-
 var server = https.createServer(options, app);
 
 server.listen(app.get("port"), () => {
