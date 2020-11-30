@@ -246,6 +246,24 @@ const remove = async (
   }
 };
 
+const getPatientById = async (id: string): Promise<Patient | null> => {
+  try {
+    const sql = `
+    SELECT pt.id,pt.name ,pt.lastName 
+     FROM ttps_db.bed bd 
+     INNER JOIN ttps_db.patient pt on  pt.id = bd.patientId
+     WHERE bd.id = ? 
+     LIMIT 1
+     `;
+    const result: Patient | null = await dbAPI.singleOrDefault(sql, [id]);
+    if (!result) throw new Error("not found");
+    return result;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
 // queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
 // queries.update('bed', 'id', { set: "name = 'cama_modificada_1'", id: 1 }).then((ok) => console.log('modificó bien?', ok));
 // queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
@@ -271,6 +289,7 @@ const queries = {
   insertContactPerson,
   update,
   remove,
+  getPatientById,
 };
 
 export default queries;
