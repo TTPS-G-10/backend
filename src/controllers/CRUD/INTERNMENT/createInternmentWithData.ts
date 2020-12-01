@@ -13,11 +13,13 @@ function createInternment(
   bedN: number,
   res: Response<any>
 ) {
+  const dateOfHospitalization = Date.now();
   queries
     .createInternment(
       historyOfDisease,
       new Date(dateOfSymptoms),
       new Date(dateOfDiagnosis),
+      new Date(dateOfHospitalization),
       idPatientN
     )
     .then((okey) => {
@@ -98,7 +100,7 @@ const createInternmentWithData = async (req: Request, res: Response) => {
       .stillFreeBed(systemId, bedN, roomN)
       .then((freeBed) => {
         if (freeBed[0].patientId === null) {
-          queries.assignPatientToBed(idPatientN, bedN, roomN).then(() => {
+          queries.assignPatientToBed(idPatientN, bedN).then(() => {
             createInternment(
               historyOfDisease,
               dateOfSymptoms,

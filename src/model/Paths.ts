@@ -14,4 +14,5 @@ export enum ServicePaths {
   INTERNMENT = "/internment",
   PATIENT = "/patient",
   EVALUATION = "/evaluation",
+  SYSTEMCHANGE = "/systemChange",
 }
