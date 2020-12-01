@@ -3,6 +3,7 @@ import systemsWithSpaceForPatients from "./../controllers/systemsWithSpaceForPat
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
+import { check } from "express-validator";
 import { ServicePaths } from "../model/Paths";
 const router = Router();
 
@@ -35,7 +36,8 @@ router.get(ServicePaths.SYSTEMS, checkPermissionByRole, systems);
 
 router.get(
   "/systems/withSpace",
-
+  [check("id").not().isEmpty()],
+  checkPermissionByRoleForSistemChanges,
   systemsWithSpaceForPatients
 );
 

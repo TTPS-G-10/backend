@@ -1,8 +1,10 @@
-import bedsWithSpaceForPatients from "./../controllers/bedsWithSpaceForPatients";
+import createSystemChange from "../controllers/CRUD/SYSTEMCHANGES/create";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
 import { ServicePaths } from "../model/Paths";
+const { check } = require("express-validator");
+
 const router = Router();
 
 const checkPermissionByRole = (
@@ -18,6 +20,15 @@ const checkPermissionByRole = (
   }
 };
 
-router.get("/beds/withSpace", checkPermissionByRole, bedsWithSpaceForPatients);
+router.post(
+  ServicePaths.SYSTEMCHANGE,
+  [
+    check("patientId", "El id de paciente es obligatorio").not().isEmpty(),
+    check("system", "El id de sistema es obligatorio").not().isEmpty(),
+    check("room", "El id de sala es obligatorio").not().isEmpty(),
+  ],
+  checkPermissionByRole,
+  createSystemChange
+);
 
 export default router;

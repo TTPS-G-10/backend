@@ -1,8 +1,9 @@
-import bedsWithSpaceForPatients from "./../controllers/bedsWithSpaceForPatients";
-import Router, { Response, NextFunction, Request } from "express";
+import infoEvolution from "../controllers/infoEvolution";
+import { check } from "express-validator";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
-import { ServicePaths } from "../model/Paths";
+import Router, { Response, NextFunction, Request } from "express";
+
 const router = Router();
 
 const checkPermissionByRole = (
@@ -10,7 +11,7 @@ const checkPermissionByRole = (
   res: Response,
   next: NextFunction
 ) => {
-  const allowedRoles = [Role.SystemChief, Role.Doctor];
+  const allowedRoles = [Role.Doctor, Role.SystemChief];
   if (allowedRoles.includes((req as CustomRequest).user.role)) {
     next();
   } else {
@@ -18,6 +19,11 @@ const checkPermissionByRole = (
   }
 };
 
-router.get("/beds/withSpace", checkPermissionByRole, bedsWithSpaceForPatients);
+router.get(
+  "/evolution",
+  checkPermissionByRole,
+  [check("id").not().isEmpty()],
+  infoEvolution
+);
 
 export default router;
