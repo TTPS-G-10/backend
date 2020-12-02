@@ -78,6 +78,17 @@ const findSystemOfUser = async (email: string): Promise<System | null> => {
     `;
   return await dbAPI.singleOrDefault<System | null>(sql, [email]);
 };
+const findSystemForEvolution = async (id: number): Promise<String | null> => {
+  const sql = `
+    SELECT syst.name
+    FROM ttps_db.system as syst
+    INNER JOIN ttps_db.systemChange as sc
+    ON syst.id = sc.systemId
+    WHERE sc.id='?'
+    LIMIT 1
+    `;
+  return await dbAPI.singleOrDefault<String | null>(sql, [id]);
+};
 
 const findOpenInternmentWithPatientId = async (
   patientId: number
@@ -451,6 +462,7 @@ const queries = {
   findOpenInternmentWithPatientId,
   returnSystems,
   findSystemOfUser,
+  findSystemForEvolution,
   findPatientByDNI,
   findPatientByID,
   findContactPersonByPatientID,

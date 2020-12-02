@@ -6,6 +6,7 @@ import { ContactPerson } from "../model/ContactPerson";
 import { User } from "../model/User";
 import { CustomRequest } from "../model/Request";
 import { Patient } from "../model/Patient";
+import { System } from "../model/System";
 
 const infoEvolution = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
@@ -29,10 +30,16 @@ const infoEvolution = async (req: Request, res: Response) => {
       const patient: Patient | null | undefined = await queries.findPatientByID(
         id
       );
+      const system:
+        | String
+        | null
+        | undefined = await queries.findSystemForEvolution(
+        evolution.systemChangeId
+      );
       console.log("patien data:", patient);
       const lastName = patient?.lastName;
       const name = patient?.name;
-      return res.json({ evolution, lastName, name });
+      return res.json({ evolution, lastName, name, system });
     } catch (error) {
       console.log("evolution id invalid");
       return res.sendStatus(500);
