@@ -12,6 +12,7 @@ import system from "./routes/system";
 import patient from "./routes/patient";
 import internment from "./routes/internment";
 import evolution from "./routes/evolution";
+import systemChange from "./routes/systemChange";
 
 import morgan from "morgan";
 import cors from "cors";
@@ -52,6 +53,7 @@ app.use(room);
 app.use(rooms);
 app.use(system);
 app.use(evolution);
+app.use(systemChange);
 
 app.set("port", process.env.PORT || 9000);
 

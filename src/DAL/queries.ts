@@ -6,6 +6,7 @@ import { Patient } from "../model/Patient";
 import { Location } from "../model/Location";
 import { ContactPerson } from "../model/ContactPerson";
 import { Evaluation } from "../model/Evaluation";
+import { Bed } from "../model/Bed";
 
 type Cant = {
   cant: Number;
@@ -132,15 +133,68 @@ SELECT evaluation.id, evaluation.userId, evaluation.patientId, evaluation.system
 
 //SYSTEMAS / SALAS / CAMAS / PACIENTES
 
-const returnSystemsWithSpace = async () => {
+const findBedsWithSystemAndRoom = async (
+  systemId: number,
+  roomId: number
+): Promise<Bed | null> => {
+  const sql = `
+    SELECT bd.*
+        FROM ttps_db.system sys 
+        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
+        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        WHERE  (sys.id = ?) AND (rm.id = ?) AND (bd.patientId is NULL)
+        LIMIT 1
+    `;
+  return await dbAPI.singleOrDefault<Bed | null>(sql, [systemId, roomId]);
+};
+
+const returnSystemWithSpaceFromPisoCovid = async () => {
   const sql = `
        SELECT sys.name,sys.id,sys.infinitBeds
         FROM ttps_db.system sys 
         INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
         INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
-        WHERE (bd.patientId is NULL) OR (sys.infinitBeds = true)
+        WHERE ((bd.patientId is NULL) OR (sys.infinitBeds = true)) AND (sys.id =2 OR  sys.id =3 OR sys.id =5 )
         GROUP BY sys.id
-     
+    `;
+  const result = await dbAPI.rawQuery(sql, []);
+  return result;
+};
+
+const returnSystemWithSpaceFromGuardia = async () => {
+  const sql = `
+       SELECT sys.name,sys.id,sys.infinitBeds
+        FROM ttps_db.system sys 
+        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
+        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        WHERE ((bd.patientId is NULL) OR (sys.infinitBeds = true)) AND (sys.id =4 OR  sys.id =2 )
+        GROUP BY sys.id
+    `;
+  const result = await dbAPI.rawQuery(sql, []);
+  return result;
+};
+
+const returnSystemWithSpaceFromUti = async () => {
+  const sql = `
+       SELECT sys.name,sys.id,sys.infinitBeds
+        FROM ttps_db.system sys 
+        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
+        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        WHERE ((bd.patientId is NULL) OR (sys.infinitBeds = true)) AND (sys.id =4 )
+        GROUP BY sys.id
+    `;
+  const result = await dbAPI.rawQuery(sql, []);
+  return result;
+};
+
+const returnSystemWithSpaceFromHotelAndDomicilio = async () => {
+  const sql = `
+       SELECT sys.name,sys.id,sys.infinitBeds
+        FROM ttps_db.system sys 
+        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
+        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        WHERE ((bd.patientId is NULL) OR (sys.infinitBeds = true)) AND (sys.id =4 )
+        GROUP BY sys.id
     `;
   const result = await dbAPI.rawQuery(sql, []);
   return result;
@@ -327,17 +381,19 @@ const createInternment = async (
   historyOfDisease: string,
   dateOfSymptoms: Date,
   dateOfDiagnosis: Date,
+  dateOfHospitalization: Date,
   idPatientN: number
 ) => {
   const sql = `
-  INSERT INTO internment (historyOfDisease, dateOfSymptoms, dateOfDiagnosis, patientId)
-  VALUES (?, ?, ?, ?)
+  INSERT INTO internment (historyOfDisease, dateOfSymptoms, dateOfDiagnosis,dateOfHospitalization, patientId)
+  VALUES (?, ?, ?,?, ?)
  `;
 
   const result = await dbAPI.rawQuery(sql, [
     historyOfDisease,
     dateOfSymptoms,
     dateOfDiagnosis,
+    dateOfHospitalization,
     idPatientN,
   ]);
   return result;
@@ -367,21 +423,17 @@ const insert = async (query: string, values: object): Promise<boolean> => {
   }
 };
 
-const assignPatientToBed = async (
-  idPatient: number,
-  idBed: number,
-  idRoom: number
-) => {
+const assignPatientToBed = async (idPatient: number, idBed: number) => {
   const sql = `UPDATE bed
-              SET  patientId = '?'
-              WHERE bed.id='?' AND roomId = '?'`;
-  const result = await dbAPI.rawQuery(sql, [idPatient, idBed, idRoom]);
+              SET patientId = '?'
+              WHERE bed.id='?' `;
+  const result = await dbAPI.rawQuery(sql, [idPatient, idBed]);
   return result;
 };
 
 const unassingPatientToBed = async (idBed: number) => {
-  const sql = `UPDATE patient SET
-                patientId = NULL
+  const sql = `UPDATE bed
+               SET patientId = NULL
                 WHERE id = '?'`;
   const result = await dbAPI.rawQuery(sql, [idBed]);
   return result;
@@ -450,7 +502,11 @@ const remove = async (
 
 const queries = {
   findUserByEmail,
-  returnSystemsWithSpace,
+  findBedsWithSystemAndRoom,
+  returnSystemWithSpaceFromPisoCovid,
+  returnSystemWithSpaceFromUti,
+  returnSystemWithSpaceFromGuardia,
+  returnSystemWithSpaceFromHotelAndDomicilio,
   returnBedsWithSpaceOfRoomForRoomId,
   returnRoomsWithSpaceOfSystemForSystemId,
   LocationOfPatientWithPatientId,
