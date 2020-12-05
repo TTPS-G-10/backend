@@ -1,4 +1,4 @@
-import infoInternment from "../controllers/infoInternment";
+import infoInternment from "../controllers/CRUD/INTERNMENT/infoInternment";
 import createInternment from "../controllers/CRUD/INTERNMENT/createInternment";
 import createInternmentWithData from "../controllers/CRUD/INTERNMENT/createInternmentWithData";
 import createInternmentWithNewBed from "../controllers/CRUD/INTERNMENT/createInternmentWithNewBed";

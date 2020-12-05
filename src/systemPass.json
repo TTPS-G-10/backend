@@ -1,0 +1,7 @@
+{
+  "GUARDIA": ["PISO COVID", "UTI"],
+  "UTI": ["PISO COVID"],
+  "PISO COVID": ["UTI", "HOTEL", "DOMICILIO"],
+  "HOTEL": ["PISO COVID"],
+  "DOMICILIO": ["PISO COVID"]
+}

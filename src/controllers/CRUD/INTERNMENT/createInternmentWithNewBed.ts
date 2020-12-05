@@ -53,7 +53,7 @@ function createSystemChangesToPatient(
     .then((o) => {
       console.log("se creo el system changes:", o);
       return res.json({
-        redirect: "/internment/" + idPatient,
+        redirect: "/internment/" + internmentId,
       });
     })
     .catch(async () => {
@@ -81,7 +81,7 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
     room,
   } = req.body;
 
-  if (user && user.systemId === 1) {
+  if (user && user.systemName === "GUARDIA") {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log("invalid parameter");

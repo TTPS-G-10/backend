@@ -35,7 +35,8 @@ const calculateRemovableProperty = async (system: System) => {
 };
 
 const addBedsAndPatientsToRoom = async (room: Room) => {
-  const patients = await queries.returnBedsAnDPatientsForRoomId(room.id);
+  const bedsOfPatients = await queries.returnBedsAndPatientsForRoomId(room.id);
+  const patients = await Promise.all(bedsOfPatients.map(addPatientToBed));
   return { ...room, patients };
 };
 const addBedsToRoom = async (room: Room) => {
@@ -49,12 +50,15 @@ const addBedsWithPatientToRoom = async (room: Room) => {
 };
 
 const addPatientToBed = async (bed: Bed) => {
-  const patient = await queries.returnPatientForBed(bed.id);
+  const patient = await queries.findPatientByID(bed.patientId);
+  const internment = await queries.findOpenInternmentWithPatientId(
+    bed.patientId
+  );
   return {
     ...bed,
-    patient_id: patient?.id,
-    patient_name: patient?.name,
-    patient_last_name: patient?.lastName,
+    internmentId: internment?.id,
+    patientName: patient?.name,
+    patientLastName: patient?.lastName,
   };
 };
 
