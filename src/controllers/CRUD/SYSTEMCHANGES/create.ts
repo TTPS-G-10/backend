@@ -74,7 +74,7 @@ const createSystemChange = async (req: Request, res: Response) => {
           .then((okey) => {
             queries.unassingPatientToBed(location.bedId);
             console.log("se creo el system changes:", okey);
-            return res.json({ success: true });
+            return res.sendStatus(201);
           })
           .catch(async () => {
             console.log("Could not create system changes");

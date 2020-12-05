@@ -2,6 +2,7 @@ import { validationResult } from "express-validator";
 import queries from "../../../DAL/queries";
 import { Request, Response } from "express";
 import { User } from "../../../model/User";
+import { ServiceSystemNames } from "../../../model/SystemNames";
 import { CustomRequest } from "../../../model/Request";
 
 function createInternment(
@@ -77,7 +78,7 @@ const createInternmentWithData = async (req: Request, res: Response) => {
     bed,
   } = req.body;
 
-  if (user && user.systemName === "GUARDIA") {
+  if (user && user.systemName === ServiceSystemNames.GUARDIA) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log("invalid parameter");

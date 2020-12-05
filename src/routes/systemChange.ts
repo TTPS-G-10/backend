@@ -11,7 +11,20 @@ const { check } = require("express-validator");
 
 const router = Router();
 
-const checkPermissionByRole = async (
+const checkPermissionByRole = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const allowedRoles = [Role.SystemChief, Role.Doctor];
+  if (allowedRoles.includes((req as CustomRequest).user.role)) {
+    next();
+  } else {
+    res.sendStatus(403); // Forbidden
+  }
+};
+
+const checkAllowedSystemChange = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -37,15 +50,15 @@ const checkPermissionByRole = async (
   const allowedSystems = (SystemChangesRules as any)[location.systemName];
 
   if (!allowedSystems.includes((req as CustomRequest).body.systemName)) {
-    console.log("the patient dont not pass to system");
-    return res.sendStatus(403);
-  }
+    console.log(
+      "Perform Action System Change =>from ",
+      location.systemName,
+      " to ",
+      (req as CustomRequest).body.systemName
+    );
+    console.error("target system is not allowed");
 
-  const allowedRoles = [Role.SystemChief, Role.Doctor];
-  if (allowedRoles.includes(user.role)) {
-    next();
-  } else {
-    res.sendStatus(403); // Forbidden
+    return res.sendStatus(403);
   }
 };
 
@@ -57,6 +70,7 @@ router.post(
     check("room", "El id de sala es obligatorio").not().isEmpty(),
   ],
   checkPermissionByRole,
+  checkAllowedSystemChange,
   createSystemChange
 );
 
