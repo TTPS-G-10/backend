@@ -64,7 +64,7 @@ router.put(
 router.get(
   ServicePaths.SYSTEM,
   checkPermissionByRoleToSeeRooms,
-  [check("id", "El id del systema es obligatorio").not().isEmpty()],
+  [check("systemName", "El nombre del systema es obligatorio").not().isEmpty()],
   getRoomsFromASystem
 );
 export default router;

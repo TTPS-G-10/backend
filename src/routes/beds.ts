@@ -18,10 +18,6 @@ const checkPermissionByRole = (
   }
 };
 
-router.get(
-  "/beds/withSpace",
-
-  bedsWithSpaceForPatients
-);
+router.get("/beds/withSpace", checkPermissionByRole, bedsWithSpaceForPatients);
 
 export default router;

@@ -1,4 +1,4 @@
-import roomsWithSpaceForPatients from "./../controllers/roomsWithSpaceForPatients";
+import selectDoctors from "../controllers/CRUD/DOCTORS/doctorsToAssing";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
@@ -11,7 +11,7 @@ const checkPermissionByRole = (
   res: Response,
   next: NextFunction
 ) => {
-  const allowedRoles = [Role.SystemChief, Role.Doctor];
+  const allowedRoles = [Role.SystemChief];
   if (allowedRoles.includes((req as CustomRequest).user.role)) {
     next();
   } else {
@@ -20,10 +20,10 @@ const checkPermissionByRole = (
 };
 
 router.get(
-  "/rooms/withSpace",
+  ServicePaths.DOCTORS,
+  [check("id").not().isEmpty()],
   checkPermissionByRole,
-  [check("systemName").not().isEmpty()],
-  roomsWithSpaceForPatients
+  selectDoctors
 );
 
 export default router;
