@@ -1,10 +1,13 @@
 import searchPatient from "../controllers/searchPatient";
 import createPatient from "../controllers/createPatient";
 import infoPatient from "../controllers/infoPatient";
-import { check } from "express-validator";
+import { check, body } from "express-validator";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
 import Router, { Response, NextFunction, Request } from "express";
+import { ServicePaths } from "../model/Paths";
+import Evolution from "../controllers/CRUD/EVOLUTION";
+import validate from "../middlewares/validate";
 
 const router = Router();
 
@@ -22,7 +25,7 @@ const checkPermissionByRole = (
 };
 
 router.post(
-  "/patient",
+  ServicePaths.PATIENT,
   checkPermissionByRole,
   [
     check("dni", "The DNI is mandatory").not().isEmpty(),
@@ -32,14 +35,41 @@ router.post(
 );
 
 router.get(
-  "/patient",
+  ServicePaths.PATIENT,
   checkPermissionByRole,
   [check("id").not().isEmpty()],
   infoPatient
 );
 
+router.post(
+  ServicePaths.PATIENT_EVOLVE,
+  checkPermissionByRole,
+  [
+    // check existance
+    body([
+      "evolution.temperature",
+      "evolution.systolicBloodPressure",
+      "evolution.diastolicBloodPressure",
+      "evolution.heartRate",
+      "evolution.breathingFrequency",
+      "patientId",
+    ]).notEmpty(),
+    // check data type
+    body([
+      "evolution.temperature",
+      "evolution.systolicBloodPressure",
+      "evolution.diastolicBloodPressure",
+      "evolution.heartRate",
+      "evolution.breathingFrequency",
+      "patientId",
+    ]).isNumeric(),
+  ],
+  validate,
+  Evolution.create
+);
+
 router.put(
-  "/patient",
+  ServicePaths.PATIENT,
   checkPermissionByRole,
   [
     check("dni", "The DNI is mandatory").not().isEmpty(),

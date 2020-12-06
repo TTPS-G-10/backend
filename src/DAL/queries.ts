@@ -5,6 +5,7 @@ import { Internment } from "../model/Internment";
 import { Patient } from "../model/Patient";
 import { Location } from "../model/Location";
 import { ContactPerson } from "../model/ContactPerson";
+import { Evolution } from "../model/Evolution";
 
 type Cant = {
   cant: Number;
@@ -249,7 +250,7 @@ const remove = async (
 const getPatientById = async (id: string): Promise<Patient | null> => {
   try {
     const sql = `
-    SELECT pt.id,pt.name ,pt.lastName 
+    SELECT *
      FROM ttps_db.bed bd 
      INNER JOIN ttps_db.patient pt on  pt.id = bd.patientId
      WHERE bd.id = ? 
@@ -262,6 +263,19 @@ const getPatientById = async (id: string): Promise<Patient | null> => {
     console.log(err);
     return null;
   }
+};
+
+const evolvePatient = async (
+  patientId: number,
+  userId: number,
+  evolution: Evolution
+): Promise<boolean> => {
+  const sql = "INSERT INTO evaluation";
+  // @TODO remove this unnecesary field from DB
+  const systemChangeId = 5;
+  // -----------------------
+  const payload = { ...evolution, userId, patientId, systemChangeId };
+  return await insert(sql, payload);
 };
 
 // queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
@@ -290,6 +304,7 @@ const queries = {
   update,
   remove,
   getPatientById,
+  evolvePatient,
 };
 
 export default queries;

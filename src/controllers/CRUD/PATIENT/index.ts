@@ -4,7 +4,7 @@ import { Patient } from "../../../model/Patient";
 
 const getPatientById = async (req: Request, res: Response) => {
   try {
-    const patient: Patient = await queries.getPatientById(req.param["id"]);
+    const patient: Patient | null = await queries.getPatientById(req.params.id);
     res.json({ patient });
   } catch (err) {
     console.error(err);
