@@ -163,6 +163,18 @@ const findSystemChangesOfInternmentWithInternmentId = async (
   return await dbAPI.rawQuery(sql, [internmentId]);
 };
 
+const returnPatientsAssinedToUserById = async (userId: number) => {
+  const sql = `
+  SELECT patient.name as patientName,internment.id as internmentId,patient.lastName as patientLastName,patient.id as patientId
+    FROM ttps_db.user
+    INNER JOIN ttps_db.assignedDoctor on assignedDoctor.userId = user.id
+    INNER JOIN ttps_db.internment on internment.id= assignedDoctor.internmentId
+    INNER JOIN ttps_db.patient on internment.id = patient.id
+    WHERE user.id= ?
+    `;
+  return await dbAPI.rawQuery(sql, [userId]);
+};
+
 const findAcotedEvaluationsOfSystemChangeWithSystemChangeId = async (
   internmentId: number
 ) => {
@@ -551,6 +563,7 @@ const changeRoleOfUserToDoctor = async (userId: number) => {
 
 const queries = {
   changeRoleOfUserToSystemChief,
+  returnPatientsAssinedToUserById,
   changeRoleOfUserToDoctor,
   returnDoctorsOfSystemForId,
   returnCurrentSystemIdOfTheInternment,
