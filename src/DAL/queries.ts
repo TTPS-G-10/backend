@@ -387,9 +387,9 @@ const createSystemChange = async (internmentId: number, systemId: number) => {
   return result;
 };
 
-const createAsignedDoctor = async (internmentId: number, userId: number) => {
+const createAssignedDoctor = async (internmentId: number, userId: number) => {
   const sql = `
-  INSERT INTO asignedDoctor (internmentId, userId)
+  INSERT INTO assignedDoctor (internmentId, userId)
   VALUES (?, ? )
  `;
   const result = await dbAPI.rawQuery(sql, [internmentId, userId]);
@@ -433,8 +433,8 @@ const deleteInternment = async (idInternment: number) => {
   return result;
 };
 
-const deleteASignedDoctors = async (idInternment: number) => {
-  const sql = `DELETE FROM asignedDoctor
+const deleteAssignedDoctors = async (idInternment: number) => {
+  const sql = `DELETE FROM assignedDoctor
               WHERE internmentId = '?'`;
   const result = await dbAPI.rawQuery(sql, [idInternment]);
   return result;
@@ -547,7 +547,7 @@ const queries = {
   returnCantOfSistemsChangesOfAnySystemForId,
   returnBedsAndPatientsForRoomId,
   findSystemChangesOfInternmentWithInternmentId,
-  deleteASignedDoctors,
+  deleteAssignedDoctors,
   findAcotedEvaluationsOfSystemChangeWithSystemChangeId,
   returnRomsOfAnSystemForId,
   findInternmentWithId,
@@ -572,7 +572,7 @@ const queries = {
   returInfinitBedsOfSystem,
   stillFreeBed,
   assignPatientToBed,
-  createAsignedDoctor,
+  createAssignedDoctor,
   createInternment,
   createSystemChange,
   unassingPatientToInternment,
