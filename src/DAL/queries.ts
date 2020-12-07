@@ -99,6 +99,19 @@ const findSystemOfUserForId = async (id: number): Promise<System | null> => {
   return await dbAPI.singleOrDefault<System | null>(sql, [id]);
 };
 
+const findSystemChiefBySystemId = async (
+  systemId: number
+): Promise<User | null> => {
+  const sql = `
+    SELECT user.id,user.name,user.lastName,user.file,user.email
+    FROM ttps_db.user
+    INNER JOIN ttps_db.worksAt on worksAt.userId = user.id
+    WHERE user.role = "JEFE DE SISTEMA" AND worksAt.systemId = ?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<User | null>(sql, [systemId]);
+};
+
 const findInternmentWithId = async (
   patientId: number
 ): Promise<Internment | null> => {
@@ -527,6 +540,7 @@ const queries = {
   findUserById,
   findBedsWithSystemAndRoom,
   findSystemForName,
+  findSystemChiefBySystemId,
   returnBedsWithSpaceOfRoomForRoomId,
   returnRoomsWithSpaceOfSystemForSystemId,
   LocationOfPatientWithPatientId,
