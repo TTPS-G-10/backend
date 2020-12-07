@@ -1,4 +1,5 @@
 import infoEvolution from "../controllers/infoEvolution";
+import infoEvolutionAndPatientData from "../controllers/infoEvolutionAndPatientData";
 import { check } from "express-validator";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
@@ -24,6 +25,13 @@ router.get(
   checkPermissionByRole,
   [check("id").not().isEmpty()],
   infoEvolution
+);
+
+router.get(
+  "/lastEvolveAndPatientData",
+  checkPermissionByRole,
+  [check("id").not().isEmpty()],
+  infoEvolutionAndPatientData
 );
 
 export default router;

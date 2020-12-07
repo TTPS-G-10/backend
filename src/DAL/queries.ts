@@ -53,6 +53,21 @@ const findContactPersonByPatientID = async (
   return await dbAPI.singleOrDefault<ContactPerson | null>(sql, [idPatient]);
 };
 
+const lastEvolveByPatientID = async (
+  idPatient: number
+): Promise<Evaluation | null> => {
+  const sql = `SELECT *
+                FROM evaluation
+                WHERE patientId=? AND id=(SELECT MAX(id)
+                                          FROM evaluation wHERE patientId=?
+                )
+                LIMIT 1`;
+  return await dbAPI.singleOrDefault<Evaluation | null>(sql, [
+    idPatient,
+    idPatient,
+  ]);
+};
+
 const LocationOfPatientWithPatientId = async (
   idPatient: number
 ): Promise<Location | null> => {
@@ -543,6 +558,7 @@ const queries = {
   deleteInternment,
   patientHasCurrentHospitalization,
   findRoomsFromASystemtByID,
+  lastEvolveByPatientID,
 };
 
 export default queries;
