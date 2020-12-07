@@ -1,4 +1,5 @@
-import selectDoctors from "../controllers/CRUD/DOCTORS/doctorsToAssing";
+import doctorsOfSystem from "../controllers/CRUD/DOCTORS/doctorsToAssing";
+import assingDoctorsToPatient from "../controllers/CRUD/DOCTORS/assignDoctorsToPatient";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
@@ -23,7 +24,15 @@ router.get(
   ServicePaths.DOCTORS,
   [check("id").not().isEmpty()],
   checkPermissionByRole,
-  selectDoctors
+  doctorsOfSystem
+);
+
+router.post(
+  ServicePaths.DOCTORS,
+  [check("patientId").not().isEmpty()],
+  [check("doctors").not().isEmpty()],
+  checkPermissionByRole,
+  assingDoctorsToPatient
 );
 
 export default router;

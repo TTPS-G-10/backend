@@ -56,9 +56,9 @@ const checkAllowedSystemChange = async (
       " to ",
       (req as CustomRequest).body.systemName
     );
-    console.error("target system is not allowed");
-
     return res.sendStatus(403);
+  } else {
+    next();
   }
 };
 

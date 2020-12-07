@@ -4,13 +4,13 @@ import { Request, Response } from "express";
 import { User } from "../../../model/User";
 import { CustomRequest } from "../../../model/Request";
 
-const selectDoctors = async (req: Request, res: Response) => {
+const doctorsOfSystem = async (req: Request, res: Response) => {
   console.log("llega", req.body);
   const user: User = (req as CustomRequest).user;
   if (user) {
-    const idString = req.query.id as string;
-    const id: number = parseInt(idString, 10);
+    const id: number = parseInt(req.query.id as string, 10);
     const errors = validationResult(req);
+    console.log(id);
     if (!errors.isEmpty()) {
       console.log("entro a los errores", errors);
       return res.sendStatus(400);
@@ -19,6 +19,7 @@ const selectDoctors = async (req: Request, res: Response) => {
       const patientLocation = await queries.LocationOfPatientWithPatientId(id);
       if (patientLocation) {
         if (user.systemId == patientLocation.systemId) {
+          console.log("llego al ", user.systemId == patientLocation.systemId);
           const doctors = await queries.returnDoctorsOfSystemForId(
             patientLocation.systemId
           );
@@ -26,6 +27,8 @@ const selectDoctors = async (req: Request, res: Response) => {
             console.log("the doctors was not found");
             return res.sendStatus(404);
           }
+          console.log(doctors);
+
           res.json({ doctors });
         } else {
           console.log(
@@ -48,4 +51,4 @@ const selectDoctors = async (req: Request, res: Response) => {
     res.sendStatus(404);
   }
 };
-export default selectDoctors;
+export default doctorsOfSystem;

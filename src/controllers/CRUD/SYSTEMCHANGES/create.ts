@@ -66,15 +66,40 @@ const createSystemChange = async (req: Request, res: Response) => {
       return res.sendStatus(404);
     }
 
+    const systemChief:
+      | User
+      | null
+      | undefined = await queries.findSystemChiefBySystemId(system.id);
+
+    if (!systemChief) {
+      console.log("the systemChief was not found");
+      return res.sendStatus(404);
+    }
+
     queries
       .assignPatientToBed(patientId, bed.id)
       .then(() => {
         queries
           .createSystemChange(internment.id, system.id)
-          .then((okey) => {
-            queries.unassingPatientToBed(location.bedId);
-            console.log("se creo el system changes:", okey);
-            return res.sendStatus(201);
+          .then((okeySC) => {
+            queries
+              .unassingPatientToBed(location.bedId)
+              .then((okey) => {
+                queries.deleteAssignedDoctors(internment.id).then(() => {
+                  queries.createAssignedDoctor(internment.id, systemChief.id);
+
+                  console.log("se creo el system changes:", okeySC);
+                  return res.sendStatus(201);
+                });
+              })
+              .catch(async () => {
+                console.log(
+                  "could not delete the doctors assigned to the patient"
+                );
+                queries.unassingPatientToBed(bed.id);
+                queries.removeSystemChange(okeySC.insertId);
+                return res.sendStatus(500);
+              });
           })
           .catch(async () => {
             console.log("Could not create system changes");
