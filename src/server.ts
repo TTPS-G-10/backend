@@ -11,6 +11,7 @@ import rooms from "./routes/rooms";
 import system from "./routes/system";
 import patient from "./routes/patient";
 import doctors from "./routes/doctors";
+import doctor from "./routes/doctor";
 import internment from "./routes/internment";
 import systemChange from "./routes/systemChange";
 
@@ -53,6 +54,7 @@ app.use(room);
 app.use(rooms);
 app.use(system);
 app.use(doctors);
+app.use(doctor);
 app.use(systemChange);
 
 app.set("port", process.env.PORT || 9000);
