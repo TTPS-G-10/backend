@@ -71,10 +71,23 @@ const createSystemChange = async (req: Request, res: Response) => {
       .then(() => {
         queries
           .createSystemChange(internment.id, system.id)
-          .then((okey) => {
-            queries.unassingPatientToBed(location.bedId);
-            console.log("se creo el system changes:", okey);
-            return res.sendStatus(201);
+          .then((okeySC) => {
+            queries
+              .unassingPatientToBed(location.bedId)
+              .then((okey) => {
+                queries.deleteASignedDoctors(internment.id);
+
+                console.log("se creo el system changes:", okeySC);
+                return res.sendStatus(201);
+              })
+              .catch(async () => {
+                console.log(
+                  "could not delete the doctors assigned to the patient"
+                );
+                queries.unassingPatientToBed(bed.id);
+                queries.removeSystemChange(okeySC.insertId);
+                return res.sendStatus(500);
+              });
           })
           .catch(async () => {
             console.log("Could not create system changes");
