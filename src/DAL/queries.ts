@@ -529,11 +529,29 @@ const remove = async (
   }
 };
 
+const changeRoleOfUserToSystemChief = async (userId: number) => {
+  const sql = `UPDATE user
+               SET role = "JEFE DE SISTEMA"
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [userId]);
+  return result;
+};
+
+const changeRoleOfUserToDoctor = async (userId: number) => {
+  const sql = `UPDATE user
+               SET role ="DOCTOR"
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [userId]);
+  return result;
+};
+
 // queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
 // queries.update('bed', 'id', { set: "name = 'cama_modificada_1'", id: 1 }).then((ok) => console.log('modificó bien?', ok));
 // queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
 
 const queries = {
+  changeRoleOfUserToSystemChief,
+  changeRoleOfUserToDoctor,
   returnDoctorsOfSystemForId,
   returnCurrentSystemIdOfTheInternment,
   findUserByEmail,
