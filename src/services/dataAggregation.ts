@@ -35,7 +35,8 @@ const calculateRemovableProperty = async (system: System) => {
 };
 
 const addBedsAndPatientsToRoom = async (room: Room) => {
-  const patients = await queries.returnBedsAnDPatientsForRoomId(room.id);
+  const bedsOfPatients = await queries.returnBedsAndPatientsForRoomId(room.id);
+  const patients = await Promise.all(bedsOfPatients.map(addPatientToBed));
   return { ...room, patients };
 };
 const addBedsToRoom = async (room: Room) => {
@@ -49,12 +50,15 @@ const addBedsWithPatientToRoom = async (room: Room) => {
 };
 
 const addPatientToBed = async (bed: Bed) => {
-  const patient = await queries.returnPatientForBed(bed.id);
+  const patient = await queries.findPatientByID(bed.patientId);
+  const internment = await queries.findOpenInternmentWithPatientId(
+    bed.patientId
+  );
   return {
     ...bed,
-    patient_id: patient?.id,
-    patient_name: patient?.name,
-    patient_last_name: patient?.lastName,
+    internmentId: internment?.id,
+    patientName: patient?.name,
+    patientLastName: patient?.lastName,
   };
 };
 
@@ -79,22 +83,22 @@ const addSystemchangesAndEvaluationToInternment = async (
   const systemChanges: SystemChange[] = await queries.findSystemChangesOfInternmentWithInternmentId(
     internment.id
   );
-  const systemChangesWhitEvaluations = await Promise.all(
+  const systemChangesWithEvaluations = await Promise.all(
     systemChanges.map(addEvaluationsToSystemChanges)
   );
   const patient = await queries.findPatientByID(internment.patientId);
 
-  const location = await queries.LocationOfPatientWhitPatientId(
+  const location = await queries.LocationOfPatientWithPatientId(
     internment.patientId
   );
   patient ? (internment.patient = patient) : patient;
   location ? (internment.location = location) : location;
-  internment.systemChanges = systemChangesWhitEvaluations;
+  internment.systemChanges = systemChangesWithEvaluations;
   return { ...internment };
 };
 
 const addEvaluationsToSystemChanges = async (systemChange: SystemChange) => {
-  const evaluations: Evaluation[] = await queries.findAcotedEvaluationsOfSystemChangeWhitSystemChangeId(
+  const evaluations: Evaluation[] = await queries.findAcotedEvaluationsOfSystemChangeWithSystemChangeId(
     systemChange.id
   );
   return { ...systemChange, evaluations: evaluations };

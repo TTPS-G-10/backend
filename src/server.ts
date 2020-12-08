@@ -5,10 +5,15 @@ import patients from "./routes/patients";
 import adminsys from "./routes/adminsys";
 import systems from "./routes/systems";
 import bed from "./routes/bed";
+import beds from "./routes/beds";
 import room from "./routes/room";
+import rooms from "./routes/rooms";
 import system from "./routes/system";
 import patient from "./routes/patient";
+import doctors from "./routes/doctors";
+import doctor from "./routes/doctor";
 import internment from "./routes/internment";
+import systemChange from "./routes/systemChange";
 
 import morgan from "morgan";
 import cors from "cors";
@@ -43,9 +48,14 @@ app.use(adminsys);
 app.use(systems);
 app.use(patient);
 app.use(bed);
+app.use(beds);
 app.use(internment);
 app.use(room);
+app.use(rooms);
 app.use(system);
+app.use(doctors);
+app.use(doctor);
+app.use(systemChange);
 
 app.set("port", process.env.PORT || 9000);
 

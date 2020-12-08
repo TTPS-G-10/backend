@@ -1,10 +1,10 @@
 import { Location, validationResult } from "express-validator";
-import queries from "../DAL/queries";
+import queries from "../../../DAL/queries";
 import { Request, Response } from "express";
-import { Internment } from "../model/Internment";
-import { User } from "../model/User";
-import { CustomRequest } from "../model/Request";
-import { addSystemchangesAndEvaluationToInternment } from "../services/dataAggregation";
+import { Internment } from "../../../model/Internment";
+import { User } from "../../../model/User";
+import { CustomRequest } from "../../../model/Request";
+import { addSystemchangesAndEvaluationToInternment } from "../../../services/dataAggregation";
 
 const infoInternment = async (req: Request, res: Response) => {
   console.log("llega", req.body);
@@ -21,20 +21,28 @@ const infoInternment = async (req: Request, res: Response) => {
       const internment:
         | Internment
         | null
-        | undefined = await queries.findOpenInternmentWithPatientId(id);
+        | undefined = await queries.findInternmentWithId(id);
       if (!internment) {
         console.log("the internment was not found");
         return res.sendStatus(404);
       }
-      const patientLocation = await queries.LocationOfPatientWhitPatientId(id);
+      const patientLocation = await queries.LocationOfPatientWithPatientId(
+        internment.patientId
+      );
       if (patientLocation) {
         if (
-          user.systemId == patientLocation.systemId &&
+          user.systemId == patientLocation.systemId ||
           user.role == "JEFE DE SISTEMA"
         ) {
         } else {
           console.log(
             "you do not have permission to view internments from another system"
+          );
+          console.log(
+            "your system",
+            user.systemId,
+            "patient system",
+            patientLocation.systemId
           );
           return res.sendStatus(403);
         }

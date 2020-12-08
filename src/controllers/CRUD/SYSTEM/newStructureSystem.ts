@@ -16,6 +16,8 @@ const newStructure = async (req: Request, res: Response) => {
     await queries.insert("INSERT INTO `system`", {
       name: nombre,
       infinitBeds: false,
+      totalBeds: 0,
+      ocupedBeds: 0,
     });
     console.log("inserto bien");
     res.sendStatus(201);

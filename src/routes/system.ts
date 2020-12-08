@@ -1,6 +1,7 @@
 import newStructureSystem from "../controllers/CRUD/SYSTEM/newStructureSystem";
 import deleteStructureSystem from "./../controllers/CRUD/SYSTEM/deleteStructureSystem";
 import editStructureSystem from "./../controllers/CRUD/SYSTEM/editStructureSystem";
+import getRoomsFromASystem from "./../controllers/getRoomsFromASystem";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
@@ -14,6 +15,19 @@ const checkPermissionByRole = (
   next: NextFunction
 ) => {
   const allowedRoles = [Role.Admin];
+  if (allowedRoles.includes((req as CustomRequest).user.role)) {
+    next();
+  } else {
+    res.sendStatus(403); // Forbidden
+  }
+};
+
+const checkPermissionByRoleToSeeRooms = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const allowedRoles = [Role.SystemChief, Role.Doctor];
   if (allowedRoles.includes((req as CustomRequest).user.role)) {
     next();
   } else {
@@ -47,5 +61,10 @@ router.put(
   ],
   editStructureSystem
 );
-
+router.get(
+  ServicePaths.SYSTEM,
+  checkPermissionByRoleToSeeRooms,
+  [check("systemName", "El nombre del systema es obligatorio").not().isEmpty()],
+  getRoomsFromASystem
+);
 export default router;

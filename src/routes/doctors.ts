@@ -1,5 +1,6 @@
-import systems from "./../controllers/systems";
-import systemsWithSpaceForPatients from "./../controllers/systemsWithSpaceForPatients";
+import doctorsOfSystem from "../controllers/CRUD/DOCTORS/doctorsToAssing";
+import assingDoctorsToPatient from "../controllers/CRUD/DOCTORS/assignDoctorsToPatient";
+import doctorsOfSystemToSystemchief from "../controllers/CRUD/DOCTORS/doctorsToSelectSistemChief";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
@@ -19,12 +20,13 @@ const checkPermissionByRole = (
     res.sendStatus(403); // Forbidden
   }
 };
-const checkPermissionByRoleForSistemChanges = (
+
+const checkPermissionByRoleByEditSysteChief = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const allowedRoles = [Role.SystemChief, Role.Doctor];
+  const allowedRoles = [Role.Admin];
   if (allowedRoles.includes((req as CustomRequest).user.role)) {
     next();
   } else {
@@ -32,13 +34,26 @@ const checkPermissionByRoleForSistemChanges = (
   }
 };
 
-router.get(ServicePaths.SYSTEMS, checkPermissionByRole, systems);
+router.get(
+  ServicePaths.DOCTORS,
+  [check("id").not().isEmpty()],
+  checkPermissionByRole,
+  doctorsOfSystem
+);
 
 router.get(
-  "/systems/withSpace",
-  [check("id").not().isEmpty()],
-  checkPermissionByRoleForSistemChanges,
-  systemsWithSpaceForPatients
+  ServicePaths.DOCTORS + "/ofsystem",
+  [check("systemId").not().isEmpty()],
+  checkPermissionByRoleByEditSysteChief,
+  doctorsOfSystemToSystemchief
+);
+
+router.post(
+  ServicePaths.DOCTORS,
+  [check("patientId").not().isEmpty()],
+  [check("doctors").not().isEmpty()],
+  checkPermissionByRole,
+  assingDoctorsToPatient
 );
 
 export default router;

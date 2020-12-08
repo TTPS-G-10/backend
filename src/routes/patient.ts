@@ -1,5 +1,5 @@
 import searchPatient from "../controllers/searchPatient";
-import createPatient from "../controllers/createPatient";
+import createPatient from "../controllers/CRUD/PATIENT/createPatient";
 import infoPatient from "../controllers/infoPatient";
 import { check, body } from "express-validator";
 import { CustomRequest } from "../model/Request";

@@ -41,6 +41,21 @@ const auth = async (req: Request, res: Response) => {
         });
 
         // all ok
+        switch (user.role) {
+          case Role.Admin:
+            res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
+            break;
+          case Role.Doctor:
+            res.json({ redirect: FrontendPaths.PATIENTS, user, jwt: token });
+            break;
+          case Role.SystemChief:
+            res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
+            break;
+          default:
+            //ruta para rules
+            break;
+        }
+        /*
         if (user.role == Role.Admin) {
           res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
         }
@@ -49,7 +64,7 @@ const auth = async (req: Request, res: Response) => {
         }
         if (user.role == Role.SystemChief) {
           res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
-        }
+        }*/
       }
     }
   } catch (error) {

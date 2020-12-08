@@ -1,16 +1,15 @@
 import { validationResult } from "express-validator";
-import queries from "../DAL/queries";
+import queries from "../../../DAL/queries";
 import { Request, Response } from "express";
-import { User } from "../model/User";
-import { CustomRequest } from "../model/Request";
+import { User } from "../../../model/User";
+import { CustomRequest } from "../../../model/Request";
 
 const validatePatient = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
 
-  if (user) {
+  if (user && user.systemId === 1) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log("form errors to add a patient:", errors);
       return res.sendStatus(400);
     }
     await queries
@@ -35,7 +34,7 @@ const validatePatient = async (req: Request, res: Response) => {
             phone: req.body.contactPerson_phone,
             patientId: idPatient,
           })
-          .then((okey) => {
+          .then(() => {
             return res.json({
               redirect: "/patient/" + idPatient,
             });
@@ -52,7 +51,7 @@ const validatePatient = async (req: Request, res: Response) => {
         return res.sendStatus(500);
       });
   } else {
-    res.sendStatus(404);
+    res.sendStatus(403);
   }
 };
 export default validatePatient;
