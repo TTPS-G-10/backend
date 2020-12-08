@@ -6,6 +6,7 @@ import { Patient } from "../model/Patient";
 import { Location } from "../model/Location";
 import { ContactPerson } from "../model/ContactPerson";
 import { Evaluation } from "../model/Evaluation";
+import { Evolution } from "../model/Evolution";
 import { Bed } from "../model/Bed";
 
 type Cant = {
@@ -577,6 +578,37 @@ const remove = async (
   }
 };
 
+const getPatientById = async (id: string): Promise<Patient | null> => {
+  try {
+    const sql = `
+    SELECT *
+     FROM ttps_db.bed bd 
+     INNER JOIN ttps_db.patient pt on  pt.id = bd.patientId
+     WHERE bd.id = ? 
+     LIMIT 1
+     `;
+    const result: Patient | null = await dbAPI.singleOrDefault(sql, [id]);
+    if (!result) throw new Error("not found");
+    return result;
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
+const evolvePatient = async (
+  patientId: number,
+  userId: number,
+  evolution: Evolution
+): Promise<boolean> => {
+  const sql = "INSERT INTO evaluation";
+  // @TODO remove this unnecesary field from DB
+  const systemChangeId = 5;
+  // -----------------------
+  const payload = { ...evolution, userId, patientId, systemChangeId };
+  return await insert(sql, payload);
+};
+
 const changeRoleOfUserToSystemChief = async (userId: number) => {
   const sql = `UPDATE user
                SET role = "JEFE DE SISTEMA"
@@ -637,6 +669,8 @@ const queries = {
   removeBed,
   update,
   remove,
+  getPatientById,
+  evolvePatient,
   returCountFreeBedsInSystemId,
   returInfinitBedsOfSystem,
   stillFreeBed,
