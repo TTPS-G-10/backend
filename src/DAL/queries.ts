@@ -599,11 +599,12 @@ const getPatientById = async (id: string): Promise<Patient | null> => {
 const evolvePatient = async (
   patientId: number,
   userId: number,
-  evolution: Evolution
+  evolution: Evolution,
+  systemChangeId: number
 ): Promise<boolean> => {
   const sql = "INSERT INTO evaluation";
   // @TODO remove this unnecesary field from DB
-  const systemChangeId = 5;
+  //const systemChangeId = 5;
   // -----------------------
   const payload = { ...evolution, userId, patientId, systemChangeId };
   return await insert(sql, payload);
