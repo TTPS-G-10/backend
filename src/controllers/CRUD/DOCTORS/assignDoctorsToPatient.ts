@@ -48,7 +48,7 @@ const assingDoctorsToPatient = async (req: Request, res: Response) => {
       console.log("the internment was not found");
       return res.sendStatus(404);
     }
-    queries.deleteAssignedDoctors(internment.id);
+
     doctors.map(async (doctor: number) => {
       const doc: User | null | undefined = await queries.findUserById(doctor);
       if (!doc) {
@@ -68,9 +68,13 @@ const assingDoctorsToPatient = async (req: Request, res: Response) => {
         console.log("the doctor was not found");
         return res.sendStatus(404);
       }
+    });
 
+    doctors.map(async (doctor: number) => {
       await queries.createAssignedDoctor(internment.id, doctor);
     });
+
+    await queries.deleteAssignedDoctors(internment.id);
 
     return res.sendStatus(200);
   } else {

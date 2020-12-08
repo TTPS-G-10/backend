@@ -14,12 +14,14 @@ const patientsOfUser = async (req: Request, res: Response) => {
       return res.sendStatus(400);
     }
     try {
+      console.log(user.id);
+
       const patients = await queries.returnPatientsAssinedToUserById(user.id);
       if (!patients) {
         console.log("the patients was not found");
         return res.sendStatus(404);
       }
-      console.log(patients);
+      console.log("pacientes asignados", patients);
       return res.json({ patients });
     } catch (error) {
       console.log("patients not found");

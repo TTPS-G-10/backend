@@ -170,7 +170,7 @@ const returnPatientsAssinedToUserById = async (userId: number) => {
     FROM ttps_db.user
     INNER JOIN ttps_db.assignedDoctor on assignedDoctor.userId = user.id
     INNER JOIN ttps_db.internment on internment.id= assignedDoctor.internmentId
-    INNER JOIN ttps_db.patient on internment.id = patient.id
+    INNER JOIN ttps_db.patient on internment.patientId = patient.id
     WHERE user.id= ?
     `;
   return await dbAPI.rawQuery(sql, [userId]);
