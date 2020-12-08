@@ -1,9 +1,9 @@
 import patients from "../controllers/patients";
-import patientsOfUser from "../controllers/patientsAssignedToUser";
 import Router, { Response, NextFunction, Request } from "express";
 import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
 import { ServicePaths } from "../model/Paths";
+import patientsOfUser from "../controllers/patientsAssignedToUser";
 const router = Router();
 
 const checkPermissionByRole = (
