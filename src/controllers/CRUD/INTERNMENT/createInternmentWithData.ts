@@ -2,6 +2,7 @@ import { validationResult } from "express-validator";
 import queries from "../../../DAL/queries";
 import { Request, Response } from "express";
 import { User } from "../../../model/User";
+import { ServiceSystemNames } from "../../../model/SystemNames";
 import { CustomRequest } from "../../../model/Request";
 
 function createInternment(
@@ -51,7 +52,7 @@ function createSystemChangesToPatient(
     .then((o) => {
       console.log("se creo el system changes:", o);
       return res.json({
-        redirect: "/internment/" + idPatient,
+        redirect: "/internment/" + internmentId,
       });
     })
     .catch(async () => {
@@ -77,7 +78,7 @@ const createInternmentWithData = async (req: Request, res: Response) => {
     bed,
   } = req.body;
 
-  if (user && user.systemId === 1) {
+  if (user && user.systemName === ServiceSystemNames.GUARDIA) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log("invalid parameter");

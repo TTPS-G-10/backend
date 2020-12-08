@@ -8,18 +8,23 @@ import { Room } from "../model/Room";
 
 const roomsFromASystem = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
+  const { systemName } = req.params;
   if (user) {
-    const idString = req.query.id as string;
-    const id: number = parseInt(idString, 10);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.sendStatus(400);
     }
     try {
+      const system = await queries.findSystemForName(systemName);
+      if (!system) {
+        console.log("the system was not found");
+        return res.sendStatus(404);
+      }
+
       const rooms:
         | Room
         | null
-        | undefined = await queries.findRoomsFromASystemtByID(id);
+        | undefined = await queries.findRoomsFromASystemtByID(system.id);
       if (!rooms) {
         console.log("the Rooms was not found");
         return res.sendStatus(404);

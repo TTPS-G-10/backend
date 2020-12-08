@@ -21,6 +21,15 @@ const findUserByEmail = async (email: string): Promise<User | null> => {
     `;
   return await dbAPI.singleOrDefault<User | null>(sql, [email]);
 };
+const findUserById = async (id: number): Promise<User | null> => {
+  const sql = `
+    SELECT *
+    FROM ttps_db.user user
+    WHERE id = ?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<User | null>(sql, [id]);
+};
 
 const findPatientByDNI = async (dni: number): Promise<Patient | null> => {
   const sql = `
@@ -106,6 +115,42 @@ const findSystemForEvolution = async (id: number): Promise<String | null> => {
   return await dbAPI.singleOrDefault<String | null>(sql, [id]);
 };
 
+const findSystemOfUserForId = async (id: number): Promise<System | null> => {
+  const sql = `
+    SELECT sys.name , sys.id
+    FROM ttps_db.worksAt 
+    INNER JOIN ttps_db.system sys on worksAt.systemId = sys.id
+    WHERE worksAt.userId = ?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<System | null>(sql, [id]);
+};
+
+const findSystemChiefBySystemId = async (
+  systemId: number
+): Promise<User | null> => {
+  const sql = `
+    SELECT user.id,user.name,user.lastName,user.file,user.email
+    FROM ttps_db.user
+    INNER JOIN ttps_db.worksAt on worksAt.userId = user.id
+    WHERE user.role = "JEFE DE SISTEMA" AND worksAt.systemId = ?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<User | null>(sql, [systemId]);
+};
+
+const findInternmentWithId = async (
+  patientId: number
+): Promise<Internment | null> => {
+  const sql = `
+ SELECT internment.*
+    FROM ttps_db.internment
+    WHERE (id = ?) AND (egressDate IS NULL) AND  (obitoDate IS NULL)
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<Internment | null>(sql, [patientId]);
+};
+
 const findOpenInternmentWithPatientId = async (
   patientId: number
 ): Promise<Internment | null> => {
@@ -117,6 +162,18 @@ const findOpenInternmentWithPatientId = async (
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<Internment | null>(sql, [patientId]);
+};
+
+const findSystemForName = async (
+  systemName: string
+): Promise<System | null> => {
+  const sql = `
+  SELECT *
+        FROM ttps_db.system 
+        WHERE system.name = ?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<System | null>(sql, [systemName]);
 };
 
 const findSystemChangesOfInternmentWithInternmentId = async (
@@ -131,6 +188,18 @@ const findSystemChangesOfInternmentWithInternmentId = async (
     ORDER BY createtime desc
     `;
   return await dbAPI.rawQuery(sql, [internmentId]);
+};
+
+const returnPatientsAssinedToUserById = async (userId: number) => {
+  const sql = `
+  SELECT patient.name as patientName,internment.id as internmentId,patient.lastName as patientLastName,patient.id as patientId
+    FROM ttps_db.user
+    INNER JOIN ttps_db.assignedDoctor on assignedDoctor.userId = user.id
+    INNER JOIN ttps_db.internment on internment.id= assignedDoctor.internmentId
+    INNER JOIN ttps_db.patient on internment.id = patient.id
+    WHERE user.id= ?
+    `;
+  return await dbAPI.rawQuery(sql, [userId]);
 };
 
 const findAcotedEvaluationsOfSystemChangeWithSystemChangeId = async (
@@ -161,58 +230,6 @@ const findBedsWithSystemAndRoom = async (
         LIMIT 1
     `;
   return await dbAPI.singleOrDefault<Bed | null>(sql, [systemId, roomId]);
-};
-
-const returnSystemWithSpaceFromPisoCovid = async () => {
-  const sql = `
-       SELECT sys.name,sys.id,sys.infinitBeds
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
-        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
-        WHERE ((bd.patientId is NULL) OR (sys.infinitBeds = true)) AND (sys.id =2 OR  sys.id =3 OR sys.id =5 )
-        GROUP BY sys.id
-    `;
-  const result = await dbAPI.rawQuery(sql, []);
-  return result;
-};
-
-const returnSystemWithSpaceFromGuardia = async () => {
-  const sql = `
-       SELECT sys.name,sys.id,sys.infinitBeds
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
-        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
-        WHERE ((bd.patientId is NULL) OR (sys.infinitBeds = true)) AND (sys.id =4 OR  sys.id =2 )
-        GROUP BY sys.id
-    `;
-  const result = await dbAPI.rawQuery(sql, []);
-  return result;
-};
-
-const returnSystemWithSpaceFromUti = async () => {
-  const sql = `
-       SELECT sys.name,sys.id,sys.infinitBeds
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
-        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
-        WHERE ((bd.patientId is NULL) OR (sys.infinitBeds = true)) AND (sys.id =4 )
-        GROUP BY sys.id
-    `;
-  const result = await dbAPI.rawQuery(sql, []);
-  return result;
-};
-
-const returnSystemWithSpaceFromHotelAndDomicilio = async () => {
-  const sql = `
-       SELECT sys.name,sys.id,sys.infinitBeds
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
-        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
-        WHERE ((bd.patientId is NULL) OR (sys.infinitBeds = true)) AND (sys.id =4 )
-        GROUP BY sys.id
-    `;
-  const result = await dbAPI.rawQuery(sql, []);
-  return result;
 };
 
 const returnBedsWithSpaceOfRoomForRoomId = async (id: Number) => {
@@ -293,7 +310,7 @@ const returnPatientForBed = async (idBed: number) => {
   return await dbAPI.singleOrDefault<Patient | null>(sql, [idBed]);
 };
 
-const returnBedsAnDPatientsForRoomId = async (id: number) => {
+const returnBedsAndPatientsForRoomId = async (id: number) => {
   const sql = `
     SELECT  pt.name as patientName,pt.lastName as patientLastName,pt.id as patientId, bd.name as bedName, bd.id as bedId
     FROM ttps_db.room rm 
@@ -359,6 +376,18 @@ const findEvolutionByID = async (id: number) => {
   const result = await dbAPI.singleOrDefault<Evaluation | null>(sql, [id]);
   return result;
 };
+const returnDoctorsOfSystemForId = async (id: number) => {
+  const sql = `
+         SELECT user.name,user.lastName,user.id,user.file
+    FROM ttps_db.user
+    INNER JOIN ttps_db.worksAt ON user.id = worksAt.userId
+    WHERE worksAt.systemId = ? AND user.role = "DOCTOR"
+    ORDER BY user.lastName desc `;
+
+  const result = await dbAPI.rawQuery(sql, [id]);
+  return result;
+};
+
 const patientHasCurrentHospitalization = async (idPatient: number) => {
   const sql = `
   SELECT *
@@ -367,6 +396,19 @@ const patientHasCurrentHospitalization = async (idPatient: number) => {
 
   const result = await dbAPI.rawQuery(sql, [idPatient]);
   return result;
+};
+
+const returnCurrentSystemIdOfTheInternment = async (
+  internmentId: number
+): Promise<number | null> => {
+  const sql = `
+  SELECT systemChange.systemId
+    FROM ttps_db.systemChange
+    INNER JOIN ttps_db.internment ON systemChange.internmentId = internment.id
+    WHERE internment.egressDate IS NULL AND internment.obitoDate IS NULL AND internment.id = ? 
+    ORDER BY createtime desc
+    LIMIT 1`;
+  return await dbAPI.singleOrDefault<number | null>(sql, [internmentId]);
 };
 
 const stillFreeBed = async (
@@ -392,6 +434,16 @@ const createSystemChange = async (internmentId: number, systemId: number) => {
   const result = await dbAPI.rawQuery(sql, [internmentId, systemId]);
   return result;
 };
+
+const createAssignedDoctor = async (internmentId: number, userId: number) => {
+  const sql = `
+  INSERT INTO assignedDoctor (internmentId, userId)
+  VALUES (?, ? )
+ `;
+  const result = await dbAPI.rawQuery(sql, [internmentId, userId]);
+  return result;
+};
+
 const createInternment = async (
   historyOfDisease: string,
   dateOfSymptoms: Date,
@@ -425,6 +477,13 @@ const unassingPatientToInternment = async (idInternment: number) => {
 const deleteInternment = async (idInternment: number) => {
   const sql = `DELETE FROM internment
               WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [idInternment]);
+  return result;
+};
+
+const deleteAssignedDoctors = async (idInternment: number) => {
+  const sql = `DELETE FROM assignedDoctor
+              WHERE internmentId = '?'`;
   const result = await dbAPI.rawQuery(sql, [idInternment]);
   return result;
 };
@@ -471,6 +530,13 @@ const removeBed = async (idBed: number) => {
   return result;
 };
 
+const removeSystemChange = async (idSystemChange: number) => {
+  const sql = `DELETE FROM systemChange
+              WHERE (id = '?')`;
+  const result = await dbAPI.rawQuery(sql, [idSystemChange]);
+  return result;
+};
+
 const insertPatient = async (query: string, values: object): Promise<any> => {
   const result = await dbAPI.insert(query, values);
   return result;
@@ -511,29 +577,53 @@ const remove = async (
   }
 };
 
+const changeRoleOfUserToSystemChief = async (userId: number) => {
+  const sql = `UPDATE user
+               SET role = "JEFE DE SISTEMA"
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [userId]);
+  return result;
+};
+
+const changeRoleOfUserToDoctor = async (userId: number) => {
+  const sql = `UPDATE user
+               SET role ="DOCTOR"
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [userId]);
+  return result;
+};
+
 // queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
 // queries.update('bed', 'id', { set: "name = 'cama_modificada_1'", id: 1 }).then((ok) => console.log('modificó bien?', ok));
 // queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
 
 const queries = {
+  changeRoleOfUserToSystemChief,
+  returnPatientsAssinedToUserById,
+  changeRoleOfUserToDoctor,
+  returnDoctorsOfSystemForId,
+  returnCurrentSystemIdOfTheInternment,
   findUserByEmail,
+  findUserById,
   findBedsWithSystemAndRoom,
-  returnSystemWithSpaceFromPisoCovid,
-  returnSystemWithSpaceFromUti,
-  returnSystemWithSpaceFromGuardia,
-  returnSystemWithSpaceFromHotelAndDomicilio,
+  findSystemForName,
+  findSystemChiefBySystemId,
   returnBedsWithSpaceOfRoomForRoomId,
   returnRoomsWithSpaceOfSystemForSystemId,
   LocationOfPatientWithPatientId,
   returnCantOfSistemsChangesOfAnySystemForId,
-  returnBedsAnDPatientsForRoomId,
+  returnBedsAndPatientsForRoomId,
   findSystemChangesOfInternmentWithInternmentId,
+  deleteAssignedDoctors,
   findAcotedEvaluationsOfSystemChangeWithSystemChangeId,
   returnRomsOfAnSystemForId,
+  findInternmentWithId,
   findOpenInternmentWithPatientId,
   returnSystems,
+  removeSystemChange,
   findSystemOfUser,
   findSystemForEvolution,
+  findSystemOfUserForId,
   findPatientByDNI,
   findPatientByID,
   findContactPersonByPatientID,
@@ -551,6 +641,7 @@ const queries = {
   returInfinitBedsOfSystem,
   stillFreeBed,
   assignPatientToBed,
+  createAssignedDoctor,
   createInternment,
   createSystemChange,
   unassingPatientToInternment,
