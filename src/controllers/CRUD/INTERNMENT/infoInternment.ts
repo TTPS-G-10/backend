@@ -31,8 +31,8 @@ const infoInternment = async (req: Request, res: Response) => {
       );
       if (patientLocation) {
         if (
-          user.systemId == patientLocation.systemId ||
-          user.role == "JEFE DE SISTEMA"
+          user.systemId === patientLocation.systemId ||
+          user.role === "JEFE DE SISTEMA"
         ) {
         } else {
           console.log(

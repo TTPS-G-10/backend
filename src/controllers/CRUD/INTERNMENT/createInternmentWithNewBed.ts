@@ -11,6 +11,7 @@ function createInternment(
   dateOfDiagnosis: any,
   idPatientN: number,
   systemId: number,
+  systemChiefId: number,
   bedN: number,
   res: Response<any>
 ) {
@@ -30,6 +31,7 @@ function createInternment(
         systemId,
         bedN,
         idPatientN,
+        systemChiefId,
         res
       );
     })
@@ -47,11 +49,13 @@ function createSystemChangesToPatient(
   systemId: number,
   bedN: number,
   idPatient: number,
+  systemChiefId: number,
   res: Response<any>
 ) {
   queries
     .createSystemChange(internmentId, systemId)
     .then((o) => {
+      queries.createAssignedDoctor(internmentId, systemChiefId);
       console.log("se creo el system changes:", o);
       return res.json({
         redirect: "/internment/" + internmentId,
@@ -81,7 +85,11 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
     idPatient,
     room,
   } = req.body;
-
+  const system = await queries.findSystemForName(ServiceSystemNames.GUARDIA);
+  if (!system) {
+    console.log("the system was not found");
+    return res.sendStatus(404);
+  }
   if (user && user.systemName === ServiceSystemNames.GUARDIA) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -91,7 +99,7 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
 
     const roomN: number = parseInt(room, 10);
     const idPatientN: number = parseInt(idPatient, 10);
-    const systemId = 1;
+    const systemId = system.id;
     const bedName: string = req.body.bed as string;
     console.log("bedName:", bedName);
     const resul = await queries.patientHasCurrentHospitalization(idPatientN);
@@ -100,6 +108,17 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
       console.log("The patient has a current hospitalzation");
       return res.sendStatus(500);
     }
+
+    const systemChief:
+      | User
+      | null
+      | undefined = await queries.findSystemChiefBySystemId(systemId);
+
+    if (!systemChief) {
+      console.log("the systemChief was not found");
+      return res.sendStatus(404);
+    }
+    const systemChiefId = systemChief.id;
 
     queries
       .insertBedWithPatient(bedName, roomN, idPatientN)
@@ -114,6 +133,7 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
             idPatientN,
             systemId,
             bedN,
+            systemChiefId,
             res
           );
         }
