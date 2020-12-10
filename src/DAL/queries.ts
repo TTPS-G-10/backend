@@ -633,7 +633,7 @@ const getRules = async () => {
       type: RuleType.NUMERIC,
       active: true,
     },
-    {
+    /*     {
       name: "saturación_de_oxígeno",
       operator: RuleOperator.LESS_THAN,
       parameter: 3,
@@ -641,7 +641,7 @@ const getRules = async () => {
         "Saturación de oxígeno bajó 3%. Evaluar oxigenoterapia y prono.	",
       type: RuleType.NUMERIC,
       active: true,
-    },
+    }, */
   ];
 };
 

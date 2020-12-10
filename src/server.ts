@@ -1,4 +1,5 @@
 import express from "express";
+import alerts from "./routes/alerts";
 import auth from "./routes/auth";
 import logOut from "./routes/logOut";
 import patients from "./routes/patients";
@@ -57,6 +58,7 @@ app.use(system);
 app.use(doctors);
 app.use(doctor);
 app.use(systemChange);
+app.use(alerts);
 
 app.set("port", process.env.PORT || 9000);
 

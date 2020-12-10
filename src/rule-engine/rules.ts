@@ -33,7 +33,11 @@ const buildCondition = (rule: RawRule): NestedCondition => {
 export const buildRules = (rawRules: RawRule[]): RuleProperties[] =>
   rawRules.map((rawRule) => {
     const event: Event = {
-      type: `${rawRule.name}_success`,
+      type: `${rawRule.name}`,
+      params: {
+        message: rawRule.description,
+        name: rawRule.name,
+      },
     };
     const conditions: NestedCondition[] = [buildCondition(rawRule)];
     const topLevelCondition: TopLevelCondition = {
