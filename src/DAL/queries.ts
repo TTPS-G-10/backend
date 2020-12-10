@@ -7,6 +7,7 @@ import { Location } from "../model/Location";
 import { ContactPerson } from "../model/ContactPerson";
 import { Evolution } from "../model/Evolution";
 import { Bed } from "../model/Bed";
+import { RuleType, RuleOperator } from "../model/Rule";
 
 type Cant = {
   cant: Number;
@@ -589,6 +590,61 @@ const changeRoleOfUserToDoctor = async (userId: number) => {
   return result;
 };
 
+const getRules = async () => {
+  const sql = `
+    SELECT *
+    FROM ttps_db.rules rules
+    LIMIT 100;
+  `;
+  const result = await dbAPI.rawQuery(sql, []);
+  console.log("database rules =>", result);
+  // mock temporal
+  return [
+    {
+      name: "somnolencia",
+      operator: RuleOperator.EQUAL,
+      description: "Somnolencia: evaluar pase a UTI",
+      type: RuleType.BOOLEAN,
+      active: true,
+    },
+    {
+      name: "mecanica_ventilatoria",
+      operator: RuleOperator.IN,
+      parameter: "regular,mala",
+      description: "Mecanica ventilatoria :value evaluar pase a UTI",
+      type: RuleType.VALUE_LIST,
+      active: true,
+    },
+    {
+      name: "frecuencia_respiratoria",
+      operator: RuleOperator.GREATER_THAN,
+      parameter: 60,
+      description:
+        "Frecuencia respiratoria mayor a :value por minuto, evaluar pase a UTI",
+      type: RuleType.NUMERIC,
+      active: true,
+    },
+    {
+      name: "saturación_de_oxígeno",
+      operator: RuleOperator.LESS_THAN,
+      parameter: 92,
+      description:
+        "Saturacion de oxigeno menor a 92%. Evaluar oxigenoterapia y prono",
+      type: RuleType.NUMERIC,
+      active: true,
+    },
+    {
+      name: "saturación_de_oxígeno",
+      operator: RuleOperator.LESS_THAN,
+      parameter: 3,
+      description:
+        "Saturación de oxígeno bajó 3%. Evaluar oxigenoterapia y prono.	",
+      type: RuleType.NUMERIC,
+      active: true,
+    },
+  ];
+};
+
 // queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
 // queries.update('bed', 'id', { set: "name = 'cama_modificada_1'", id: 1 }).then((ok) => console.log('modificó bien?', ok));
 // queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
@@ -645,6 +701,7 @@ const queries = {
   deleteInternment,
   patientHasCurrentHospitalization,
   findRoomsFromASystemtByID,
+  getRules,
 };
 
 export default queries;

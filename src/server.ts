@@ -22,6 +22,7 @@ import authorization from "./middlewares/authorization";
 import cookieParser from "cookie-parser";
 import fs from "fs";
 import https from "https";
+import EngineRule from "./rule-engine/engine";
 
 const key = fs.readFileSync(__dirname + "/../.certificates/localhost.key");
 const cert = fs.readFileSync(__dirname + "/../.certificates/localhost.crt");
@@ -61,13 +62,18 @@ app.set("port", process.env.PORT || 9000);
 
 // create the connection to database
 // @todo sacar estos datos de configuración por ambiente
-dbAPI.generateConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "ttps_db",
-  port: 3306,
-});
+dbAPI
+  .generateConnection({
+    host: "localhost",
+    user: "root",
+    password: "root",
+    database: "ttps_db",
+    port: 3306,
+  })
+  .then(() => {
+    console.log("Conection Success");
+    EngineRule.init();
+  });
 
 var server = https.createServer(options, app);
 
