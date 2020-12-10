@@ -13,6 +13,7 @@ import patient from "./routes/patient";
 import doctors from "./routes/doctors";
 import doctor from "./routes/doctor";
 import internment from "./routes/internment";
+import evolution from "./routes/evolution";
 import systemChange from "./routes/systemChange";
 
 import morgan from "morgan";
@@ -53,6 +54,7 @@ app.use(internment);
 app.use(room);
 app.use(rooms);
 app.use(system);
+app.use(evolution);
 app.use(doctors);
 app.use(doctor);
 app.use(systemChange);

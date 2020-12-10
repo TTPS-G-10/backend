@@ -5,6 +5,7 @@ import { Internment } from "../model/Internment";
 import { Patient } from "../model/Patient";
 import { Location } from "../model/Location";
 import { ContactPerson } from "../model/ContactPerson";
+import { Evaluation } from "../model/Evaluation";
 import { Evolution } from "../model/Evolution";
 import { Bed } from "../model/Bed";
 
@@ -62,6 +63,21 @@ const findContactPersonByPatientID = async (
   return await dbAPI.singleOrDefault<ContactPerson | null>(sql, [idPatient]);
 };
 
+const lastEvolveByPatientID = async (
+  idPatient: number
+): Promise<Evaluation | null> => {
+  const sql = `SELECT *
+                FROM evaluation
+                WHERE patientId=? AND id=(SELECT MAX(id)
+                                          FROM evaluation wHERE patientId=?
+                )
+                LIMIT 1`;
+  return await dbAPI.singleOrDefault<Evaluation | null>(sql, [
+    idPatient,
+    idPatient,
+  ]);
+};
+
 const LocationOfPatientWithPatientId = async (
   idPatient: number
 ): Promise<Location | null> => {
@@ -87,6 +103,17 @@ const findSystemOfUser = async (email: string): Promise<System | null> => {
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<System | null>(sql, [email]);
+};
+const findSystemForEvolution = async (id: number): Promise<String | null> => {
+  const sql = `
+    SELECT syst.name
+    FROM ttps_db.system as syst
+    INNER JOIN ttps_db.systemChange as sc
+    ON syst.id = sc.systemId
+    WHERE sc.id='?'
+    LIMIT 1
+    `;
+  return await dbAPI.singleOrDefault<String | null>(sql, [id]);
 };
 
 const findSystemOfUserForId = async (id: number): Promise<System | null> => {
@@ -341,6 +368,15 @@ const findRoomsFromASystemtByID = async (id: number) => {
   return result;
 };
 
+const findEvolutionByID = async (id: number) => {
+  const sql = `
+         SELECT *
+  FROM evaluation 
+  WHERE id='?' `;
+
+  const result = await dbAPI.singleOrDefault<Evaluation | null>(sql, [id]);
+  return result;
+};
 const returnDoctorsOfSystemForId = async (id: number) => {
   const sql = `
          SELECT user.name,user.lastName,user.id,user.file
@@ -563,11 +599,12 @@ const getPatientById = async (id: string): Promise<Patient | null> => {
 const evolvePatient = async (
   patientId: number,
   userId: number,
-  evolution: Evolution
+  evolution: Evolution,
+  systemChangeId: number
 ): Promise<boolean> => {
   const sql = "INSERT INTO evaluation";
   // @TODO remove this unnecesary field from DB
-  const systemChangeId = 5;
+  //const systemChangeId = 5;
   // -----------------------
   const payload = { ...evolution, userId, patientId, systemChangeId };
   return await insert(sql, payload);
@@ -618,10 +655,12 @@ const queries = {
   returnSystems,
   removeSystemChange,
   findSystemOfUser,
+  findSystemForEvolution,
   findSystemOfUserForId,
   findPatientByDNI,
   findPatientByID,
   findContactPersonByPatientID,
+  findEvolutionByID,
   returnBedsOfAnyRoomForId,
   returnPatientForBed,
   insert,
@@ -645,6 +684,7 @@ const queries = {
   deleteInternment,
   patientHasCurrentHospitalization,
   findRoomsFromASystemtByID,
+  lastEvolveByPatientID,
 };
 
 export default queries;
