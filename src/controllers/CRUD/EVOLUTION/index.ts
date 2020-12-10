@@ -4,7 +4,6 @@ import { Evolution } from "../../../model/Evolution";
 import { CustomRequest } from "../../../model/Request";
 
 const create = async (req: Request, res: Response) => {
-  console.log("LO QUE ME LLEGA", req.body.evolution);
   const evolution = {
     ...req.body.evolution,
   };
@@ -27,7 +26,7 @@ const create = async (req: Request, res: Response) => {
     const systemChangeId = await queries.findSystemChangesOfInternmentWithInternmentId(
       internament.id
     );
-    console.log("systemchangeid:", systemChangeId);
+
     if (systemChangeId) {
       const result = await queries.evolvePatient(
         patientId,

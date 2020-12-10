@@ -6,7 +6,6 @@ import { CustomRequest } from "../../../model/Request";
 
 const createInternment = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
-  console.log("llego a creat internament", req.query);
   if (user && user.systemId === 1) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -16,13 +15,10 @@ const createInternment = async (req: Request, res: Response) => {
     await queries
       .returCountFreeBedsInSystemId(1)
       .then(async (camas) => {
-        console.log("respuesta de cantidad de camas libres", camas[0].cantFree);
         if (camas[0].cantFree > 0) {
-          console.log("entro por donde tien las camas libres");
           return res.json({ redirect: "/internment/create", createBed: false });
         } else {
           await queries.returInfinitBedsOfSystem(1).then((infinitBeds) => {
-            console.log("respuesta decamas infinitas", infinitBeds[0]);
             if (infinitBeds[0].infinitBeds === 1) {
               console.log("crear internacion");
               return res.json({
