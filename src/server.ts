@@ -63,15 +63,23 @@ app.set("port", process.env.PORT || 9000);
 
 // create the connection to database
 // @todo sacar estos datos de configuración por ambiente
-dbAPI.generateConnection({
+/*dbAPI.generateConnection({
   host: "localhost",
   user: "root",
   password: "root",
   database: "ttps_db",
   port: 3306,
+});*/
+
+//to heroku
+dbAPI.generateConnection({
+  host: "us-cdbr-east-02.cleardb.com",
+  user: "ba98b3f4b2d660",
+  password: "dae97d58",
+  database: "heroku_d4f0a4efcec1a78",
 });
 
-var server = https.createServer(options, app);
+mysql: var server = https.createServer(options, app);
 
 server.listen(app.get("port"), () => {
   console.log("Server on port: ", app.get("port"));
