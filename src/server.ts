@@ -79,6 +79,7 @@ dbAPI.generateConnection({
   database: "heroku_d4f0a4efcec1a78",
   port: 3306,
 });
+//mysql://ba98b3f4b2d660:dae97d58@us-cdbr-east-02.cleardb.com/heroku_d4f0a4efcec1a78?reconnect=true
 
 mysql: var server = https.createServer(options, app);
 
