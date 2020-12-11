@@ -73,7 +73,7 @@ app.set("port", process.env.PORT || 9000);
 
 //to heroku
 dbAPI.generateConnection({
-  host: "us-cdbr-east-02.cleardb.com",
+  host: "dae97d58@us-cdbr-east-02.cleardb.com",
   user: "ba98b3f4b2d660",
   password: "dae97d58",
   database: "heroku_d4f0a4efcec1a78",
