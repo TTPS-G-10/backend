@@ -77,6 +77,7 @@ dbAPI.generateConnection({
   user: "ba98b3f4b2d660",
   password: "dae97d58",
   database: "heroku_d4f0a4efcec1a78",
+  port: 3306,
 });
 
 mysql: var server = https.createServer(options, app);
