@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon",
-    "build": "node_modules/typescript/bin/tsc",
-    "start": "npm run build && node build/server.js"
+   
+    "start": "npm run tsc && node build/server.js"
   },
   "keywords": [],
   "author": "",
