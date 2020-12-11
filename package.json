@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon",
-    "build": "rimraf ./build && tsc",
+    "build": "rimraf ./build && node_modules/typescript/bin/tsc",
     "start": "npm run build && node build/server.js"
   },
   "keywords": [],
