@@ -55,7 +55,7 @@ function createSystemChangesToPatient(
     .createSystemChange(internmentId, systemId)
     .then((o) => {
       queries.createAssignedDoctor(internmentId, systemChiefId);
-      console.log("se creo el system changes:", o);
+
       return res.json({
         redirect: "/internment/" + internmentId,
       });
@@ -73,7 +73,7 @@ function createSystemChangesToPatient(
 
 const createInternmentWithData = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
-  console.log("llego a crear internament Withh data", req.body);
+
   const {
     dateOfSymptoms,
     dateOfDiagnosis,

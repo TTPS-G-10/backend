@@ -172,7 +172,7 @@ const findSystemForName = async (
   SELECT *
         FROM ttps_db.system 
         WHERE system.name = ?
-    LIMIT 1;
+    LIMIT 1
     `;
   return await dbAPI.singleOrDefault<System | null>(sql, [systemName]);
 };

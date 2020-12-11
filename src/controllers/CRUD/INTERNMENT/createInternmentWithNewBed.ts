@@ -56,7 +56,7 @@ function createSystemChangesToPatient(
     .createSystemChange(internmentId, systemId)
     .then((o) => {
       queries.createAssignedDoctor(internmentId, systemChiefId);
-      console.log("se creo el system changes:", o);
+
       return res.json({
         redirect: "/internment/" + internmentId,
       });

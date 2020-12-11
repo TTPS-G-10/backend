@@ -8,15 +8,17 @@ import { Room } from "../model/Room";
 
 const roomsFromASystem = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
-  const { systemName } = req.params;
+  const { systemName } = req.query;
+
   if (user) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.sendStatus(400);
     }
     try {
-      const system = await queries.findSystemForName(systemName);
+      const system = await queries.findSystemForName(systemName as string);
       if (!system) {
+        console.log("sale `pr aca,,");
         console.log("the system was not found");
         return res.sendStatus(404);
       }
@@ -29,8 +31,8 @@ const roomsFromASystem = async (req: Request, res: Response) => {
         console.log("the Rooms was not found");
         return res.sendStatus(404);
       }
-      console.log("rooms fo a system:", rooms);
-      return res.json(rooms);
+      console.log("rooms for a system:", rooms);
+      return res.json({ rooms: rooms });
     } catch (error) {
       console.log("System ID invalid");
       return res.sendStatus(500);

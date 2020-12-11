@@ -89,8 +89,6 @@ const createSystemChange = async (req: Request, res: Response) => {
                   .deleteAssignedDoctors(internment.id)
                   .then(() => {
                     queries.createAssignedDoctor(internment.id, systemChief.id);
-
-                    console.log("se creo el system changes:", okeySC);
                     return res.sendStatus(201);
                   })
                   .catch(async () => {

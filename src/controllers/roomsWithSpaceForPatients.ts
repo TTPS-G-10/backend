@@ -1,4 +1,4 @@
-import { Location, validationResult } from "express-validator";
+import { validationResult } from "express-validator";
 import queries from "../DAL/queries";
 import { Request, Response } from "express";
 import { User } from "../model/User";
@@ -25,6 +25,7 @@ const roomsWithSpaceForPatients = async (req: Request, res: Response) => {
       const rooms = await queries.returnRoomsWithSpaceOfSystemForSystemId(
         system.id
       );
+      console.log(rooms);
       if (!rooms) {
         console.log("the rooms was not found, the system dont have free beds");
         return res.sendStatus(404);
