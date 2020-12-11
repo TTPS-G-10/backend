@@ -60,10 +60,10 @@ app.use(doctor);
 app.use(systemChange);
 
 app.set("port", process.env.PORT || 9000);
-
+/*
 // create the connection to database
 // @todo sacar estos datos de configuración por ambiente
-/*dbAPI.generateConnection({
+dbAPI.generateConnection({
   host: "localhost",
   user: "root",
   password: "root",
@@ -73,7 +73,7 @@ app.set("port", process.env.PORT || 9000);
 
 //to heroku
 dbAPI.generateConnection({
-  host: "dae97d58@us-cdbr-east-02.cleardb.com",
+  host: "us-cdbr-east-02.cleardb.com",
   user: "ba98b3f4b2d660",
   password: "dae97d58",
   database: "heroku_d4f0a4efcec1a78",
