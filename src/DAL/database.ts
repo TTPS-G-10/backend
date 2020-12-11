@@ -6,7 +6,7 @@ interface IConnectionData {
   user: string;
   password: string;
   database: string;
-  port?: number;
+  port: number;
   connectionLimit?: number;
 }
 
