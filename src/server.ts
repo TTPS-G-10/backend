@@ -94,5 +94,5 @@ mysql: var server = https.createServer(options, app);
 server.listen(app.get("port"), () => {
   console.log("Server on port: ", app.get("port"));
 });
-console.log("coneccion con la DB", dbAPI.getConnectionDB);
+console.log("coneccion con la DB", dbAPI.getConnectionDB());
 export default app;
