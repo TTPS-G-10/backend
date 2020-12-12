@@ -82,7 +82,7 @@ dbAPI.generateConnection({
 //to heroku
 dbAPI.generateConnection({
   host: "us-cdbr-east-02.cleardb.com",
-  user: "ba98b3f4b2d660@%",
+  user: "ba98b3f4b2d660",
   password: "dae97d58",
   database: "heroku_d4f0a4efcec1a78",
   port: 3306,
@@ -94,14 +94,5 @@ mysql: var server = https.createServer(options, app);
 server.listen(app.get("port"), () => {
   console.log("Server on port: ", app.get("port"));
 });
-//console.log("coneccion con la DB", dbAPI.getConnectionDB());
-import queries from "./DAL/queries";
-
-try {
-  const consult = queries.qprueba();
-  console.log("query con la DB", consult);
-} catch (error) {
-  console.log("exploto la consulta");
-}
 
 export default app;

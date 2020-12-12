@@ -617,31 +617,6 @@ const changeRoleOfUserToSystemChief = async (userId: number) => {
   const result = await dbAPI.rawQuery(sql, [userId]);
   return result;
 };
-
-const qprueba = () => {
-  const sql = `
-      SELECT count(case when bd.patientId is not null then 1 end) as ocupedBeds, 
-      count(bd.Id) as totalBeds, sys.name,sys.id,sys.infinitBeds
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
-        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
-        group by sys.id
-      union(
-      SELECT  0  as ocupedBeds, 0 as totalBeds, sys.name,sys.id,sys.infinitBeds
-        FROM ttps_db.system sys 
-        WHERE (sys.id) not in
-
-      ( SELECT sys.id
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
-        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
-      )
-      ) 
-    `;
-
-  const result = dbAPI.rawQuery(sql, []);
-  return result;
-};
 const changeRoleOfUserToDoctor = async (userId: number) => {
   const sql = `UPDATE user
                SET role ="DOCTOR"
@@ -709,7 +684,6 @@ const queries = {
   patientHasCurrentHospitalization,
   findRoomsFromASystemtByID,
   lastEvolveByPatientID,
-  qprueba,
 };
 
 export default queries;
