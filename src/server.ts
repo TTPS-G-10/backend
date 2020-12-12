@@ -88,6 +88,7 @@ dbAPI.generateConnection({
   user: "ba98b3f4b2d660",
   password: "dae97d58",
   database: "heroku_d4f0a4efcec1a78",
+  acquireTimeout: 10000,
 });
 //mysql://ba98b3f4b2d660:dae97d58@us-cdbr-east-02.cleardb.com/heroku_d4f0a4efcec1a78?reconnect=true
 
