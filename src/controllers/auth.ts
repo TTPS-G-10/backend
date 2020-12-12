@@ -29,7 +29,7 @@ const auth = async (req: Request, res: Response) => {
         delete user.password;
         const privateKey = fs.readFileSync(
           //path.resolve(__dirname, "../../.certificates/private_key.pem")
-          path.resolve(__dirname, "src/certificates/private_key.pem")
+          path.resolve("src/certificates/private_key.pem")
         );
         const token = jwt.sign(
           { user },
