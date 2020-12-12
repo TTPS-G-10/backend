@@ -96,6 +96,12 @@ server.listen(app.get("port"), () => {
 });
 //console.log("coneccion con la DB", dbAPI.getConnectionDB());
 import queries from "./DAL/queries";
-console.log("query con la DB", queries.returnSystems());
+
+try {
+  const consult = queries.qprueba();
+  console.log("query con la DB", consult);
+} catch (error) {
+  console.log("exploto la consulta");
+}
 
 export default app;
