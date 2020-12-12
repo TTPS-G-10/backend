@@ -24,8 +24,8 @@ import cookieParser from "cookie-parser";
 import fs from "fs";
 import https from "https";
 
-const key = fs.readFileSync("../../certificates/localhost.key");
-const cert = fs.readFileSync("../../certificates/localhost.crt");
+const key = fs.readFileSync("src/certificates/localhost.key");
+const cert = fs.readFileSync("src/certificates/localhost.crt");
 
 //const key = fs.readFileSync(__dirname + "/../.certificates/localhost.key");
 //const cert = fs.readFileSync(__dirname + "/../.certificates/localhost.crt");
