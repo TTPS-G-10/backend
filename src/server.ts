@@ -78,7 +78,7 @@ dbAPI.generateConnection({
   database: "ttps_db",
   port: 3306,
 });*/
-
+console.log("probando si aparece este log en los logs de heroku");
 //to heroku
 dbAPI.generateConnection({
   host: "us-cdbr-east-02.cleardb.com",
