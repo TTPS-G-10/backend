@@ -7,6 +7,7 @@ import MissingAuthorizationError from "../model/Errors";
 import { CustomRequest } from "../model/Request";
 
 const authorization = (req: Request, res: Response, next: NextFunction) => {
+  console.log("entro a authorization :", req);
   if (req.path === "/authenticate" || req.headers["unsecure"]) {
     next();
   } else {
@@ -17,7 +18,8 @@ const authorization = (req: Request, res: Response, next: NextFunction) => {
         throw new MissingAuthorizationError(token);
       }
       const cert = fs.readFileSync(
-        path.resolve(__dirname, "../../.certificates/public_key.pem")
+        //path.resolve(__dirname, "../../.certificates/public_key.pem")
+        path.resolve(__dirname, "src/certificates/public_key.pem")
       ); // get public key
       const { user } = jwt.verify(token, cert, { algorithms: ["RS256"] }) as {
         user: User;
