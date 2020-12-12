@@ -1,1 +1,1 @@
-installDependecies: npm i && npm install --global typeScript@latest && npm run build && npm run start 
+installDependecies: npm i && npm install --global typescript@latest && npm run build && npm run start 
