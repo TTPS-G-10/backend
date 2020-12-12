@@ -82,7 +82,7 @@ dbAPI.generateConnection({
 //to heroku
 dbAPI.generateConnection({
   host: "us-cdbr-east-02.cleardb.com",
-  user: "ba98b3f4b2d660",
+  user: "ba98b3f4b2d660@%",
   password: "dae97d58",
   database: "heroku_d4f0a4efcec1a78",
   port: 3306,
