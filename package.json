@@ -40,5 +40,8 @@
     "hooks": {
       "pre-push": "npx tsc"
     }
+  },
+  "engines": {
+    "node": "14.x"
   }
 }
