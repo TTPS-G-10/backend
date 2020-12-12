@@ -39,13 +39,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 var corsOptions = {
-  origin: "https://localhost:3000",
+  origin: "*",
   credentials: true,
 };
 
-app.get("/healthcheck", (req, res) => {
+app.get("/", (req, res) => {
   console.log("entro al healthcheck");
-  res.sendStatus(200);
+  res.send("hello");
 });
 
 app.use(cors(corsOptions));
