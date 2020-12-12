@@ -24,15 +24,15 @@ import cookieParser from "cookie-parser";
 import fs from "fs";
 import https from "https";
 
-const key = fs.readFileSync("src/certificates/localhost.key");
-const cert = fs.readFileSync("src/certificates/localhost.crt");
+//const key = fs.readFileSync("src/certificates/localhost.key");
+//const cert = fs.readFileSync("src/certificates/localhost.crt");
 
 //const key = fs.readFileSync(__dirname + "/../.certificates/localhost.key");
 //const cert = fs.readFileSync(__dirname + "/../.certificates/localhost.crt");
-const options = {
-  key: key,
-  cert: cert,
-};
+//const options = {
+//  key: key,
+//  cert: cert,
+//};
 
 const app = express();
 app.use(express.json());
@@ -69,6 +69,7 @@ app.use(doctor);
 app.use(systemChange);
 
 app.set("port", process.env.PORT || 9000);
+
 /*
 // create the connection to database
 // @todo sacar estos datos de configuración por ambiente
@@ -86,12 +87,11 @@ dbAPI.generateConnection({
   user: "ba98b3f4b2d660",
   password: "dae97d58",
   database: "heroku_d4f0a4efcec1a78",
-  port: 3306,
 });
 //mysql://ba98b3f4b2d660:dae97d58@us-cdbr-east-02.cleardb.com/heroku_d4f0a4efcec1a78?reconnect=true
 
-mysql: var server = https.createServer(options, app);
-
+//mysql: var server = https.createServer(options, app);
+mysql: var server = https.createServer(app);
 server.listen(app.get("port"), () => {
   console.log("Server on port: ", app.get("port"));
 });
