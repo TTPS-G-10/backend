@@ -46,7 +46,7 @@ var corsOptions = {
 app.get("/", (req, res) => {
   res.send("HELLO WORD");
 });
-
+console.log("helloooooooooooooooooooooooooooooooo");
 app.use(cors(corsOptions));
 app.use(morgan("dev")); // it's a module that allows you to view http request by console
 app.use(authorization);
