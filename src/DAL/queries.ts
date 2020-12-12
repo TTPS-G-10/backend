@@ -16,7 +16,7 @@ type Cant = {
 const findUserByEmail = async (email: string): Promise<User | null> => {
   const sql = `
     SELECT *
-    FROM ttps_db.user user
+    FROM user user
     WHERE email = ?
     LIMIT 1;
     `;
@@ -25,7 +25,7 @@ const findUserByEmail = async (email: string): Promise<User | null> => {
 const findUserById = async (id: number): Promise<User | null> => {
   const sql = `
     SELECT *
-    FROM ttps_db.user user
+    FROM user user
     WHERE id = ?
     LIMIT 1;
     `;
@@ -35,7 +35,7 @@ const findUserById = async (id: number): Promise<User | null> => {
 const findPatientByDNI = async (dni: number): Promise<Patient | null> => {
   const sql = `
     SELECT *
-    FROM ttps_db.patient
+    FROM patient
     WHERE dni =	?
     LIMIT 1;
     `;
@@ -45,7 +45,7 @@ const findPatientByDNI = async (dni: number): Promise<Patient | null> => {
 const findPatientByID = async (id: number): Promise<Patient | null> => {
   const sql = `
     SELECT *
-    FROM ttps_db.patient
+    FROM patient
     WHERE id =	?
     LIMIT 1;
     `;
@@ -56,7 +56,7 @@ const findContactPersonByPatientID = async (
 ): Promise<ContactPerson | null> => {
   const sql = `
     SELECT *
-    FROM ttps_db.contactPerson
+    FROM contactPerson
     WHERE patientID =	?
     LIMIT 1;
     `;
@@ -83,10 +83,10 @@ const LocationOfPatientWithPatientId = async (
 ): Promise<Location | null> => {
   const sql = `
   SELECT system.id as systemId, system.name as systemName, room.id as roomId, room.name as roomName,bed.id as bedId, bed.name as bedName
-    FROM ttps_db.system 
-        INNER JOIN ttps_db.room on  system.id = room.systemId 
-        INNER JOIN ttps_db.bed on  room.id = bed.roomId
-        INNER JOIN ttps_db.patient on  bed.patientId = patient.id
+    FROM system 
+        INNER JOIN room on  system.id = room.systemId 
+        INNER JOIN bed on  room.id = bed.roomId
+        INNER JOIN patient on  bed.patientId = patient.id
         WHERE patient.id = ?
     LIMIT 1;
     `;
@@ -96,9 +96,9 @@ const LocationOfPatientWithPatientId = async (
 const findSystemOfUser = async (email: string): Promise<System | null> => {
   const sql = `
     SELECT sys.name , sys.id
-    FROM ttps_db.user user
-    INNER JOIN ttps_db.worksAt wa on user.id = wa.userId
-    INNER JOIN ttps_db.system sys on wa.systemId = sys.id
+    FROM user user
+    INNER JOIN worksAt wa on user.id = wa.userId
+    INNER JOIN system sys on wa.systemId = sys.id
     WHERE email = ?
     LIMIT 1;
     `;
@@ -107,8 +107,8 @@ const findSystemOfUser = async (email: string): Promise<System | null> => {
 const findSystemForEvolution = async (id: number): Promise<String | null> => {
   const sql = `
     SELECT syst.name
-    FROM ttps_db.system as syst
-    INNER JOIN ttps_db.systemChange as sc
+    FROM system as syst
+    INNER JOIN systemChange as sc
     ON syst.id = sc.systemId
     WHERE sc.id='?'
     LIMIT 1
@@ -119,8 +119,8 @@ const findSystemForEvolution = async (id: number): Promise<String | null> => {
 const findSystemOfUserForId = async (id: number): Promise<System | null> => {
   const sql = `
     SELECT sys.name , sys.id
-    FROM ttps_db.worksAt 
-    INNER JOIN ttps_db.system sys on worksAt.systemId = sys.id
+    FROM worksAt 
+    INNER JOIN system sys on worksAt.systemId = sys.id
     WHERE worksAt.userId = ?
     LIMIT 1;
     `;
@@ -132,8 +132,8 @@ const findSystemChiefBySystemId = async (
 ): Promise<User | null> => {
   const sql = `
     SELECT user.id,user.name,user.lastName,user.file,user.email
-    FROM ttps_db.user
-    INNER JOIN ttps_db.worksAt on worksAt.userId = user.id
+    FROM user
+    INNER JOIN worksAt on worksAt.userId = user.id
     WHERE user.role = "JEFE DE SISTEMA" AND worksAt.systemId = ?
     LIMIT 1;
     `;
@@ -145,7 +145,7 @@ const findInternmentWithId = async (
 ): Promise<Internment | null> => {
   const sql = `
  SELECT internment.*
-    FROM ttps_db.internment
+    FROM internment
     WHERE (id = ?) AND (egressDate IS NULL) AND  (obitoDate IS NULL)
     LIMIT 1;
     `;
@@ -157,8 +157,8 @@ const findOpenInternmentWithPatientId = async (
 ): Promise<Internment | null> => {
   const sql = `
  SELECT internment.*
-    FROM ttps_db.internment
-    INNER JOIN ttps_db.patient ON patient.id = internment.patientId
+    FROM internment
+    INNER JOIN patient ON patient.id = internment.patientId
     WHERE (patient.id = ?) AND (internment.egressDate IS NULL) AND  (internment.obitoDate IS NULL)
     LIMIT 1;
     `;
@@ -170,7 +170,7 @@ const findSystemForName = async (
 ): Promise<System | null> => {
   const sql = `
   SELECT *
-        FROM ttps_db.system 
+        FROM system 
         WHERE system.name = ?
     LIMIT 1
     `;
@@ -182,9 +182,9 @@ const findSystemChangesOfInternmentWithInternmentId = async (
 ) => {
   const sql = `
   SELECT systemChange.*,system.name as systemName
-    FROM ttps_db.systemChange
-    INNER JOIN ttps_db.internment ON systemChange.internmentId = internment.id
-    INNER JOIN ttps_db.system ON systemChange.systemId = system.id
+    FROM systemChange
+    INNER JOIN internment ON systemChange.internmentId = internment.id
+    INNER JOIN system ON systemChange.systemId = system.id
     WHERE (internment.id = ?)
     ORDER BY createtime desc
     `;
@@ -194,10 +194,10 @@ const findSystemChangesOfInternmentWithInternmentId = async (
 const returnPatientsAssinedToUserById = async (userId: number) => {
   const sql = `
   SELECT patient.name as patientName,internment.id as internmentId,patient.lastName as patientLastName,patient.id as patientId
-    FROM ttps_db.user
-    INNER JOIN ttps_db.assignedDoctor on assignedDoctor.userId = user.id
-    INNER JOIN ttps_db.internment on internment.id= assignedDoctor.internmentId
-    INNER JOIN ttps_db.patient on internment.patientId = patient.id
+    FROM user
+    INNER JOIN assignedDoctor on assignedDoctor.userId = user.id
+    INNER JOIN internment on internment.id= assignedDoctor.internmentId
+    INNER JOIN patient on internment.patientId = patient.id
     WHERE user.id= ?
     `;
   return await dbAPI.rawQuery(sql, [userId]);
@@ -208,8 +208,8 @@ const findAcotedEvaluationsOfSystemChangeWithSystemChangeId = async (
 ) => {
   const sql = `
 SELECT evaluation.id, evaluation.userId, evaluation.patientId, evaluation.systemChangeId, evaluation.createTime
-    FROM ttps_db.evaluation
-    INNER JOIN ttps_db.systemChange ON systemChange.Id = evaluation.systemChangeId
+    FROM evaluation
+    INNER JOIN systemChange ON systemChange.Id = evaluation.systemChangeId
     WHERE (systemChange.id = ?)
     ORDER BY createTime desc
     `;
@@ -224,9 +224,9 @@ const findBedsWithSystemAndRoom = async (
 ): Promise<Bed | null> => {
   const sql = `
     SELECT bd.*
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
-        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        FROM system sys 
+        INNER JOIN room rm on  sys.id = rm.systemId 
+        INNER JOIN bed bd on  rm.id = bd.roomId
         WHERE  (sys.id = ?) AND (rm.id = ?) AND (bd.patientId is NULL)
         LIMIT 1
     `;
@@ -236,7 +236,7 @@ const findBedsWithSystemAndRoom = async (
 const returnBedsWithSpaceOfRoomForRoomId = async (id: Number) => {
   const sql = `
          SELECT bd.name,bd.id
-        FROM ttps_db.bed bd 
+        FROM bed bd 
         WHERE (bd.roomId='?') AND (bd.patientId is NULL)
         GROUP BY bd.id
     `;
@@ -248,19 +248,19 @@ const returnSystems = async () => {
   const sql = `
       SELECT count(case when bd.patientId is not null then 1 end) as ocupedBeds, 
       count(bd.Id) as totalBeds, sys.name,sys.id,sys.infinitBeds
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
-        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        FROM system sys 
+        INNER JOIN room rm on  sys.id = rm.systemId 
+        INNER JOIN bed bd on  rm.id = bd.roomId
         group by sys.id
       union(
       SELECT  0  as ocupedBeds, 0 as totalBeds, sys.name,sys.id,sys.infinitBeds
-        FROM ttps_db.system sys 
+        FROM system sys 
         WHERE (sys.id) not in
 
       ( SELECT sys.id
-        FROM ttps_db.system sys 
-        INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
-        INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+        FROM system sys 
+        INNER JOIN room rm on  sys.id = rm.systemId 
+        INNER JOIN bed bd on  rm.id = bd.roomId
       )
       ) 
     `;
@@ -272,7 +272,7 @@ const returnSystems = async () => {
 const returnCantOfSistemsChangesOfAnySystemForId = async (id: Number) => {
   const sql = `
  SELECT count(case when sc.systemId is not null then 1 end) as cant
-  FROM ttps_db.systemChange sc
+  FROM systemChange sc
    WHERE sc.systemId = ?
   `;
   return await dbAPI.singleOrDefault<Cant>(sql, [id]);
@@ -281,8 +281,8 @@ const returnCantOfSistemsChangesOfAnySystemForId = async (id: Number) => {
 const returnRomsOfAnSystemForId = async (id: Number) => {
   const sql = `
   SELECT  rm.name ,rm.id
-  FROM ttps_db.system sys 
-  INNER JOIN ttps_db.room rm on  sys.id = rm.systemId 
+  FROM system sys 
+  INNER JOIN room rm on  sys.id = rm.systemId 
   WHERE sys.id = ?
   ORDER BY rm.name asc
   `;
@@ -292,8 +292,8 @@ const returnRomsOfAnSystemForId = async (id: Number) => {
 const returnBedsOfAnyRoomForId = async (id: Number) => {
   const sql = `
     SELECT  bd.name , bd.id , bd.patientId
-    FROM  ttps_db.room rm 
-    INNER JOIN ttps_db.bed bd on  rm.id = bd.roomId
+    FROM  room rm 
+    INNER JOIN bed bd on  rm.id = bd.roomId
     WHERE rm.id = ?
     ORDER BY bd.name asc
     `;
@@ -303,8 +303,8 @@ const returnBedsOfAnyRoomForId = async (id: Number) => {
 const returnPatientForBed = async (idBed: number) => {
   const sql = `
    SELECT pt.id,pt.name ,pt.lastName 
-    FROM ttps_db.bed bd 
-    INNER JOIN ttps_db.patient pt on  pt.id = bd.patientId
+    FROM bed bd 
+    INNER JOIN patient pt on  pt.id = bd.patientId
     WHERE bd.id = ? 
     LIMIT 1
     `;
@@ -314,9 +314,9 @@ const returnPatientForBed = async (idBed: number) => {
 const returnBedsAndPatientsForRoomId = async (id: number) => {
   const sql = `
     SELECT  pt.name as patientName,pt.lastName as patientLastName,pt.id as patientId, bd.name as bedName, bd.id as bedId
-    FROM ttps_db.room rm 
-    INNER JOIN ttps_db.bed bd on  bd.roomId = rm.id
-    INNER JOIN ttps_db.patient pt on  pt.id = bd.patientId
+    FROM room rm 
+    INNER JOIN bed bd on  bd.roomId = rm.id
+    INNER JOIN patient pt on  pt.id = bd.patientId
     WHERE rm.id = ? 
     ORDER BY rm.name asc
     `;
@@ -339,7 +339,7 @@ const returInfinitBedsOfSystem = async (id: number) => {
   try {
     const sql = `
     SELECT infinitBeds
-    FROM ttps_db.system
+    FROM system
     WHERE id=?
     `;
     return await dbAPI.rawQuery(sql, [id]);
@@ -350,8 +350,8 @@ const returInfinitBedsOfSystem = async (id: number) => {
 const returnRoomsWithSpaceOfSystemForSystemId = async (id: Number) => {
   const sql = `
        SELECT rm.name,rm.id
-        FROM ttps_db.room rm 
-        INNER JOIN ttps_db.bed bd on rm.id = bd.roomId
+        FROM room rm 
+        INNER JOIN bed bd on rm.id = bd.roomId
         WHERE (rm.systemId=?) AND (bd.patientId is NULL)
         GROUP BY rm.id `;
   const result = await dbAPI.rawQuery(sql, [id]);
@@ -360,7 +360,7 @@ const returnRoomsWithSpaceOfSystemForSystemId = async (id: Number) => {
 const findRoomsFromASystemtByID = async (id: number) => {
   const sql = `
          SELECT rm.name,rm.id
-  FROM  ttps_db.room rm 
+  FROM  room rm 
   WHERE (rm.systemId='?') 
   GROUP BY rm.id `;
 
@@ -380,8 +380,8 @@ const findEvolutionByID = async (id: number) => {
 const returnDoctorsOfSystemForId = async (id: number) => {
   const sql = `
          SELECT user.name,user.lastName,user.id,user.file
-    FROM ttps_db.user
-    INNER JOIN ttps_db.worksAt ON user.id = worksAt.userId
+    FROM user
+    INNER JOIN worksAt ON user.id = worksAt.userId
     WHERE worksAt.systemId = ? AND user.role = "DOCTOR"
     ORDER BY user.lastName desc `;
 
@@ -404,8 +404,8 @@ const returnCurrentSystemIdOfTheInternment = async (
 ): Promise<number | null> => {
   const sql = `
   SELECT systemChange.systemId
-    FROM ttps_db.systemChange
-    INNER JOIN ttps_db.internment ON systemChange.internmentId = internment.id
+    FROM systemChange
+    INNER JOIN internment ON systemChange.internmentId = internment.id
     WHERE internment.egressDate IS NULL AND internment.obitoDate IS NULL AND internment.id = ? 
     ORDER BY createtime desc
     LIMIT 1`;
@@ -582,8 +582,8 @@ const getPatientById = async (id: string): Promise<Patient | null> => {
   try {
     const sql = `
     SELECT *
-     FROM ttps_db.bed bd 
-     INNER JOIN ttps_db.patient pt on  pt.id = bd.patientId
+     FROM bed bd 
+     INNER JOIN patient pt on  pt.id = bd.patientId
      WHERE bd.id = ? 
      LIMIT 1
      `;
