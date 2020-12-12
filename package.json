@@ -5,9 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon",
-    "ts": "node_modules/typescript/bin/tsc",
-    "start": "node build/server.js",
-    "postinstall": "npm run ts"
+    "build": "rimraf ./build && node_modules/typescript/bin/tsc",
+    "start": "npm run build && node build/server.js"
   },
   "keywords": [],
   "author": "",
