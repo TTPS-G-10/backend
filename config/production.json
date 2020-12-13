@@ -4,6 +4,7 @@
     "user": "ba98b3f4b2d660",
     "password": "dae97d58",
     "database": "heroku_d4f0a4efcec1a78",
+    "connectionLimit": 12,
     "acquireTimeout": 10000
   }
 }
