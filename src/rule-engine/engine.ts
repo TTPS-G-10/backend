@@ -3,20 +3,17 @@ import queries from "../DAL/queries";
 import { Rule as RawRule } from "../model/Rule";
 import { buildRules } from "./rules";
 
-let engine: Engine;
-let activeRules: RawRule[] = [];
+const getActiveRules = async () =>
+  (await queries.getRules()).filter((rule) => rule.active);
+
 const init = async () => {
-  const rawRules: RawRule[] = await queries.getRules();
-  activeRules = rawRules.filter((rule) => rule.active);
-  const engineRules: RuleProperties[] = buildRules(rawRules);
-  engine = new Engine(engineRules, { allowUndefinedFacts: true });
+  const engineRules: RuleProperties[] = buildRules(await getActiveRules());
+  const engine: Engine = new Engine(engineRules, { allowUndefinedFacts: true });
+  return engine;
 };
-const getEngine = () => engine;
-const getActiveRules = () => activeRules;
 
 const EngineRule = {
   init,
-  getEngine,
   getActiveRules,
 };
 

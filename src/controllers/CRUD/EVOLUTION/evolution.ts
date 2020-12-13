@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
 import queries from "../../../DAL/queries";
-import { validationResult } from "express-validator";
 import { CustomRequest } from "../../../model/Request";
 import genNewAlerts from "../../../services/genNewAlerts";
 import EngineRule from "../../../rule-engine/engine";
 import { Evolution } from "../../../model/Evolution";
-import { KnownRules } from "../../../model/Rule";
+import { KnownRules, KnownRulesKeys } from "../../../model/Rule";
 
 const getFactFromEvolution = (
   factName: KnownRules,
-  evolution: Evolution
+  evolution: Evolution,
+  previousEvolution?: Evolution
 ): any | undefined => {
   switch (factName) {
     case KnownRules.SOM:
@@ -28,6 +28,14 @@ const getFactFromEvolution = (
       if (evolution.oxygenSaturation) {
         return evolution.oxygenSaturation;
       }
+    case KnownRules.O_SAT_2:
+      if (
+        previousEvolution &&
+        previousEvolution.oxygenSaturation &&
+        evolution.oxygenSaturation
+      ) {
+        return previousEvolution.oxygenSaturation - evolution.oxygenSaturation;
+      }
     default:
       return;
   }
@@ -39,34 +47,68 @@ const create = async (req: Request, res: Response) => {
   };
   const patientId = req.body.patientId;
   const userId = (req as CustomRequest).user.id;
+  const previousEvolution: Evolution | null = await queries.getPreviousEvolution(
+    patientId
+  );
   const evaluationID = await queries.evolvePatient(
     patientId,
     userId,
     evolution
   );
-  console.log("evaluation ID is: ", evaluationID);
   if (!!evaluationID) res.sendStatus(201);
   if (!evaluationID) res.sendStatus(500);
   // Effect => rules evaluations and alerts ---
-  const rules = EngineRule.getActiveRules();
+  const rules = await EngineRule.getActiveRules();
   const facts = rules.reduce((acc, current) => {
     return {
       ...acc,
       [current.name]: getFactFromEvolution(
         current.name as KnownRules,
-        evolution
+        evolution,
+        previousEvolution ?? undefined
       ),
     };
   }, {});
-  const generetedAlerts = await genNewAlerts({
+  const firstRun = await genNewAlerts({
     userId,
     evaluationId: patientId,
     facts: { ...facts },
   });
-  queries.saveAlerts(generetedAlerts);
+  /*   const secondFacts = {
+    ...firstRun.reduce((acc, current) => {
+      return {
+        ...acc,
+        [current.ruleKey]: current.ruleKey,
+      };
+    }, {}),
+  };
+  const secondRun = await genNewAlerts({
+    userId,
+    evaluationId: patientId,
+    facts: { ...secondFacts },
+  }); */
+
+  // prevenimos que la alerta 6 se guarde si es que saltó la 5
+  // Lo hacemos manualmente porque no pude hacer andar el motor con esta condición
+  const newAlerts = firstRun.filter((alert) => {
+    const found = firstRun.find(
+      (alert) => alert.ruleKey === KnownRulesKeys.O_SAT
+    );
+    if (found) {
+      return alert.ruleKey !== KnownRulesKeys.O_SAT_2;
+    }
+    return true;
+  });
+  queries.saveAlerts(newAlerts);
+
   console.log("active rules => ", rules);
   console.log("facts => ", facts);
-  console.log("generetedAlerts => ", generetedAlerts);
+  console.log("firstRun => ", firstRun);
+  console.log("generetedAlerts => ", newAlerts);
+  //console.log("second run => ", secondRun);
+  //console.log("second facts => ", secondFacts);
+  console.log("evolution => ", evolution);
+  console.log("previousEvolution => ", previousEvolution);
   //------------
 };
 const Evolution = {

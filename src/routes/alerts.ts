@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { Role } from "../model/User";
 import { CustomRequest } from "../model/Request";
 import { ServicePaths } from "../model/Paths";
-import getAlerts from "../controllers/alerts";
+import Alerts from "../controllers/alerts";
 
 const router = Router();
 
@@ -20,6 +20,11 @@ const checkPermissionByRole = (
   }
 };
 
-router.get(ServicePaths.ALERTS, checkPermissionByRole, getAlerts);
+router.get(ServicePaths.ALERTS, checkPermissionByRole, Alerts.getAlerts);
+router.put(
+  ServicePaths.ALERT_SEEN,
+  checkPermissionByRole,
+  Alerts.setAlertAsSeen
+);
 
-export default getAlerts;
+export default router;

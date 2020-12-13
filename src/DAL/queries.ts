@@ -7,7 +7,7 @@ import { Location } from "../model/Location";
 import { ContactPerson } from "../model/ContactPerson";
 import { Evolution } from "../model/Evolution";
 import { Bed } from "../model/Bed";
-import { RuleType, RuleOperator } from "../model/Rule";
+import { RuleType, RuleOperator, KnownRulesKeys } from "../model/Rule";
 import { Alert } from "../model/Alert";
 
 type Cant = {
@@ -467,10 +467,7 @@ const insert = async (query: string, values: object): Promise<boolean> => {
 const insertAndReturnID = async (
   query: string,
   values: object
-): Promise<number> => {
-  console.log(await dbAPI.insert(query, values));
-  return (await dbAPI.insert(query, values)).insertId;
-};
+): Promise<number> => (await dbAPI.insert(query, values)).insertId;
 
 const assignPatientToBed = async (idPatient: number, idBed: number) => {
   const sql = `UPDATE bed
@@ -602,11 +599,11 @@ const changeRoleOfUserToDoctor = async (userId: number) => {
 const saveAlerts = async (alerts: Alert[]): Promise<boolean[]> => {
   const sql = "INSERT INTO alert";
   return await Promise.all(alerts.map((alert) => insert(sql, alert)));
-  //return await insert(sql, alerts);
 };
 
 const getAlertsByUserId = async (id: number) => {
-  const sql = "SELECT * FROM alert WHERE alert.userId = ? ";
+  const sql =
+    "SELECT * FROM alert WHERE alert.readByUser = false AND alert.userId = ? ";
   return await dbAPI.rawQuery(sql, [id]);
 };
 
@@ -617,7 +614,7 @@ const getRules = async () => {
     LIMIT 100;
   `;
   const result = await dbAPI.rawQuery(sql, []);
-  console.log("database rules =>", result);
+  // console.log("database rules =>", result);
   // mock temporal
   return [
     {
@@ -626,6 +623,7 @@ const getRules = async () => {
       description: "Somnolencia: evaluar pase a UTI",
       type: RuleType.BOOLEAN,
       active: true,
+      key: KnownRulesKeys.SOM,
       id: 1,
     },
     {
@@ -635,6 +633,7 @@ const getRules = async () => {
       description: "Mecanica ventilatoria :value evaluar pase a UTI",
       type: RuleType.VALUE_LIST,
       active: true,
+      key: KnownRulesKeys.MEC_VEN,
       id: 2,
     },
     {
@@ -645,6 +644,7 @@ const getRules = async () => {
         "Frecuencia respiratoria mayor a :value por minuto, evaluar pase a UTI",
       type: RuleType.NUMERIC,
       active: true,
+      key: KnownRulesKeys.FRE_RESP,
       id: 3,
     },
     {
@@ -655,19 +655,37 @@ const getRules = async () => {
         "Saturacion de oxigeno menor a 92%. Evaluar oxigenoterapia y prono",
       type: RuleType.NUMERIC,
       active: true,
+      key: KnownRulesKeys.O_SAT,
       id: 4,
     },
-    /*     {
-      name: "saturación_de_oxígeno",
-      operator: RuleOperator.LESS_THAN,
+    {
+      name: "saturación_de_oxígeno_2",
+      operator: RuleOperator.GREATER_THAN_INCLUSIVE,
       parameter: 3,
       description:
         "Saturación de oxígeno bajó 3%. Evaluar oxigenoterapia y prono.	",
       type: RuleType.NUMERIC,
       active: true,
-      id: 5
-    }, */
+      id: 5,
+      key: KnownRulesKeys.O_SAT_2,
+      notRule: [KnownRulesKeys.O_SAT],
+    },
   ];
+};
+
+const getPreviousEvolution = async (
+  patientId: number
+): Promise<Evolution | null> => {
+  const sql =
+    "SELECT * FROM evaluation ORDER BY evaluation.createTime desc LIMIT 1;";
+  return await dbAPI.singleOrDefault<Evolution>(sql, []);
+};
+
+const setAlertAsSeen = async (alertID: number): Promise<boolean> => {
+  const sql = `UPDATE alert
+  SET readByUser = 1
+   WHERE id = ?`;
+  return dbAPI.rawQuery(sql, [alertID]);
 };
 
 // queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
@@ -729,6 +747,8 @@ const queries = {
   getRules,
   saveAlerts,
   getAlertsByUserId,
+  getPreviousEvolution,
+  setAlertAsSeen,
 };
 
 export default queries;

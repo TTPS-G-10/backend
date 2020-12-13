@@ -3,6 +3,15 @@ export enum KnownRules {
   MEC_VEN = "mecanica_ventilatoria",
   FRE_RESP = "frecuencia_respiratoria",
   O_SAT = "saturación_de_oxígeno",
+  O_SAT_2 = "saturación_de_oxígeno_2",
+}
+
+export enum KnownRulesKeys {
+  SOM = "SOM",
+  MEC_VEN = "MEC_VEN",
+  FRE_RESP = "FRE_RESP",
+  O_SAT = "O_SAT",
+  O_SAT_2 = "O_SAT_2",
 }
 
 export type Rule = {
@@ -13,6 +22,8 @@ export type Rule = {
   active: boolean;
   type: RuleType;
   id: number;
+  notRule?: string[];
+  key: KnownRulesKeys;
 };
 
 export enum RuleType {

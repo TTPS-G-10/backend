@@ -19,4 +19,5 @@ export enum ServicePaths {
   DOCTORS = "/doctors",
   DOCTOR = "/doctor",
   ALERTS = "/alerts",
+  ALERT_SEEN = "/alert-seen",
 }

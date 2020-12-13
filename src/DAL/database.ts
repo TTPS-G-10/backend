@@ -78,8 +78,6 @@ async function insert(query: string, params: object): Promise<any> {
 
   try {
     const sql = TTPS_DB_POOL.format(insertQry, values);
-    console.log("sql is ", sql);
-    console.log("value is: ", values);
     const result = (await TTPS_DB_POOL.query<ResultSetHeader>(
       sql,
       values
