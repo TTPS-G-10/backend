@@ -19,7 +19,7 @@ const findUserByEmail = async (email: string): Promise<User | null> => {
   console.log("email:", email);
   const sql = `
     SELECT *
-    FROM user 
+    FROM ${dbConfig.database}.user 
     WHERE email =?
     LIMIT 1;
     `;
