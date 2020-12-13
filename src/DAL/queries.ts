@@ -20,7 +20,7 @@ const findUserByEmail = async (email: string): Promise<User | null> => {
   const sql = `
     SELECT *
     FROM user 
-    WHERE email = '?'
+    WHERE email =?
     LIMIT 1;
     `;
   console.log("Query para buscar el usuario", sql);
