@@ -22,8 +22,10 @@ import dbAPI from "./DAL/database";
 import authorization from "./middlewares/authorization";
 import cookieParser from "cookie-parser";
 import fs from "fs";
-//import https from "https";
+import https from "https";
 import http from "http";
+
+const config = require("config");
 
 const key = fs.readFileSync("src/certificates/localhost.key");
 const cert = fs.readFileSync("src/certificates/localhost.crt");
@@ -39,8 +41,11 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+const url =
+  process.env.NODE_ENV == "production" ? "*" : "https://localhost:3000";
+
 var corsOptions = {
-  origin: "*",
+  origin: url,
   credentials: true,
 };
 
@@ -72,6 +77,7 @@ app.use(systemChange);
 app.set("port", process.env.PORT || 9000);
 
 /*
+
 // create the connection to database
 // @todo sacar estos datos de configuración por ambiente
 dbAPI.generateConnection({
@@ -82,18 +88,20 @@ dbAPI.generateConnection({
   port: 3306,
 });*/
 
+const dbConfig = config.get("dbConfig");
+console.log("DB: ", dbConfig);
 //to heroku
-dbAPI.generateConnection({
-  host: "us-cdbr-east-02.cleardb.com",
-  user: "ba98b3f4b2d660",
-  password: "dae97d58",
-  database: "heroku_d4f0a4efcec1a78",
-  acquireTimeout: 10000,
-});
+dbAPI.generateConnection(dbConfig);
 //mysql://ba98b3f4b2d660:dae97d58@us-cdbr-east-02.cleardb.com/heroku_d4f0a4efcec1a78?reconnect=true
 
 //mysql: var server = https.createServer(options, app);
-mysql: var server = http.createServer(app);
+//mysql: var server = http.createServer(app);
+
+var server =
+  process.env.NODE_ENV == "production"
+    ? http.createServer(app)
+    : https.createServer(options, app);
+
 server.listen(app.get("port"), () => {
   console.log("Server on port: ", app.get("port"));
 });
