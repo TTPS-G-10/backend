@@ -7,7 +7,7 @@ import MissingAuthorizationError from "../model/Errors";
 import { CustomRequest } from "../model/Request";
 
 const authorization = (req: Request, res: Response, next: NextFunction) => {
-  console.log("entro a authorization :", req);
+  console.log("--------------------entro a authorization--------------- ");
   if (req.path === "/authenticate" || req.headers["unsecure"]) {
     next();
   } else {

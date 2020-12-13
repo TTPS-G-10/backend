@@ -30,8 +30,6 @@ const config = require("config");
 const key = fs.readFileSync("src/certificates/localhost.key");
 const cert = fs.readFileSync("src/certificates/localhost.crt");
 
-//const key = fs.readFileSync(__dirname + "/../.certificates/localhost.key");
-//const cert = fs.readFileSync(__dirname + "/../.certificates/localhost.crt");
 const options = {
   key: key,
   cert: cert,
@@ -76,26 +74,10 @@ app.use(systemChange);
 
 app.set("port", process.env.PORT || 9000);
 
-/*
-
 // create the connection to database
-// @todo sacar estos datos de configuración por ambiente
-dbAPI.generateConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "ttps_db",
-  port: 3306,
-});*/
-
 const dbConfig = config.get("dbConfig");
 console.log("DB: ", dbConfig);
-//to heroku
 dbAPI.generateConnection(dbConfig);
-//mysql://ba98b3f4b2d660:dae97d58@us-cdbr-east-02.cleardb.com/heroku_d4f0a4efcec1a78?reconnect=true
-
-//mysql: var server = https.createServer(options, app);
-//mysql: var server = http.createServer(app);
 
 var server =
   process.env.NODE_ENV == "production"
