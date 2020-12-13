@@ -32,7 +32,7 @@ const checkPermissionByRoleForSistemChanges = (
   }
 };
 
-router.get(ServicePaths.SYSTEMS, systems);
+router.get(ServicePaths.SYSTEMS, checkPermissionByRole, systems);
 
 router.get(
   "/systems/withSpace",
