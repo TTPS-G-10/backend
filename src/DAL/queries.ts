@@ -19,7 +19,7 @@ const findUserByEmail = async (email: string): Promise<User | null> => {
   const sql = `
     SELECT *
     FROM ${dbConfig.database}.user user
-    WHERE email = ?
+    WHERE email = '?'
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<User | null>(sql, [email]);
