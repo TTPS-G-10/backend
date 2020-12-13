@@ -1,5 +1,5 @@
 import mysql from "mysql2";
-import { PoolConnection } from "mysql2/promise";
+import { PoolConnection, ResultSetHeader } from "mysql2/promise";
 
 interface IConnectionData {
   host: string;
@@ -78,10 +78,15 @@ async function insert(query: string, params: object): Promise<any> {
 
   try {
     const sql = TTPS_DB_POOL.format(insertQry, values);
-    const idInsert = await TTPS_DB_POOL.query(sql, values);
+    console.log("sql is ", sql);
+    console.log("value is: ", values);
+    const result = (await TTPS_DB_POOL.query<ResultSetHeader>(
+      sql,
+      values
+    )) as ResultSetHeader[];
     await TTPS_DB_POOL.commit();
     TTPS_DB_POOL.release();
-    return idInsert;
+    return result[0];
   } catch (err) {
     await TTPS_DB_POOL.rollback();
     console.warn(err.message);

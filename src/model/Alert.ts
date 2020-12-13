@@ -1,6 +1,9 @@
 export type Alert = {
+  ruleName: string;
+  evaluationId: number;
   date: Date;
-  patientName: string;
-  text: string;
-  watched: boolean;
-}
+  name: string;
+  message: string;
+  userId: number;
+  readByUser: boolean;
+};

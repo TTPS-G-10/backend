@@ -8,6 +8,7 @@ import { ContactPerson } from "../model/ContactPerson";
 import { Evolution } from "../model/Evolution";
 import { Bed } from "../model/Bed";
 import { RuleType, RuleOperator } from "../model/Rule";
+import { Alert } from "../model/Alert";
 
 type Cant = {
   cant: Number;
@@ -463,6 +464,14 @@ const insert = async (query: string, values: object): Promise<boolean> => {
   }
 };
 
+const insertAndReturnID = async (
+  query: string,
+  values: object
+): Promise<number> => {
+  console.log(await dbAPI.insert(query, values));
+  return (await dbAPI.insert(query, values)).insertId;
+};
+
 const assignPatientToBed = async (idPatient: number, idBed: number) => {
   const sql = `UPDATE bed
               SET patientId = '?'
@@ -565,13 +574,13 @@ const evolvePatient = async (
   patientId: number,
   userId: number,
   evolution: Evolution
-): Promise<boolean> => {
+): Promise<number> => {
   const sql = "INSERT INTO evaluation";
-  // @TODO remove this unnecesary field from DB
+  // @TODO retrieve this value from last system change
   const systemChangeId = 5;
   // -----------------------
   const payload = { ...evolution, userId, patientId, systemChangeId };
-  return await insert(sql, payload);
+  return await insertAndReturnID(sql, payload);
 };
 
 const changeRoleOfUserToSystemChief = async (userId: number) => {
@@ -590,6 +599,17 @@ const changeRoleOfUserToDoctor = async (userId: number) => {
   return result;
 };
 
+const saveAlerts = async (alerts: Alert[]): Promise<boolean[]> => {
+  const sql = "INSERT INTO alert";
+  return await Promise.all(alerts.map((alert) => insert(sql, alert)));
+  //return await insert(sql, alerts);
+};
+
+const getAlertsByUserId = async (id: number) => {
+  const sql = "SELECT * FROM alert WHERE alert.userId = ? ";
+  return await dbAPI.rawQuery(sql, [id]);
+};
+
 const getRules = async () => {
   const sql = `
     SELECT *
@@ -606,6 +626,7 @@ const getRules = async () => {
       description: "Somnolencia: evaluar pase a UTI",
       type: RuleType.BOOLEAN,
       active: true,
+      id: 1,
     },
     {
       name: "mecanica_ventilatoria",
@@ -614,6 +635,7 @@ const getRules = async () => {
       description: "Mecanica ventilatoria :value evaluar pase a UTI",
       type: RuleType.VALUE_LIST,
       active: true,
+      id: 2,
     },
     {
       name: "frecuencia_respiratoria",
@@ -623,6 +645,7 @@ const getRules = async () => {
         "Frecuencia respiratoria mayor a :value por minuto, evaluar pase a UTI",
       type: RuleType.NUMERIC,
       active: true,
+      id: 3,
     },
     {
       name: "saturación_de_oxígeno",
@@ -632,6 +655,7 @@ const getRules = async () => {
         "Saturacion de oxigeno menor a 92%. Evaluar oxigenoterapia y prono",
       type: RuleType.NUMERIC,
       active: true,
+      id: 4,
     },
     /*     {
       name: "saturación_de_oxígeno",
@@ -641,6 +665,7 @@ const getRules = async () => {
         "Saturación de oxígeno bajó 3%. Evaluar oxigenoterapia y prono.	",
       type: RuleType.NUMERIC,
       active: true,
+      id: 5
     }, */
   ];
 };
@@ -702,6 +727,8 @@ const queries = {
   patientHasCurrentHospitalization,
   findRoomsFromASystemtByID,
   getRules,
+  saveAlerts,
+  getAlertsByUserId,
 };
 
 export default queries;

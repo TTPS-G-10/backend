@@ -18,6 +18,7 @@ const auth = async (req: Request, res: Response) => {
       // we know md5 isn't best way to do this, we let this way for convenience
       const validatePassword = md5(password) === user.password;
       if (!validatePassword) {
+        console.log("invalid password");
         res.sendStatus(403);
       } else {
         if (user.role == Role.Doctor || user.role == Role.SystemChief) {
@@ -27,7 +28,7 @@ const auth = async (req: Request, res: Response) => {
         }
         delete user.password;
         const privateKey = fs.readFileSync(
-          path.resolve(__dirname, "../../.certificates/private_key.pem")
+          path.resolve("src/certificates/private_key.pem")
         );
         const token = jwt.sign(
           { user },

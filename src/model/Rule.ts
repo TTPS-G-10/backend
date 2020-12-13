@@ -1,10 +1,18 @@
+export enum KnownRules {
+  SOM = "somnolencia",
+  MEC_VEN = "mecanica_ventilatoria",
+  FRE_RESP = "frecuencia_respiratoria",
+  O_SAT = "saturación_de_oxígeno",
+}
+
 export type Rule = {
-  name: string;
+  name: KnownRules | string;
   parameter?: string | number;
   description: string;
   operator: RuleOperator;
   active: boolean;
   type: RuleType;
+  id: number;
 };
 
 export enum RuleType {
