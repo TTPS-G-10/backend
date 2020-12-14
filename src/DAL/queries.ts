@@ -145,8 +145,21 @@ const findInternmentWithId = async (
 ): Promise<Internment | null> => {
   const sql = `
  SELECT internment.*
+    FROM internment
+    WHERE id = ?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<Internment | null>(sql, [patientId]);
+};
+
+const findObitoInternmentWithPatientId = async (
+  patientId: number
+): Promise<Internment | null> => {
+  const sql = `
+ SELECT internment.*
     FROM ttps_db.internment
-    WHERE (id = ?) AND (egressDate IS NULL) AND  (obitoDate IS NULL)
+    INNER JOIN ttps_db.patient ON patient.id = internment.patientId
+    WHERE (patient.id = ?)  AND  (internment.obitoDate IS NOT NULL)
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<Internment | null>(sql, [patientId]);
@@ -399,6 +412,19 @@ const patientHasCurrentHospitalization = async (idPatient: number) => {
   return result;
 };
 
+// devuelve todas la internaciones
+const patienInternmentsByPatientId = async (idPatient: number) => {
+  const sql = `
+  SELECT internment.id,internment.patientId,internment.dateOfHospitalization,internment.obitoDate,internment.egressDate
+  FROM internment
+  WHERE  patientId='?'
+  ORDER BY internment.dateOfHospitalization desc
+  `;
+
+  const result = await dbAPI.rawQuery(sql, [idPatient]);
+  return result;
+};
+
 const returnCurrentSystemIdOfTheInternment = async (
   internmentId: number
 ): Promise<number | null> => {
@@ -439,7 +465,7 @@ const createSystemChange = async (internmentId: number, systemId: number) => {
 const createAssignedDoctor = async (internmentId: number, userId: number) => {
   const sql = `
   INSERT INTO assignedDoctor (internmentId, userId)
-  VALUES (?, ? )
+  VALUES (?,?)
  `;
   const result = await dbAPI.rawQuery(sql, [internmentId, userId]);
   return result;
@@ -600,13 +626,20 @@ const evolvePatient = async (
   patientId: number,
   userId: number,
   evolution: Evolution,
-  systemChangeId: number
+  systemChangeId: number,
+  createTime: Date
 ): Promise<boolean> => {
   const sql = "INSERT INTO evaluation";
   // @TODO remove this unnecesary field from DB
   //const systemChangeId = 5;
   // -----------------------
-  const payload = { ...evolution, userId, patientId, systemChangeId };
+  const payload = {
+    ...evolution,
+    userId,
+    patientId,
+    systemChangeId,
+    createTime,
+  };
   return await insert(sql, payload);
 };
 
@@ -626,11 +659,31 @@ const changeRoleOfUserToDoctor = async (userId: number) => {
   return result;
 };
 
+const setObitoOfInternment = async (fecha: Date, internmentId: number) => {
+  const sql = `UPDATE internment
+               SET obitoDate = ?
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [fecha, internmentId]);
+  return result;
+};
+
+const setEgressOfInternment = async (fecha: Date, internmentId: number) => {
+  const sql = `UPDATE internment
+               SET egressDate = ?
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [fecha, internmentId]);
+  return result;
+};
+
 // queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
 // queries.update('bed', 'id', { set: "name = 'cama_modificada_1'", id: 1 }).then((ok) => console.log('modificó bien?', ok));
 // queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
 
 const queries = {
+  patienInternmentsByPatientId,
+  findObitoInternmentWithPatientId,
+  setObitoOfInternment,
+  setEgressOfInternment,
   changeRoleOfUserToSystemChief,
   returnPatientsAssinedToUserById,
   changeRoleOfUserToDoctor,

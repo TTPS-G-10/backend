@@ -12,14 +12,6 @@ import systems from "../../systems";
 const assingDoctorsToPatient = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
   const { patientId, doctors } = req.body;
-  console.log(
-    "llego a crear assingnedDoctor",
-    req.body,
-    "------patientId",
-    patientId,
-    "doctors",
-    doctors
-  );
   if (user) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -70,11 +62,11 @@ const assingDoctorsToPatient = async (req: Request, res: Response) => {
       }
     });
 
+    await queries.deleteAssignedDoctors(internment.id);
+
     doctors.map(async (doctor: number) => {
       await queries.createAssignedDoctor(internment.id, doctor);
     });
-
-    await queries.deleteAssignedDoctors(internment.id);
 
     return res.sendStatus(200);
   } else {

@@ -99,9 +99,15 @@ const createInternmentWithData = async (req: Request, res: Response) => {
     const idPatientN: number = parseInt(idPatient, 10);
     const systemId = system.id;
 
-    const resul = await queries.patientHasCurrentHospitalization(idPatientN);
+    const obito = await queries.findObitoInternmentWithPatientId(idPatientN);
 
-    if (resul.length != 0) {
+    if (obito) {
+      console.log("The patient has death");
+      return res.sendStatus(500);
+    }
+    const resul = await queries.findOpenInternmentWithPatientId(idPatientN);
+
+    if (resul) {
       console.log("The patient has a current hospitalzation");
       return res.sendStatus(500);
     }

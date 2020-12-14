@@ -11,8 +11,8 @@ function createInternment(
   dateOfDiagnosis: any,
   idPatientN: number,
   systemId: number,
-  systemChiefId: number,
   bedN: number,
+  systemChiefId: number,
   res: Response<any>
 ) {
   const dateOfHospitalization = Date.now();
@@ -54,8 +54,8 @@ function createSystemChangesToPatient(
 ) {
   queries
     .createSystemChange(internmentId, systemId)
-    .then((o) => {
-      queries.createAssignedDoctor(internmentId, systemChiefId);
+    .then(async (o) => {
+      await queries.createAssignedDoctor(internmentId, systemChiefId);
 
       return res.json({
         redirect: "/internment/" + internmentId,
@@ -96,19 +96,35 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
       console.log("invalid parameter");
       return res.sendStatus(400);
     }
+    if (!errors.isEmpty()) {
+      console.log("invalid parameter");
+      return res.sendStatus(400);
+    }
 
     const roomN: number = parseInt(room, 10);
     const idPatientN: number = parseInt(idPatient, 10);
     const systemId = system.id;
     const bedName: string = req.body.bed as string;
     console.log("bedName:", bedName);
-    const resul = await queries.patientHasCurrentHospitalization(idPatientN);
 
-    if (resul.length != 0) {
+    const obito = await queries.findObitoInternmentWithPatientId(idPatientN);
+
+    if (obito) {
+      console.log("The patient has death");
+      return res.sendStatus(500);
+    }
+
+    const resul = await queries.findOpenInternmentWithPatientId(idPatientN);
+
+    if (resul) {
       console.log("The patient has a current hospitalzation");
       return res.sendStatus(500);
     }
 
+    if (system.infinitBeds == false) {
+      console.log("the system was not set in infinit beds");
+      return res.sendStatus(404);
+    }
     const systemChief:
       | User
       | null

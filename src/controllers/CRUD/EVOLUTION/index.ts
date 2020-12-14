@@ -27,12 +27,15 @@ const create = async (req: Request, res: Response) => {
       internament.id
     );
 
+    const time: Date = new Date(Date.now());
+
     if (systemChangeId) {
       const result = await queries.evolvePatient(
         patientId,
         userId,
         evolution,
-        systemChangeId[0].id
+        systemChangeId[0].id,
+        time
       );
       if (!!result) res.sendStatus(201);
       if (!result) res.sendStatus(500);
