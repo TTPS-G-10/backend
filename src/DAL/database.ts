@@ -29,7 +29,7 @@ async function generateConnection(conData: IConnectionData) {
     database: conData.database,
     port: conData.port,
     waitForConnections: true,
-    acquireTimeout: conData.acquireTimeout,
+    connectionLimit: 1,
   });
   TTPS_DB_POOL = await db.promise().getConnection();
 }
