@@ -6,6 +6,7 @@ jest.mock("../DAL/queries");
 
 test("test Engine Initialization", async () => {
   await EngineRule.init();
-  const rules = EngineRule.getActiveRules();
+  const rules = await EngineRule.getActiveRules();
   expect(rules).toBeDefined();
+  expect(rules.length).toBeGreaterThanOrEqual(5);
 });
