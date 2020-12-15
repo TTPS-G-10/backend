@@ -6,7 +6,6 @@ import { Location } from "../../../model/Location";
 import { Bed } from "../../../model/Bed";
 import { Internment } from "../../../model/Internment";
 import { CustomRequest } from "../../../model/Request";
-import SystemChangesRules from "../../../systemPass.json";
 
 const createSystemChange = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;

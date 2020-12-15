@@ -19,7 +19,7 @@ const findUserByEmail = async (email: string): Promise<User | null> => {
   console.log("email:", email);
   const sql = `
     SELECT *
-    FROM ${dbConfig.database}.user user
+    FROM ${dbConfig.database}user user
     WHERE email = ? 
     LIMIT 1;
     `;
@@ -29,7 +29,7 @@ const findUserByEmail = async (email: string): Promise<User | null> => {
 const findUserById = async (id: number): Promise<User | null> => {
   const sql = `
     SELECT *
-    FROM ${dbConfig.database}.user user
+    FROM ${dbConfig.database}user user
     WHERE id = ?
     LIMIT 1;
     `;
@@ -39,7 +39,7 @@ const findUserById = async (id: number): Promise<User | null> => {
 const findPatientByDNI = async (dni: number): Promise<Patient | null> => {
   const sql = `
     SELECT *
-    FROM ${dbConfig.database}.patient
+    FROM ${dbConfig.database}patient
     WHERE dni =	?
     LIMIT 1;
     `;
@@ -49,7 +49,7 @@ const findPatientByDNI = async (dni: number): Promise<Patient | null> => {
 const findPatientByID = async (id: number): Promise<Patient | null> => {
   const sql = `
     SELECT *
-    FROM ${dbConfig.database}.patient
+    FROM ${dbConfig.database}patient
     WHERE id =	?
     LIMIT 1;
     `;
@@ -60,7 +60,7 @@ const findContactPersonByPatientID = async (
 ): Promise<ContactPerson | null> => {
   const sql = `
     SELECT *
-    FROM ${dbConfig.database}.contactPerson
+    FROM ${dbConfig.database}contact_person
     WHERE patientID =	?
     LIMIT 1;
     `;
@@ -71,9 +71,9 @@ const lastEvolveByPatientID = async (
   idPatient: number
 ): Promise<Evaluation | null> => {
   const sql = `SELECT *
-                FROM ${dbConfig.database}.evaluation
+                FROM ${dbConfig.database}evaluation
                 WHERE patientId=? AND id=(SELECT MAX(id)
-                                          FROM ${dbConfig.database}.evaluation wHERE patientId=?
+                                          FROM ${dbConfig.database}evaluation wHERE patientId=?
                 )
                 LIMIT 1`;
   return await dbAPI.singleOrDefault<Evaluation | null>(sql, [
@@ -87,10 +87,10 @@ const LocationOfPatientWithPatientId = async (
 ): Promise<Location | null> => {
   const sql = `
   SELECT system.id as systemId, system.name as systemName, room.id as roomId, room.name as roomName,bed.id as bedId, bed.name as bedName
-    FROM ${dbConfig.database}.system 
-        INNER JOIN ${dbConfig.database}.room on  system.id = room.systemId 
-        INNER JOIN ${dbConfig.database}.bed on  room.id = bed.roomId
-        INNER JOIN ${dbConfig.database}.patient on  bed.patientId = patient.id
+    FROM ${dbConfig.database}system 
+        INNER JOIN ${dbConfig.database}room on  system.id = room.systemId 
+        INNER JOIN ${dbConfig.database}bed on  room.id = bed.roomId
+        INNER JOIN ${dbConfig.database}patient on  bed.patientId = patient.id
         WHERE patient.id = ?
     LIMIT 1;
     `;
@@ -100,9 +100,9 @@ const LocationOfPatientWithPatientId = async (
 const findSystemOfUser = async (email: string): Promise<System | null> => {
   const sql = `
     SELECT sys.name , sys.id
-    FROM ${dbConfig.database}.user user
-    INNER JOIN ${dbConfig.database}.worksAt wa on user.id = wa.userId
-    INNER JOIN ${dbConfig.database}.system sys on wa.systemId = sys.id
+    FROM ${dbConfig.database}user user
+    INNER JOIN ${dbConfig.database}works_at wa on user.id = wa.userId
+    INNER JOIN ${dbConfig.database}system sys on wa.systemId = sys.id
     WHERE email = ?
     LIMIT 1;
     `;
@@ -111,8 +111,8 @@ const findSystemOfUser = async (email: string): Promise<System | null> => {
 const findSystemForEvolution = async (id: number): Promise<String | null> => {
   const sql = `
     SELECT syst.name
-    FROM ${dbConfig.database}.system as syst
-    INNER JOIN ${dbConfig.database}.systemChange as sc
+    FROM ${dbConfig.database}system as syst
+    INNER JOIN ${dbConfig.database}system_change as sc
     ON syst.id = sc.systemId
     WHERE sc.id='?'
     LIMIT 1
@@ -123,9 +123,9 @@ const findSystemForEvolution = async (id: number): Promise<String | null> => {
 const findSystemOfUserForId = async (id: number): Promise<System | null> => {
   const sql = `
     SELECT sys.name , sys.id
-    FROM ${dbConfig.database}.worksAt 
-    INNER JOIN ${dbConfig.database}.system sys on worksAt.systemId = sys.id
-    WHERE worksAt.userId = ?
+    FROM ${dbConfig.database}works_at 
+    INNER JOIN ${dbConfig.database}system sys on works_at.systemId = sys.id
+    WHERE works_at.userId = ?
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<System | null>(sql, [id]);
@@ -136,9 +136,9 @@ const findSystemChiefBySystemId = async (
 ): Promise<User | null> => {
   const sql = `
     SELECT user.id,user.name,user.lastName,user.file,user.email
-    FROM ${dbConfig.database}.user
-    INNER JOIN ${dbConfig.database}.worksAt on worksAt.userId = user.id
-    WHERE user.role = "JEFE DE SISTEMA" AND worksAt.systemId = ?
+    FROM ${dbConfig.database}user
+    INNER JOIN ${dbConfig.database}works_at on works_at.userId = user.id
+    WHERE user.role = "JEFE DE SISTEMA" AND works_at.systemId = ?
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<User | null>(sql, [systemId]);
@@ -149,8 +149,21 @@ const findInternmentWithId = async (
 ): Promise<Internment | null> => {
   const sql = `
  SELECT internment.*
-    FROM ${dbConfig.database}.internment
-    WHERE (id = ?) AND (egressDate IS NULL) AND  (obitoDate IS NULL)
+    FROM ${dbConfig.database}internment
+    WHERE id = ?
+    LIMIT 1;
+    `;
+  return await dbAPI.singleOrDefault<Internment | null>(sql, [patientId]);
+};
+
+const findObitoInternmentWithPatientId = async (
+  patientId: number
+): Promise<Internment | null> => {
+  const sql = `
+ SELECT internment.*
+    FROM ${dbConfig.database}internment
+    INNER JOIN ${dbConfig.database}patient ON patient.id = internment.patientId
+    WHERE (patient.id = ?)  AND  (internment.obitoDate IS NOT NULL)
     LIMIT 1;
     `;
   return await dbAPI.singleOrDefault<Internment | null>(sql, [patientId]);
@@ -161,8 +174,8 @@ const findOpenInternmentWithPatientId = async (
 ): Promise<Internment | null> => {
   const sql = `
  SELECT internment.*
-    FROM ${dbConfig.database}.internment
-    INNER JOIN ${dbConfig.database}.patient ON patient.id = internment.patientId
+    FROM ${dbConfig.database}internment
+    INNER JOIN ${dbConfig.database}patient ON patient.id = internment.patientId
     WHERE (patient.id = ?) AND (internment.egressDate IS NULL) AND  (internment.obitoDate IS NULL)
     LIMIT 1;
     `;
@@ -174,7 +187,7 @@ const findSystemForName = async (
 ): Promise<System | null> => {
   const sql = `
   SELECT *
-        FROM ${dbConfig.database}.system 
+        FROM ${dbConfig.database}system 
         WHERE system.name = ?
     LIMIT 1
     `;
@@ -185,10 +198,10 @@ const findSystemChangesOfInternmentWithInternmentId = async (
   internmentId: number
 ) => {
   const sql = `
-  SELECT systemChange.*,system.name as systemName
-    FROM ${dbConfig.database}.systemChange
-    INNER JOIN ${dbConfig.database}.internment ON systemChange.internmentId = internment.id
-    INNER JOIN ${dbConfig.database}.system ON systemChange.systemId = system.id
+  SELECT system_change.*,system.name as systemName
+    FROM ${dbConfig.database}system_change
+    INNER JOIN ${dbConfig.database}internment ON system_change.internmentId = internment.id
+    INNER JOIN ${dbConfig.database}system ON system_change.systemId = system.id
     WHERE (internment.id = ?)
     ORDER BY createtime desc
     `;
@@ -198,10 +211,10 @@ const findSystemChangesOfInternmentWithInternmentId = async (
 const returnPatientsAssinedToUserById = async (userId: number) => {
   const sql = `
   SELECT patient.name as patientName,internment.id as internmentId,patient.lastName as patientLastName,patient.id as patientId
-    FROM ${dbConfig.database}.user
-    INNER JOIN ${dbConfig.database}.assignedDoctor on assignedDoctor.userId = user.id
-    INNER JOIN ${dbConfig.database}.internment on internment.id= assignedDoctor.internmentId
-    INNER JOIN ${dbConfig.database}.patient on internment.patientId = patient.id
+    FROM ${dbConfig.database}user
+    INNER JOIN ${dbConfig.database}assigned_doctor on assigned_doctor.userId = user.id
+    INNER JOIN ${dbConfig.database}internment on internment.id= assigned_doctor.internmentId
+    INNER JOIN ${dbConfig.database}patient on internment.patientId = patient.id
     WHERE user.id= ?
     `;
   return await dbAPI.rawQuery(sql, [userId]);
@@ -212,9 +225,9 @@ const findAcotedEvaluationsOfSystemChangeWithSystemChangeId = async (
 ) => {
   const sql = `
 SELECT evaluation.id, evaluation.userId, evaluation.patientId, evaluation.systemChangeId, evaluation.createTime
-    FROM ${dbConfig.database}.evaluation
-    INNER JOIN ${dbConfig.database}.systemChange ON systemChange.Id = evaluation.systemChangeId
-    WHERE (systemChange.id = ?)
+    FROM ${dbConfig.database}evaluation
+    INNER JOIN ${dbConfig.database}system_change ON system_change.Id = evaluation.system_changeId
+    WHERE (system_change.id = ?)
     ORDER BY createTime desc
     `;
   return await dbAPI.rawQuery(sql, [internmentId]);
@@ -228,9 +241,9 @@ const findBedsWithSystemAndRoom = async (
 ): Promise<Bed | null> => {
   const sql = `
     SELECT bd.*
-        FROM ${dbConfig.database}.system sys 
-        INNER JOIN ${dbConfig.database}.room rm on  sys.id = rm.systemId 
-        INNER JOIN ${dbConfig.database}.bed bd on  rm.id = bd.roomId
+        FROM ${dbConfig.database}system sys 
+        INNER JOIN ${dbConfig.database}room rm on  sys.id = rm.systemId 
+        INNER JOIN ${dbConfig.database}bed bd on  rm.id = bd.roomId
         WHERE  (sys.id = ?) AND (rm.id = ?) AND (bd.patientId is NULL)
         LIMIT 1
     `;
@@ -240,7 +253,7 @@ const findBedsWithSystemAndRoom = async (
 const returnBedsWithSpaceOfRoomForRoomId = async (id: Number) => {
   const sql = `
          SELECT bd.name,bd.id
-        FROM ${dbConfig.database}.bed bd 
+        FROM ${dbConfig.database}bed bd 
         WHERE (bd.roomId='?') AND (bd.patientId is NULL)
         GROUP BY bd.id
     `;
@@ -252,19 +265,19 @@ const returnSystems = async () => {
   const sql = `
       SELECT count(case when bd.patientId is not null then 1 end) as ocupedBeds, 
       count(bd.Id) as totalBeds, sys.name,sys.id,sys.infinitBeds
-        FROM ${dbConfig.database}.system sys 
-        INNER JOIN ${dbConfig.database}.room rm on  sys.id = rm.systemId 
-        INNER JOIN ${dbConfig.database}.bed bd on  rm.id = bd.roomId
+        FROM ${dbConfig.database}system sys 
+        INNER JOIN ${dbConfig.database}room rm on  sys.id = rm.systemId 
+        INNER JOIN ${dbConfig.database}bed bd on  rm.id = bd.roomId
         group by sys.id
       union(
       SELECT  0  as ocupedBeds, 0 as totalBeds, sys.name,sys.id,sys.infinitBeds
-        FROM ${dbConfig.database}.system sys 
+        FROM ${dbConfig.database}system sys 
         WHERE (sys.id) not in
 
       ( SELECT sys.id
-        FROM ${dbConfig.database}.system sys 
-        INNER JOIN ${dbConfig.database}.room rm on  sys.id = rm.systemId 
-        INNER JOIN ${dbConfig.database}.bed bd on  rm.id = bd.roomId
+        FROM ${dbConfig.database}system sys 
+        INNER JOIN ${dbConfig.database}room rm on  sys.id = rm.systemId 
+        INNER JOIN ${dbConfig.database}bed bd on  rm.id = bd.roomId
       )
       ) 
     `;
@@ -276,7 +289,7 @@ const returnSystems = async () => {
 const returnCantOfSistemsChangesOfAnySystemForId = async (id: Number) => {
   const sql = `
  SELECT count(case when sc.systemId is not null then 1 end) as cant
-  FROM ${dbConfig.database}.systemChange sc
+  FROM ${dbConfig.database}system_change sc
    WHERE sc.systemId = ?
   `;
   return await dbAPI.singleOrDefault<Cant>(sql, [id]);
@@ -285,8 +298,8 @@ const returnCantOfSistemsChangesOfAnySystemForId = async (id: Number) => {
 const returnRomsOfAnSystemForId = async (id: Number) => {
   const sql = `
   SELECT  rm.name ,rm.id
-  FROM ${dbConfig.database}.system sys 
-  INNER JOIN ${dbConfig.database}.room rm on  sys.id = rm.systemId 
+  FROM ${dbConfig.database}system sys 
+  INNER JOIN ${dbConfig.database}room rm on  sys.id = rm.systemId 
   WHERE sys.id = ?
   ORDER BY rm.name asc
   `;
@@ -296,8 +309,8 @@ const returnRomsOfAnSystemForId = async (id: Number) => {
 const returnBedsOfAnyRoomForId = async (id: Number) => {
   const sql = `
     SELECT  bd.name , bd.id , bd.patientId
-    FROM  ${dbConfig.database}.room rm 
-    INNER JOIN ${dbConfig.database}.bed bd on  rm.id = bd.roomId
+    FROM  ${dbConfig.database}room rm 
+    INNER JOIN ${dbConfig.database}bed bd on  rm.id = bd.roomId
     WHERE rm.id = ?
     ORDER BY bd.name asc
     `;
@@ -307,8 +320,8 @@ const returnBedsOfAnyRoomForId = async (id: Number) => {
 const returnPatientForBed = async (idBed: number) => {
   const sql = `
    SELECT pt.id,pt.name ,pt.lastName 
-    FROM ${dbConfig.database}.bed bd 
-    INNER JOIN ${dbConfig.database}.patient pt on  pt.id = bd.patientId
+    FROM ${dbConfig.database}bed bd 
+    INNER JOIN ${dbConfig.database}patient pt on  pt.id = bd.patientId
     WHERE bd.id = ? 
     LIMIT 1
     `;
@@ -318,9 +331,9 @@ const returnPatientForBed = async (idBed: number) => {
 const returnBedsAndPatientsForRoomId = async (id: number) => {
   const sql = `
     SELECT  pt.name as patientName,pt.lastName as patientLastName,pt.id as patientId, bd.name as bedName, bd.id as bedId
-    FROM ${dbConfig.database}.room rm 
-    INNER JOIN ${dbConfig.database}.bed bd on  bd.roomId = rm.id
-    INNER JOIN ${dbConfig.database}.patient pt on  pt.id = bd.patientId
+    FROM ${dbConfig.database}room rm 
+    INNER JOIN ${dbConfig.database}bed bd on  bd.roomId = rm.id
+    INNER JOIN ${dbConfig.database}patient pt on  pt.id = bd.patientId
     WHERE rm.id = ? 
     ORDER BY rm.name asc
     `;
@@ -331,7 +344,7 @@ const returCountFreeBedsInSystemId = async (id: number) => {
   try {
     const sql = `
     SELECT COUNT(*) as cantFree
-    FROM ${dbConfig.database}.bed INNER JOIN ${dbConfig.database}.room ON bed.roomId=room.id
+    FROM ${dbConfig.database}bed INNER JOIN ${dbConfig.database}room ON bed.roomId=room.id
     WHERE patientId is NULL and systemId=?
     `;
     return await dbAPI.rawQuery(sql, [id]);
@@ -343,7 +356,7 @@ const returInfinitBedsOfSystem = async (id: number) => {
   try {
     const sql = `
     SELECT infinitBeds
-    FROM ${dbConfig.database}.system
+    FROM ${dbConfig.database}system
     WHERE id=?
     `;
     return await dbAPI.rawQuery(sql, [id]);
@@ -354,8 +367,8 @@ const returInfinitBedsOfSystem = async (id: number) => {
 const returnRoomsWithSpaceOfSystemForSystemId = async (id: Number) => {
   const sql = `
        SELECT rm.name,rm.id
-        FROM ${dbConfig.database}.room rm 
-        INNER JOIN ${dbConfig.database}.bed bd on rm.id = bd.roomId
+        FROM ${dbConfig.database}room rm 
+        INNER JOIN ${dbConfig.database}bed bd on rm.id = bd.roomId
         WHERE (rm.systemId=?) AND (bd.patientId is NULL)
         GROUP BY rm.id `;
 
@@ -365,7 +378,7 @@ const returnRoomsWithSpaceOfSystemForSystemId = async (id: Number) => {
 const findRoomsFromASystemtByID = async (id: number) => {
   const sql = `
          SELECT rm.name,rm.id
-  FROM  ${dbConfig.database}.room rm 
+  FROM  ${dbConfig.database}room rm 
   WHERE (rm.systemId='?') 
   GROUP BY rm.id `;
 
@@ -376,7 +389,7 @@ const findRoomsFromASystemtByID = async (id: number) => {
 const findEvolutionByID = async (id: number) => {
   const sql = `
          SELECT *
-  FROM ${dbConfig.database}.evaluation 
+  FROM ${dbConfig.database}evaluation 
   WHERE id='?' `;
 
   const result = await dbAPI.singleOrDefault<Evaluation | null>(sql, [id]);
@@ -385,9 +398,9 @@ const findEvolutionByID = async (id: number) => {
 const returnDoctorsOfSystemForId = async (id: number) => {
   const sql = `
          SELECT user.name,user.lastName,user.id,user.file
-    FROM ${dbConfig.database}.user
-    INNER JOIN ${dbConfig.database}.worksAt ON user.id = worksAt.userId
-    WHERE worksAt.systemId = ? AND user.role = "DOCTOR"
+    FROM ${dbConfig.database}user
+    INNER JOIN ${dbConfig.database}works_at ON user.id = works_at.userId
+    WHERE works_at.systemId = ? AND user.role = "DOCTOR"
     ORDER BY user.lastName desc `;
 
   const result = await dbAPI.rawQuery(sql, [id]);
@@ -397,8 +410,21 @@ const returnDoctorsOfSystemForId = async (id: number) => {
 const patientHasCurrentHospitalization = async (idPatient: number) => {
   const sql = `
   SELECT *
-  FROM ${dbConfig.database}.internment
+  FROM ${dbConfig.database}internment
   WHERE egressDate IS NULL AND obitoDate IS NULL AND patientId='?'`;
+
+  const result = await dbAPI.rawQuery(sql, [idPatient]);
+  return result;
+};
+
+// devuelve todas la internaciones
+const patienInternmentsByPatientId = async (idPatient: number) => {
+  const sql = `
+  SELECT internment.id,internment.patientId,internment.dateOfHospitalization,internment.obitoDate,internment.egressDate
+  FROM ${dbConfig.database}internment
+  WHERE  patientId='?'
+  ORDER BY internment.dateOfHospitalization desc
+  `;
 
   const result = await dbAPI.rawQuery(sql, [idPatient]);
   return result;
@@ -408,9 +434,9 @@ const returnCurrentSystemIdOfTheInternment = async (
   internmentId: number
 ): Promise<number | null> => {
   const sql = `
-  SELECT systemChange.systemId
-    FROM ${dbConfig.database}.systemChange
-    INNER JOIN ${dbConfig.database}.internment ON systemChange.internmentId = internment.id
+  SELECT system_change.systemId
+    FROM ${dbConfig.database}system_change
+    INNER JOIN ${dbConfig.database}internment ON system_change.internmentId = internment.id
     WHERE internment.egressDate IS NULL AND internment.obitoDate IS NULL AND internment.id = ? 
     ORDER BY createtime desc
     LIMIT 1`;
@@ -424,8 +450,8 @@ const stillFreeBed = async (
 ) => {
   const sql = `
   SELECT patientId 
-  FROM ${dbConfig.database}.bed
-  INNER JOIN ${dbConfig.database}.room ON bed.roomId = room.Id
+  FROM ${dbConfig.database}bed
+  INNER JOIN ${dbConfig.database}room ON bed.roomId = room.Id
   WHERE (room.systemId = '?') AND (bed.id='?') AND (room.id='?')
  `;
 
@@ -434,7 +460,7 @@ const stillFreeBed = async (
 };
 const createSystemChange = async (internmentId: number, systemId: number) => {
   const sql = `
-  INSERT INTO ${dbConfig.database}.systemChange (internmentId, systemId)
+  INSERT INTO ${dbConfig.database}system_change (internmentId, systemId)
   VALUES (?, ? )
  `;
   const result = await dbAPI.rawQuery(sql, [internmentId, systemId]);
@@ -443,8 +469,8 @@ const createSystemChange = async (internmentId: number, systemId: number) => {
 
 const createAssignedDoctor = async (internmentId: number, userId: number) => {
   const sql = `
-  INSERT INTO ${dbConfig.database}.assignedDoctor (internmentId, userId)
-  VALUES (?, ? )
+  INSERT INTO ${dbConfig.database}assigned_doctor (internmentId, userId)
+  VALUES (?,?)
  `;
   const result = await dbAPI.rawQuery(sql, [internmentId, userId]);
   return result;
@@ -458,7 +484,7 @@ const createInternment = async (
   idPatientN: number
 ) => {
   const sql = `
-  INSERT INTO ${dbConfig.database}.internment (historyOfDisease, dateOfSymptoms, dateOfDiagnosis,dateOfHospitalization, patientId)
+  INSERT INTO ${dbConfig.database}internment (historyOfDisease, dateOfSymptoms, dateOfDiagnosis,dateOfHospitalization, patientId)
   VALUES (?, ?, ?,?, ?)
  `;
 
@@ -473,7 +499,7 @@ const createInternment = async (
 };
 
 const unassingPatientToInternment = async (idInternment: number) => {
-  const sql = `UPDATE ${dbConfig.database}.internment SET
+  const sql = `UPDATE ${dbConfig.database}internment SET
                 patientId = NULL
                 WHERE id = '?'`;
   const result = await dbAPI.rawQuery(sql, [idInternment]);
@@ -481,14 +507,14 @@ const unassingPatientToInternment = async (idInternment: number) => {
 };
 
 const deleteInternment = async (idInternment: number) => {
-  const sql = `DELETE FROM ${dbConfig.database}.internment
+  const sql = `DELETE FROM ${dbConfig.database}internment
               WHERE id = '?'`;
   const result = await dbAPI.rawQuery(sql, [idInternment]);
   return result;
 };
 
 const deleteAssignedDoctors = async (idInternment: number) => {
-  const sql = `DELETE FROM ${dbConfig.database}.assignedDoctor
+  const sql = `DELETE FROM ${dbConfig.database}assigned_doctor
               WHERE internmentId = '?'`;
   const result = await dbAPI.rawQuery(sql, [idInternment]);
   return result;
@@ -504,7 +530,7 @@ const insert = async (query: string, values: object): Promise<boolean> => {
 };
 
 const assignPatientToBed = async (idPatient: number, idBed: number) => {
-  const sql = `UPDATE ${dbConfig.database}.bed
+  const sql = `UPDATE ${dbConfig.database}bed
               SET patientId = '?'
               WHERE bed.id='?' `;
   const result = await dbAPI.rawQuery(sql, [idPatient, idBed]);
@@ -512,7 +538,7 @@ const assignPatientToBed = async (idPatient: number, idBed: number) => {
 };
 
 const unassingPatientToBed = async (idBed: number) => {
-  const sql = `UPDATE ${dbConfig.database}.bed
+  const sql = `UPDATE ${dbConfig.database}bed
                SET patientId = NULL
                 WHERE id = '?'`;
   const result = await dbAPI.rawQuery(sql, [idBed]);
@@ -523,21 +549,21 @@ const insertBedWithPatient = async (
   roomId: number,
   patientId: number
 ) => {
-  const sql = `INSERT INTO ${dbConfig.database}.bed (name,  roomId, patientId)
+  const sql = `INSERT INTO ${dbConfig.database}bed (name,  roomId, patientId)
         VALUES (?, ?, ?)`;
   const result = await dbAPI.rawQuery(sql, [name, roomId, patientId]);
   return result;
 };
 
 const removeBed = async (idBed: number) => {
-  const sql = `DELETE FROM ${dbConfig.database}.bed
+  const sql = `DELETE FROM ${dbConfig.database}bed
               WHERE (id = '?')`;
   const result = await dbAPI.rawQuery(sql, [idBed]);
   return result;
 };
 
 const removeSystemChange = async (idSystemChange: number) => {
-  const sql = `DELETE FROM ${dbConfig.database}.systemChange
+  const sql = `DELETE FROM ${dbConfig.database}system_change
               WHERE (id = '?')`;
   const result = await dbAPI.rawQuery(sql, [idSystemChange]);
   return result;
@@ -587,8 +613,8 @@ const getPatientById = async (id: string): Promise<Patient | null> => {
   try {
     const sql = `
     SELECT *
-     FROM ${dbConfig.database}.bed bd 
-     INNER JOIN ${dbConfig.database}.patient pt on  pt.id = bd.patientId
+     FROM ${dbConfig.database}bed bd 
+     INNER JOIN ${dbConfig.database}patient pt on  pt.id = bd.patientId
      WHERE bd.id = ? 
      LIMIT 1
      `;
@@ -605,28 +631,51 @@ const evolvePatient = async (
   patientId: number,
   userId: number,
   evolution: Evolution,
-  systemChangeId: number
+  systemChangeId: number,
+  createTime: Date
 ): Promise<boolean> => {
-  const sql = "INSERT INTO ${dbConfig.database}.evaluation";
+  const sql = "INSERT INTO ${dbConfig.database}evaluation";
   // @TODO remove this unnecesary field from DB
   //const systemChangeId = 5;
   // -----------------------
-  const payload = { ...evolution, userId, patientId, systemChangeId };
+  const payload = {
+    ...evolution,
+    userId,
+    patientId,
+    systemChangeId,
+    createTime,
+  };
   return await insert(sql, payload);
 };
 
 const changeRoleOfUserToSystemChief = async (userId: number) => {
-  const sql = `UPDATE ${dbConfig.database}.user
+  const sql = `UPDATE ${dbConfig.database}user
                SET role = "JEFE DE SISTEMA"
                 WHERE id = '?'`;
   const result = await dbAPI.rawQuery(sql, [userId]);
   return result;
 };
 const changeRoleOfUserToDoctor = async (userId: number) => {
-  const sql = `UPDATE ${dbConfig.database}.user
+  const sql = `UPDATE ${dbConfig.database}user
                SET role ="DOCTOR"
                 WHERE id = '?'`;
   const result = await dbAPI.rawQuery(sql, [userId]);
+  return result;
+};
+
+const setObitoOfInternment = async (fecha: Date, internmentId: number) => {
+  const sql = `UPDATE ${dbConfig.database}internment
+               SET obitoDate = ?
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [fecha, internmentId]);
+  return result;
+};
+
+const setEgressOfInternment = async (fecha: Date, internmentId: number) => {
+  const sql = `UPDATE ${dbConfig.database}internment
+               SET egressDate = ?
+                WHERE id = '?'`;
+  const result = await dbAPI.rawQuery(sql, [fecha, internmentId]);
   return result;
 };
 
@@ -635,6 +684,10 @@ const changeRoleOfUserToDoctor = async (userId: number) => {
 // queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
 
 const queries = {
+  patienInternmentsByPatientId,
+  findObitoInternmentWithPatientId,
+  setObitoOfInternment,
+  setEgressOfInternment,
   changeRoleOfUserToSystemChief,
   returnPatientsAssinedToUserById,
   changeRoleOfUserToDoctor,
