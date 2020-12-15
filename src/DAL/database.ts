@@ -1,14 +1,13 @@
 import mysql from "mysql2";
-import { PoolConnection } from "mysql2/promise";
+import { PoolConnection, ResultSetHeader } from "mysql2/promise";
 
 interface IConnectionData {
   host: string;
   user: string;
   password: string;
   database: string;
-  port?: number;
+  port: number;
   connectionLimit?: number;
-  acquireTimeout?: number;
 }
 
 let db: mysql.Pool;
@@ -29,9 +28,10 @@ async function generateConnection(conData: IConnectionData) {
     database: conData.database,
     port: conData.port,
     waitForConnections: true,
-    acquireTimeout: conData.acquireTimeout,
+    connectionLimit: 1,
   });
   TTPS_DB_POOL = await db.promise().getConnection();
+  return db;
 }
 
 async function createTransaction() {
@@ -78,10 +78,13 @@ async function insert(query: string, params: object): Promise<any> {
 
   try {
     const sql = TTPS_DB_POOL.format(insertQry, values);
-    const idInsert = await TTPS_DB_POOL.query(sql, values);
+    const result = (await TTPS_DB_POOL.query<ResultSetHeader>(
+      sql,
+      values
+    )) as ResultSetHeader[];
     await TTPS_DB_POOL.commit();
     TTPS_DB_POOL.release();
-    return idInsert;
+    return result[0];
   } catch (err) {
     await TTPS_DB_POOL.rollback();
     console.warn(err.message);
