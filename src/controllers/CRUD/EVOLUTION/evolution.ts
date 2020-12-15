@@ -51,9 +51,11 @@ const create = async (req: Request, res: Response) => {
     patientId
   );
   const evaluationID = await queries.evolvePatient(
-    patientId,
+    evolution,
+    5, // HARDCODED SystemChange ID
     userId,
-    evolution
+    patientId,
+    new Date()
   );
   if (!!evaluationID) res.sendStatus(201);
   if (!evaluationID) res.sendStatus(500);
