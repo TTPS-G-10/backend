@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Response } from "express";
 import alerts from "./routes/alerts";
 import auth from "./routes/auth";
 import logOut from "./routes/logOut";
@@ -51,14 +51,13 @@ var corsOptions = {
   credentials: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 };
-app.options("*", cors);
+app.use(cors(corsOptions));
+app.options("*", (req, res: Response) => res.sendStatus(200));
 
 app.get("/healthcheck", (req, res) => {
   console.log("entro al healthcheck");
   res.sendStatus(200);
 });
-
-app.use(cors(corsOptions));
 app.use(morgan("dev")); // it's a module that allows you to view http request by console
 app.use(authorization);
 app.use(auth);
