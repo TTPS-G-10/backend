@@ -14,5 +14,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "exclude": ["build", "jest.config.ts", "babel.config.js"]
 }

@@ -1,4 +1,5 @@
 import express from "express";
+import alerts from "./routes/alerts";
 import auth from "./routes/auth";
 import logOut from "./routes/logOut";
 import patients from "./routes/patients";
@@ -23,12 +24,13 @@ import authorization from "./middlewares/authorization";
 import cookieParser from "cookie-parser";
 import fs from "fs";
 import https from "https";
-import http from "http";
-
-const config = require("config");
+import EngineRule from "./rule-engine/engine";
 
 const key = fs.readFileSync("src/certificates/localhost.key");
 const cert = fs.readFileSync("src/certificates/localhost.crt");
+import http from "http";
+
+const config = require("config");
 
 const options = {
   key: key,
@@ -47,9 +49,9 @@ var corsOptions = {
   credentials: true,
 };
 
-app.get("/", (req, res) => {
+app.get("/healthcheck", (req, res) => {
   console.log("entro al healthcheck");
-  res.send("hello");
+  res.sendStatus(200);
 });
 
 app.use(cors(corsOptions));
@@ -71,13 +73,17 @@ app.use(evolution);
 app.use(doctors);
 app.use(doctor);
 app.use(systemChange);
+app.use(alerts);
 
 app.set("port", process.env.PORT || 9000);
 
 // create the connection to database
 const dbConfig = config.get("dbConfig");
 console.log("DB: ", dbConfig);
-dbAPI.generateConnection(dbConfig);
+dbAPI.generateConnection(dbConfig).then(() => {
+  console.log("Conection Success");
+  EngineRule.init();
+});
 
 var server =
   process.env.NODE_ENV == "production"

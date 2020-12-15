@@ -8,6 +8,8 @@ import { ContactPerson } from "../model/ContactPerson";
 import { Evaluation } from "../model/Evaluation";
 import { Evolution } from "../model/Evolution";
 import { Bed } from "../model/Bed";
+import { RuleType, RuleOperator, KnownRulesKeys } from "../model/Rule";
+import { Alert } from "../model/Alert";
 const config = require("config");
 const dbConfig = config.get("dbConfig");
 
@@ -529,6 +531,11 @@ const insert = async (query: string, values: object): Promise<boolean> => {
   }
 };
 
+const insertAndReturnID = async (
+  query: string,
+  values: object
+): Promise<number> => (await dbAPI.insert(query, values)).insertId;
+
 const assignPatientToBed = async (idPatient: number, idBed: number) => {
   const sql = `UPDATE ${dbConfig.database}bed
               SET patientId = '?'
@@ -628,16 +635,14 @@ const getPatientById = async (id: string): Promise<Patient | null> => {
 };
 
 const evolvePatient = async (
-  patientId: number,
-  userId: number,
   evolution: Evolution,
   systemChangeId: number,
+  userId: number,
+  patientId: number,
   createTime: Date
-): Promise<boolean> => {
+): Promise<number> => {
   const sql = "INSERT INTO ${dbConfig.database}evaluation";
-  // @TODO remove this unnecesary field from DB
-  //const systemChangeId = 5;
-  // -----------------------
+
   const payload = {
     ...evolution,
     userId,
@@ -645,7 +650,7 @@ const evolvePatient = async (
     systemChangeId,
     createTime,
   };
-  return await insert(sql, payload);
+  return await insertAndReturnID(sql, payload);
 };
 
 const changeRoleOfUserToSystemChief = async (userId: number) => {
@@ -663,6 +668,97 @@ const changeRoleOfUserToDoctor = async (userId: number) => {
   return result;
 };
 
+const saveAlerts = async (alerts: Alert[]): Promise<boolean[]> => {
+  const sql = "INSERT INTO alert";
+  return await Promise.all(alerts.map((alert) => insert(sql, alert)));
+};
+
+const getAlertsByUserId = async (id: number) => {
+  const sql =
+    "SELECT * FROM alert WHERE alert.readByUser = false AND alert.userId = ? ";
+  return await dbAPI.rawQuery(sql, [id]);
+};
+
+const getRules = async () => {
+  const sql = `
+    SELECT *
+    FROM ttps_db.rules rules
+    LIMIT 100;
+  `;
+  const result = await dbAPI.rawQuery(sql, []);
+  // console.log("database rules =>", result);
+  // mock temporal
+  return [
+    {
+      name: "somnolencia",
+      operator: RuleOperator.EQUAL,
+      description: "Somnolencia: evaluar pase a UTI",
+      type: RuleType.BOOLEAN,
+      active: true,
+      key: KnownRulesKeys.SOM,
+      id: 1,
+    },
+    {
+      name: "mecanica_ventilatoria",
+      operator: RuleOperator.IN,
+      parameter: "regular,mala",
+      description: "Mecanica ventilatoria :value evaluar pase a UTI",
+      type: RuleType.VALUE_LIST,
+      active: true,
+      key: KnownRulesKeys.MEC_VEN,
+      id: 2,
+    },
+    {
+      name: "frecuencia_respiratoria",
+      operator: RuleOperator.GREATER_THAN,
+      parameter: 60,
+      description:
+        "Frecuencia respiratoria mayor a :value por minuto, evaluar pase a UTI",
+      type: RuleType.NUMERIC,
+      active: true,
+      key: KnownRulesKeys.FRE_RESP,
+      id: 3,
+    },
+    {
+      name: "saturación_de_oxígeno",
+      operator: RuleOperator.LESS_THAN,
+      parameter: 92,
+      description:
+        "Saturacion de oxigeno menor a 92%. Evaluar oxigenoterapia y prono",
+      type: RuleType.NUMERIC,
+      active: true,
+      key: KnownRulesKeys.O_SAT,
+      id: 4,
+    },
+    {
+      name: "saturación_de_oxígeno_2",
+      operator: RuleOperator.GREATER_THAN_INCLUSIVE,
+      parameter: 3,
+      description:
+        "Saturación de oxígeno bajó 3%. Evaluar oxigenoterapia y prono.	",
+      type: RuleType.NUMERIC,
+      active: true,
+      id: 5,
+      key: KnownRulesKeys.O_SAT_2,
+      notRule: [KnownRulesKeys.O_SAT],
+    },
+  ];
+};
+
+const getPreviousEvolution = async (
+  patientId: number
+): Promise<Evolution | null> => {
+  const sql =
+    "SELECT * FROM evaluation ORDER BY evaluation.createTime desc LIMIT 1;";
+  return await dbAPI.singleOrDefault<Evolution>(sql, []);
+};
+
+const setAlertAsSeen = async (alertID: number): Promise<boolean> => {
+  const sql = `UPDATE alert
+  SET readByUser = 1
+   WHERE id = ?`;
+  return dbAPI.rawQuery(sql, [alertID]);
+};
 const setObitoOfInternment = async (fecha: Date, internmentId: number) => {
   const sql = `UPDATE ${dbConfig.database}internment
                SET obitoDate = ?
@@ -741,6 +837,11 @@ const queries = {
   deleteInternment,
   patientHasCurrentHospitalization,
   findRoomsFromASystemtByID,
+  getRules,
+  saveAlerts,
+  getAlertsByUserId,
+  getPreviousEvolution,
+  setAlertAsSeen,
   lastEvolveByPatientID,
 };
 

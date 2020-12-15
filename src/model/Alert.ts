@@ -1,6 +1,12 @@
+import { KnownRulesKeys } from "./Rule";
+
 export type Alert = {
+  ruleName: string;
+  ruleKey: KnownRulesKeys;
+  evaluationId: number;
   date: Date;
-  patientName: string;
-  text: string;
-  watched: boolean;
-}
+  name: string;
+  message: string;
+  userId: number;
+  readByUser: boolean;
+};

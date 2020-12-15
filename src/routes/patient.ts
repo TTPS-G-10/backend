@@ -6,7 +6,7 @@ import { CustomRequest } from "../model/Request";
 import { Role } from "../model/User";
 import Router, { Response, NextFunction, Request } from "express";
 import { ServicePaths } from "../model/Paths";
-import Evolution from "../controllers/CRUD/EVOLUTION";
+import Evolution from "../controllers/CRUD/EVOLUTION/evolution";
 import validate from "../middlewares/validate";
 
 const router = Router();

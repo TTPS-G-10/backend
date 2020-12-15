@@ -19,6 +19,7 @@ const auth = async (req: Request, res: Response) => {
       // we know md5 isn't best way to do this, we let this way for convenience
       const validatePassword = md5(password) === user.password;
       if (!validatePassword) {
+        console.log("invalid password");
         res.sendStatus(403);
       } else {
         if (user.role == Role.Doctor || user.role == Role.SystemChief) {
@@ -55,18 +56,9 @@ const auth = async (req: Request, res: Response) => {
             break;
           default:
             //ruta para rules
+
             break;
         }
-        /*
-        if (user.role == Role.Admin) {
-          res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
-        }
-        if (user.role == Role.Doctor) {
-          res.json({ redirect: FrontendPaths.PATIENTS, user, jwt: token });
-        }
-        if (user.role == Role.SystemChief) {
-          res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
-        }*/
       }
     }
   } catch (error) {
