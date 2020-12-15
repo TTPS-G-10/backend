@@ -6,8 +6,9 @@ interface IConnectionData {
   user: string;
   password: string;
   database: string;
-  port: number;
+  port?: number;
   connectionLimit?: number;
+  acquireTimeout?: number;
 }
 
 let db: mysql.Pool;
@@ -28,7 +29,7 @@ async function generateConnection(conData: IConnectionData) {
     database: conData.database,
     port: conData.port,
     waitForConnections: true,
-    connectionLimit: 1,
+    acquireTimeout: conData.acquireTimeout,
   });
   TTPS_DB_POOL = await db.promise().getConnection();
 }

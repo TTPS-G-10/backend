@@ -23,9 +23,13 @@ import authorization from "./middlewares/authorization";
 import cookieParser from "cookie-parser";
 import fs from "fs";
 import https from "https";
+import http from "http";
 
-const key = fs.readFileSync(__dirname + "/../.certificates/localhost.key");
-const cert = fs.readFileSync(__dirname + "/../.certificates/localhost.crt");
+const config = require("config");
+
+const key = fs.readFileSync("src/certificates/localhost.key");
+const cert = fs.readFileSync("src/certificates/localhost.crt");
+
 const options = {
   key: key,
   cert: cert,
@@ -35,10 +39,19 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+const url =
+  process.env.NODE_ENV == "production" ? "*" : "https://localhost:3000";
+
 var corsOptions = {
-  origin: "https://localhost:3000",
+  origin: url,
   credentials: true,
 };
+
+app.get("/", (req, res) => {
+  console.log("entro al healthcheck");
+  res.send("hello");
+});
+
 app.use(cors(corsOptions));
 app.use(morgan("dev")); // it's a module that allows you to view http request by console
 app.use(authorization);
@@ -62,27 +75,14 @@ app.use(systemChange);
 app.set("port", process.env.PORT || 9000);
 
 // create the connection to database
-// @todo sacar estos datos de configuración por ambiente
-dbAPI.generateConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "ttps_db",
-  port: 3306,
-});
+const dbConfig = config.get("dbConfig");
+console.log("DB: ", dbConfig);
+dbAPI.generateConnection(dbConfig);
 
-/*
-//to heroku
-dbAPI.generateConnection({
-  host: "us-cdbr-east-02.cleardb.com",
-  user: "ba98b3f4b2d660",
-  password: "dae97d58",
-  database: "heroku_d4f0a4efcec1a78",
-  port: 3306,
-});
-//mysql://ba98b3f4b2d660:dae97d58@us-cdbr-east-02.cleardb.com/heroku_d4f0a4efcec1a78?reconnect=true
-*/
-mysql: var server = https.createServer(options, app);
+var server =
+  process.env.NODE_ENV == "production"
+    ? http.createServer(app)
+    : https.createServer(options, app);
 
 server.listen(app.get("port"), () => {
   console.log("Server on port: ", app.get("port"));

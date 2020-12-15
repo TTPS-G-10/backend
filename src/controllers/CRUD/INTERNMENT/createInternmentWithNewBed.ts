@@ -86,7 +86,7 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
     room,
   } = req.body;
   const system = await queries.findSystemForName(ServiceSystemNames.GUARDIA);
-  if (!system) {
+  if (!system || system.infinitBeds == false) {
     console.log("the system was not found");
     return res.sendStatus(404);
   }
@@ -121,10 +121,6 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
       return res.sendStatus(500);
     }
 
-    if (system.infinitBeds == false) {
-      console.log("the system was not set in infinit beds");
-      return res.sendStatus(404);
-    }
     const systemChief:
       | User
       | null
@@ -135,6 +131,7 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
       return res.sendStatus(404);
     }
     const systemChiefId = systemChief.id;
+    console.log("system chief askjdhasdlfhasdlfjhFKLAF:", systemChief);
 
     queries
       .insertBedWithPatient(bedName, roomN, idPatientN)

@@ -32,7 +32,7 @@ const infoPatient = async (req: Request, res: Response) => {
       const data = { ...patient, contactPerson: contactPerson };
       return res.json(data);
     } catch (error) {
-      console.log("DNI invalid");
+      console.log(error);
       return res.sendStatus(500);
     }
   } else {
