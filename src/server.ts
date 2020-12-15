@@ -41,13 +41,17 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const url =
-  process.env.NODE_ENV == "production" ? "*" : "https://localhost:3000";
+const origin =
+  process.env.NODE_ENV === "production"
+    ? "https://frontend.ttps-g-10.vercel.app/"
+    : "https://localhost:3000";
 
 var corsOptions = {
-  origin: url,
+  origin,
   credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 };
+app.options("*", cors);
 
 app.get("/healthcheck", (req, res) => {
   console.log("entro al healthcheck");
