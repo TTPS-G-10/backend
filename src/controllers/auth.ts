@@ -49,7 +49,7 @@ const auth = async (req: Request, res: Response) => {
         switch (user.role) {
           case Role.Admin:
             console.log(
-              "usuario ___________--------------___________-----------",
+              "usuario _____--________--------------___________-----------",
               user,
               "jwt",
               token
