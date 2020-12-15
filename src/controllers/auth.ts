@@ -48,6 +48,13 @@ const auth = async (req: Request, res: Response) => {
         // all ok
         switch (user.role) {
           case Role.Admin:
+            console.log(
+              "usuario ___________--------------___________-----------",
+              user,
+              "jwt",
+              token
+            );
+
             res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
             break;
           case Role.Doctor:
