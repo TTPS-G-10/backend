@@ -11,6 +11,8 @@ const authorization = (req: Request, res: Response, next: NextFunction) => {
   if (req.path === "/authenticate" || req.headers["unsecure"]) {
     next();
   } else {
+    next();
+    next();
     try {
       // search jwt by header or cookie
       const token = req.headers.authorization?.split(" ")[1] || req.cookies.jwt;

@@ -64,7 +64,7 @@ async function rawQuery(query: string, params: any[]): Promise<any> {
   try {
     const [resp = null] = await TTPS_DB_POOL.query(query, params);
     await TTPS_DB_POOL.commit();
-    //TTPS_DB_POOL.release();
+    TTPS_DB_POOL.release();
     return resp;
   } catch (err) {
     await TTPS_DB_POOL.rollback();
@@ -85,7 +85,7 @@ async function insert(query: string, params: object): Promise<any> {
       values
     )) as ResultSetHeader[];
     await TTPS_DB_POOL.commit();
-    //TTPS_DB_POOL.release();
+    TTPS_DB_POOL.release();
     return result[0];
   } catch (err) {
     await TTPS_DB_POOL.rollback();
