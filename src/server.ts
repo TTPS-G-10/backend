@@ -14,6 +14,7 @@ import patient from "./routes/patient";
 import doctors from "./routes/doctors";
 import doctor from "./routes/doctor";
 import internment from "./routes/internment";
+import evolution from "./routes/evolution";
 import systemChange from "./routes/systemChange";
 
 import morgan from "morgan";
@@ -27,6 +28,10 @@ import EngineRule from "./rule-engine/engine";
 
 const key = fs.readFileSync("src/certificates/localhost.key");
 const cert = fs.readFileSync("src/certificates/localhost.crt");
+import http from "http";
+
+const config = require("config");
+
 const options = {
   key: key,
   cert: cert,
@@ -36,10 +41,19 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+const url =
+  process.env.NODE_ENV == "production" ? "*" : "https://localhost:3000";
+
 var corsOptions = {
-  origin: "https://localhost:3000",
+  origin: url,
   credentials: true,
 };
+
+app.get("/healthcheck", (req, res) => {
+  console.log("entro al healthcheck");
+  res.sendStatus(200);
+});
+
 app.use(cors(corsOptions));
 app.use(morgan("dev")); // it's a module that allows you to view http request by console
 app.use(authorization);
@@ -55,6 +69,7 @@ app.use(internment);
 app.use(room);
 app.use(rooms);
 app.use(system);
+app.use(evolution);
 app.use(doctors);
 app.use(doctor);
 app.use(systemChange);
@@ -63,21 +78,17 @@ app.use(alerts);
 app.set("port", process.env.PORT || 9000);
 
 // create the connection to database
-// @todo sacar estos datos de configuración por ambiente
-dbAPI
-  .generateConnection({
-    host: "localhost",
-    user: "root",
-    password: "root",
-    database: "ttps_db",
-    port: 3306,
-  })
-  .then(() => {
-    console.log("Conection Success");
-    EngineRule.init();
-  });
+const dbConfig = config.get("dbConfig");
+console.log("DB: ", dbConfig);
+dbAPI.generateConnection(dbConfig).then(() => {
+  console.log("Conection Success");
+  EngineRule.init();
+});
 
-var server = https.createServer(options, app);
+var server =
+  process.env.NODE_ENV == "production"
+    ? http.createServer(app)
+    : https.createServer(options, app);
 
 server.listen(app.get("port"), () => {
   console.log("Server on port: ", app.get("port"));

@@ -12,6 +12,7 @@ function createInternment(
   idPatientN: number,
   systemId: number,
   bedN: number,
+  systemChiefId: number,
   res: Response<any>
 ) {
   const dateOfHospitalization = Date.now();
@@ -30,6 +31,7 @@ function createInternment(
         systemId,
         bedN,
         idPatientN,
+        systemChiefId,
         res
       );
     })
@@ -47,12 +49,14 @@ function createSystemChangesToPatient(
   systemId: number,
   bedN: number,
   idPatient: number,
+  systemChiefId: number,
   res: Response<any>
 ) {
   queries
     .createSystemChange(internmentId, systemId)
-    .then((o) => {
-      console.log("se creo el system changes:", o);
+    .then(async (o) => {
+      await queries.createAssignedDoctor(internmentId, systemChiefId);
+
       return res.json({
         redirect: "/internment/" + internmentId,
       });
@@ -81,9 +85,17 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
     idPatient,
     room,
   } = req.body;
-
+  const system = await queries.findSystemForName(ServiceSystemNames.GUARDIA);
+  if (!system || system.infinitBeds == false) {
+    console.log("the system was not found");
+    return res.sendStatus(404);
+  }
   if (user && user.systemName === ServiceSystemNames.GUARDIA) {
     const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log("invalid parameter");
+      return res.sendStatus(400);
+    }
     if (!errors.isEmpty()) {
       console.log("invalid parameter");
       return res.sendStatus(400);
@@ -91,15 +103,35 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
 
     const roomN: number = parseInt(room, 10);
     const idPatientN: number = parseInt(idPatient, 10);
-    const systemId = 1;
+    const systemId = system.id;
     const bedName: string = req.body.bed as string;
     console.log("bedName:", bedName);
-    const resul = await queries.patientHasCurrentHospitalization(idPatientN);
 
-    if (resul.length != 0) {
+    const obito = await queries.findObitoInternmentWithPatientId(idPatientN);
+
+    if (obito) {
+      console.log("The patient has death");
+      return res.sendStatus(500);
+    }
+
+    const resul = await queries.findOpenInternmentWithPatientId(idPatientN);
+
+    if (resul) {
       console.log("The patient has a current hospitalzation");
       return res.sendStatus(500);
     }
+
+    const systemChief:
+      | User
+      | null
+      | undefined = await queries.findSystemChiefBySystemId(systemId);
+
+    if (!systemChief) {
+      console.log("the systemChief was not found");
+      return res.sendStatus(404);
+    }
+    const systemChiefId = systemChief.id;
+    console.log("system chief askjdhasdlfhasdlfjhFKLAF:", systemChief);
 
     queries
       .insertBedWithPatient(bedName, roomN, idPatientN)
@@ -114,6 +146,7 @@ const createInternmentWithNewBed = async (req: Request, res: Response) => {
             idPatientN,
             systemId,
             bedN,
+            systemChiefId,
             res
           );
         }

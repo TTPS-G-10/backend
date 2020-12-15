@@ -12,14 +12,6 @@ import systems from "../../systems";
 const assingDoctorsToPatient = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
   const { patientId, doctors } = req.body;
-  console.log(
-    "llego a crear assingnedDoctor",
-    req.body,
-    "------patientId",
-    patientId,
-    "doctors",
-    doctors
-  );
   if (user) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -48,7 +40,7 @@ const assingDoctorsToPatient = async (req: Request, res: Response) => {
       console.log("the internment was not found");
       return res.sendStatus(404);
     }
-    queries.deleteAssignedDoctors(internment.id);
+
     doctors.map(async (doctor: number) => {
       const doc: User | null | undefined = await queries.findUserById(doctor);
       if (!doc) {
@@ -68,7 +60,11 @@ const assingDoctorsToPatient = async (req: Request, res: Response) => {
         console.log("the doctor was not found");
         return res.sendStatus(404);
       }
+    });
 
+    await queries.deleteAssignedDoctors(internment.id);
+
+    doctors.map(async (doctor: number) => {
       await queries.createAssignedDoctor(internment.id, doctor);
     });
 

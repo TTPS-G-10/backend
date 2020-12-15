@@ -6,7 +6,6 @@ import { Location } from "../../../model/Location";
 import { Bed } from "../../../model/Bed";
 import { Internment } from "../../../model/Internment";
 import { CustomRequest } from "../../../model/Request";
-import SystemChangesRules from "../../../systemPass.json";
 
 const createSystemChange = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
@@ -85,17 +84,22 @@ const createSystemChange = async (req: Request, res: Response) => {
             queries
               .unassingPatientToBed(location.bedId)
               .then((okey) => {
-                queries.deleteAssignedDoctors(internment.id).then(() => {
-                  queries.createAssignedDoctor(internment.id, systemChief.id);
-
-                  console.log("se creo el system changes:", okeySC);
-                  return res.sendStatus(201);
-                });
+                queries
+                  .deleteAssignedDoctors(internment.id)
+                  .then(() => {
+                    queries.createAssignedDoctor(internment.id, systemChief.id);
+                    return res.sendStatus(201);
+                  })
+                  .catch(async () => {
+                    console.log(
+                      "could not delete the doctors assigned to the patient"
+                    );
+                    queries.unassingPatientToBed(bed.id);
+                    queries.removeSystemChange(okeySC.insertId);
+                  });
               })
               .catch(async () => {
-                console.log(
-                  "could not delete the doctors assigned to the patient"
-                );
+                console.log("could not desassigned the patient to the bed");
                 queries.unassingPatientToBed(bed.id);
                 queries.removeSystemChange(okeySC.insertId);
                 return res.sendStatus(500);

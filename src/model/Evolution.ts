@@ -40,4 +40,5 @@ export interface Evolution {
   tracheostomy?: number;
   vasopressors?: number;
   vasopressorsDescription?: string;
+  type?: string;
 }

@@ -8,10 +8,11 @@ import md5 from "md5";
 import { FrontendPaths } from "../model/Paths";
 
 const auth = async (req: Request, res: Response) => {
+  console.log("entro al auth");
   const { email, password } = req.body;
   try {
     const user: User | null = await queries.findUserByEmail(email);
-
+    console.log("se fue a buscar al user", user);
     if (!user) {
       return res.sendStatus(403);
     } else {
@@ -28,6 +29,7 @@ const auth = async (req: Request, res: Response) => {
         }
         delete user.password;
         const privateKey = fs.readFileSync(
+          //path.resolve(__dirname, "../../.certificates/private_key.pem")
           path.resolve("src/certificates/private_key.pem")
         );
         const token = jwt.sign(
@@ -54,18 +56,9 @@ const auth = async (req: Request, res: Response) => {
             break;
           default:
             //ruta para rules
+
             break;
         }
-        /*
-        if (user.role == Role.Admin) {
-          res.json({ redirect: FrontendPaths.ADMINSYS, user, jwt: token });
-        }
-        if (user.role == Role.Doctor) {
-          res.json({ redirect: FrontendPaths.PATIENTS, user, jwt: token });
-        }
-        if (user.role == Role.SystemChief) {
-          res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
-        }*/
       }
     }
   } catch (error) {

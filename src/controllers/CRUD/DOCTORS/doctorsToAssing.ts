@@ -10,7 +10,7 @@ const doctorsOfSystem = async (req: Request, res: Response) => {
   if (user) {
     const id: number = parseInt(req.query.id as string, 10);
     const errors = validationResult(req);
-    console.log(id);
+
     if (!errors.isEmpty()) {
       console.log("entro a los errores", errors);
       return res.sendStatus(400);
@@ -19,7 +19,6 @@ const doctorsOfSystem = async (req: Request, res: Response) => {
       const patientLocation = await queries.LocationOfPatientWithPatientId(id);
       if (patientLocation) {
         if (user.systemId == patientLocation.systemId) {
-          console.log("llego al ", user.systemId == patientLocation.systemId);
           const doctors = await queries.returnDoctorsOfSystemForId(
             patientLocation.systemId
           );
@@ -27,8 +26,6 @@ const doctorsOfSystem = async (req: Request, res: Response) => {
             console.log("the doctors was not found");
             return res.sendStatus(404);
           }
-          console.log(doctors);
-
           res.json({ doctors });
         } else {
           console.log(
