@@ -43,7 +43,7 @@ app.use(cookieParser());
 
 const origin =
   process.env.NODE_ENV === "production"
-    ? "https://frontend.ttps-g-10.vercel.app/"
+    ? "https://frontend.ttps-g-10.vercel.app"
     : "https://localhost:3000";
 
 var corsOptions = {
@@ -56,6 +56,7 @@ app.use(cors(corsOptions));
 app.options("*", (req, res: Response) => res.sendStatus(200));
 
 app.get("/healthcheck", (req, res) => {
+  console.log("origin => ", req.headers.origin);
   console.log("entro al healthcheck");
   res.sendStatus(200);
 });
