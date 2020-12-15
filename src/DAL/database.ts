@@ -28,7 +28,6 @@ async function generateConnection(conData: IConnectionData) {
     database: conData.database,
     port: conData.port,
     waitForConnections: true,
-    connectionLimit: 10,
     connectTimeout: 30000,
     queueLimit: 0,
   });
