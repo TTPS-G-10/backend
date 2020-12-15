@@ -22,6 +22,8 @@ const auth = async (req: Request, res: Response) => {
         console.log("invalid password");
         res.sendStatus(403);
       } else {
+        console.log("usuario", user);
+
         if (user.role == Role.Doctor || user.role == Role.SystemChief) {
           const system = await queries.findSystemOfUser(email);
           user.systemId = system ? system.id : undefined;
