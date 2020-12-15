@@ -28,7 +28,7 @@ const systemsWithSpaceForPatients = async (req: Request, res: Response) => {
       const allowedSystems = (SystemChangesRules as any)[location.systemName];
       res.json({ allowedSystems });
     } catch (error) {
-      console.log("user invalid");
+      console.log("user  invalid");
       return res.sendStatus(500);
     }
   } else {
