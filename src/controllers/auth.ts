@@ -69,7 +69,7 @@ const auth = async (req: Request, res: Response) => {
             res.json({ redirect: FrontendPaths.SYSTEMS, user, jwt: token });
             break;
           default:
-            //ruta para rules
+            res.json({ redirect: FrontendPaths.RULES, user, jwt: token });
 
             break;
         }

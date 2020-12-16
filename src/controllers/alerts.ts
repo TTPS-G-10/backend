@@ -2,12 +2,24 @@ import { Response, Request } from "express";
 import { Alert } from "../model/Alert";
 import queries from "../DAL/queries";
 import { CustomRequest } from "../model/Request";
+import { User } from "../model/User";
 
-const getAlerts = async (req: Request, res: Response) => {
-  const alerts: Alert[] = await queries.getAlertsByUserId(
+const getAlertsNotSee = async (req: Request, res: Response) => {
+  const alerts: Alert[] = await queries.getAlertsnotSeeByUserId(
     (req as CustomRequest).user.id
   );
+  console.log(alerts);
+
   res.json(alerts);
+};
+
+const getAlertsAndPatients = async (req: Request, res: Response) => {
+  const user: User = (req as CustomRequest).user;
+  console.log("ususario", user);
+
+  const alerts = await queries.getAlertsAndPatientByUserId(user.id);
+  console.log("LLega al controler de alerts/all", alerts);
+  res.json({ alerts });
 };
 
 const setAlertAsSeen = async (req: Request, res: Response) => {
@@ -20,8 +32,10 @@ const setAlertAsSeen = async (req: Request, res: Response) => {
     res.sendStatus(500);
   }
 };
+
 const Alerts = {
-  getAlerts,
+  getAlertsAndPatients,
+  getAlertsNotSee,
   setAlertAsSeen,
 };
 export default Alerts;

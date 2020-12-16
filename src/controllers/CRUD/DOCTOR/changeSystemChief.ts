@@ -27,15 +27,20 @@ const changeSystemchief = async (req: Request, res: Response) => {
       }
       queries
         .changeRoleOfUserToDoctor(systemChief.id)
-        .then(() => {
+        .then((ok1) => {
+          console.log("ok1", ok1);
+
           queries
             .changeRoleOfUserToSystemChief(doctorId)
-            .then(() => {
+            .then((ok2) => {
+              console.log("ok2", ok2);
+              queries.changePatientsOfUserToOtherUser(doctorId, systemChief.id);
+
               return res.sendStatus(201);
             })
             .catch(async () => {
               queries.changeRoleOfUserToSystemChief(systemChief.id);
-              console.log("could not change the role of the next systemChief");
+              console.log("could not change the doctor assing of the patients");
               return res.sendStatus(500);
             });
         })

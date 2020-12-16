@@ -44,15 +44,12 @@ const buildConditions = (rule: RawRule): NestedCondition[] => {
         operator: rule.operator,
         value: buildValue(rule.type, rule.parameter),
       },
-    ].concat(
-      rule.notRule.map((rule) => {
-        return {
-          fact: rule,
-          operator: RuleOperator.NOT_EQUAL,
-          value: rule,
-        };
-      })
-    );
+      {
+        fact: rule.notRule as KnownRules,
+        operator: RuleOperator.NOT_EQUAL,
+        value: buildValue(rule.type, rule.parameter),
+      },
+    ];
     // console.log("multiple conditions => ", multipleConditions);
     return multipleConditions;
   }

@@ -26,7 +26,7 @@ const infoEvolution = async (req: Request, res: Response) => {
       }
       console.log("evolucion data:", evolution);
       const patient: Patient | null | undefined = await queries.findPatientByID(
-        id
+        evolution.patientId
       );
       const system:
         | String
