@@ -77,10 +77,6 @@ const create = async (req: Request, res: Response) => {
 
   const systemChangeId: number = systemChange[0].id;
   const internmentId: number = systemChange[0].internmentId;
-  console.log("evolution", evolution);
-  console.log("systemChangeId", systemChangeId);
-  console.log("userId", userId);
-  console.log("patientId", patientId);
 
   const evaluationID = await queries.evolvePatient(
     evolution,

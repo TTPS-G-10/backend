@@ -709,7 +709,7 @@ const getAlertsAndPatientByUserId = async (id: number) => {
   INNER JOIN  ${dbConfig.database}.evaluation  on  evaluation.id = alert.evaluationId
   INNER JOIN  ${dbConfig.database}.patient  on  patient.id = evaluation.patientId
   INNER JOIN  ${dbConfig.database}.system_change on  system_change.id = evaluation.systemChangeId
-  WHERE alert.userId = 24
+  WHERE alert.userId = ?
   ORDER BY alert.date desc `;
   return await dbAPI.rawQuery(sql, [id]);
 };
@@ -743,6 +743,7 @@ const setAlertAsSeen = async (alertID: number): Promise<boolean> => {
    WHERE id = ?`;
   return dbAPI.rawQuery(sql, [alertID]);
 };
+
 const setObitoOfInternment = async (fecha: Date, internmentId: number) => {
   const sql = `UPDATE ${dbConfig.database}.internment
                SET obitoDate = ?
