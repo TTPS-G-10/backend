@@ -34,7 +34,7 @@ const authorization = (req: Request, res: Response, next: NextFunction) => {
       }
     } catch (error) {
       if (error.hasOwnProperty("token")) {
-        console.log("sale por el cach");
+        console.log("sale por el cach", error);
 
         res.sendStatus(401);
       } else {
