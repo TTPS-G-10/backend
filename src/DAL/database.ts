@@ -11,7 +11,7 @@ interface IConnectionData {
 }
 
 let db: mysql.Pool;
-//let TTPS_DB_POOL: PoolConnection;
+let TTPS_DB_POOL: PoolConnection;
 let connection: mysql.Connection;
 let CON_DATA: IConnectionData;
 
@@ -25,16 +25,11 @@ async function generateConnection(conData: IConnectionData) {
     return db;
   }
   db = mysql.createPool({
-    host: conData.host,
-    user: conData.user,
-    password: conData.password,
-    database: conData.database,
-    port: conData.port,
+    ...conData,
     waitForConnections: true,
     connectTimeout: 30000,
-    queueLimit: 10,
   });
-  // TTPS_DB_POOL = await db.getConnection();
+  TTPS_DB_POOL = await db.getConnection();
   // connection = await mysql.createConnection(CON_DATA);
   return db;
 }
@@ -63,21 +58,26 @@ async function rollback(trx: any): Promise<void> {
 }
 
 async function rawQuery(query: string, params: any[]): Promise<any> {
-  // await TTPS_DB_POOL.beginTransaction();
-  const connection = await mysql.createConnection(CON_DATA);
-  connection.beginTransaction();
+  await TTPS_DB_POOL.beginTransaction();
+  //const connection = await mysql.createConnection(CON_DATA);
+  //connection.beginTransaction();
   try {
-    const [resp = null] = await connection.execute(query, params);
-    await connection.commit();
+    // const [resp = null] = await connection.execute(query, params);
+    const [resp = null] = await TTPS_DB_POOL.execute(query, params);
+    // await connection.commit();
+    await TTPS_DB_POOL.commit();
     return resp;
   } catch (err) {
-    await connection.rollback();
-    await connection.commit();
+    // await connection.rollback();
+    // await connection.commit();
+    await TTPS_DB_POOL.rollback();
+    await TTPS_DB_POOL.commit();
     console.warn(err.message);
     throw new Error(err.message + ", in query: " + query);
   } finally {
-    console.log("close db connection");
-    connection.end();
+    console.log("end connection");
+    //connection.end();
+    TTPS_DB_POOL.release();
   }
 }
 
