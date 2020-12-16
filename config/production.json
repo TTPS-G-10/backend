@@ -4,8 +4,7 @@
     "user": "ba98b3f4b2d660",
     "password": "dae97d58",
     "database": "heroku_d4f0a4efcec1a78",
-    "connectionLimit": 64,
-    "acquireTimeout": 10000
+    "connectionLimit": 64
   },
   "origin": "https://frontend.ttps-g-10.vercel.app",
   "domain": "frontend.ttps-g-10.vercel.app"

@@ -33,7 +33,7 @@ async function generateConnection(conData: IConnectionData) {
     connectTimeout: 30000,
     queueLimit: 10000,
   });
-  TTPS_DB_POOL = await db.getConnection();
+  // TTPS_DB_POOL = await db.getConnection();
   return db;
 }
 
