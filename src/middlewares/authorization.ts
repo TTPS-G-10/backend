@@ -8,7 +8,11 @@ import { CustomRequest } from "../model/Request";
 
 const authorization = (req: Request, res: Response, next: NextFunction) => {
   console.log("--------------------entro a authorization--------------- ");
-  if (req.path === "/authenticate" || req.headers["unsecure"]) {
+  if (
+    req.path === "/authenticate" ||
+    req.path === "/logOut" ||
+    req.headers["unsecure"]
+  ) {
     next();
   } else {
     try {
