@@ -1,4 +1,8 @@
 export interface Evolution {
+  id: number;
+  userId: number;
+  patientId: number;
+  systemChangeId: number;
   // Mandatory
   temperature: number;
   systolicBloodPressure: number;

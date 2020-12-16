@@ -57,7 +57,7 @@ async function rollback(trx: any): Promise<void> {
   await trx.query("ROLLBACK");
 }
 
-async function rawQuery(query: string, params: any[]): Promise<any> {
+async function rawQuery<T>(query: string, params: any[]): Promise<T | any> {
   try {
     await TTPS_DB_POOL.beginTransaction();
   } catch {
@@ -68,7 +68,10 @@ async function rawQuery(query: string, params: any[]): Promise<any> {
   //connection.beginTransaction();
   try {
     // const [resp = null] = await connection.execute(query, params);
-    const [resp = null] = await TTPS_DB_POOL.execute(query, params);
+    const [resp = null] = await TTPS_DB_POOL.execute(
+      TTPS_DB_POOL.format(query),
+      params
+    );
     // await connection.commit();
     await TTPS_DB_POOL.commit();
     return resp;

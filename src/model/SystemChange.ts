@@ -1,4 +1,4 @@
-import { Evaluation } from "./Evaluation";
+import { Evolution } from "./Evolution";
 export type SystemChange = {
   id: number;
   internmentId: number;
@@ -6,5 +6,5 @@ export type SystemChange = {
   systemName: string;
   createTime: Date;
   finish: boolean;
-  evaluations: Evaluation[];
+  evaluations: Evolution[];
 };

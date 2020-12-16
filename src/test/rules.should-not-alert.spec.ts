@@ -56,3 +56,14 @@ test(`test Rule ${[KnownRules.O_SAT_2]}`, async () => {
     result.events.find((event) => event.type === KnownRules.O_SAT_2)
   ).toBeUndefined();
 });
+
+test(`test Rule ${[KnownRules.SYMP]}`, async () => {
+  const engine = await EngineRule.init();
+  const fact = {
+    [KnownRules.SYMP]: false,
+  };
+  const result = await engine.run(fact);
+  expect(
+    result.events.find((event) => event.type === KnownRules.SYMP)
+  ).toBeUndefined();
+});

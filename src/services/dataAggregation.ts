@@ -3,10 +3,10 @@ import queries from "../DAL/queries";
 import { Room } from "../model/Room";
 import { Internment } from "../model/Internment";
 import { SystemChange } from "../model/SystemChange";
-import { Evaluation } from "../model/Evaluation";
 import { Patient } from "../model/Patient";
 import { System } from "../model/System";
 import { Bed } from "../model/Bed";
+import { Evolution } from "../model/Evolution";
 
 const calculateOcupancyAndFreeBeds = async (system: System) => {
   system.totalBeds = system.totalBeds ? system.totalBeds : 0;
@@ -98,7 +98,7 @@ const addSystemchangesAndEvaluationToInternment = async (
 };
 
 const addEvaluationsToSystemChanges = async (systemChange: SystemChange) => {
-  const evaluations: Evaluation[] = await queries.findAcotedEvaluationsOfSystemChangeWithSystemChangeId(
+  const evaluations: Evolution[] = await queries.findAcotedEvaluationsOfSystemChangeWithSystemChangeId(
     systemChange.id
   );
   return { ...systemChange, evaluations: evaluations };

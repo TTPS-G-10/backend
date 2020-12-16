@@ -1,9 +1,14 @@
-import { RuleOperator, RuleType, KnownRulesKeys } from "../../model/Rule";
+import {
+  RuleOperator,
+  RuleType,
+  KnownRulesKeys,
+  KnownRules,
+} from "../../model/Rule";
 
 const getRules = async () => {
   return [
     {
-      name: "somnolencia",
+      name: KnownRules.SOM,
       operator: RuleOperator.EQUAL,
       description: "Somnolencia: evaluar pase a UTI",
       type: RuleType.BOOLEAN,
@@ -12,7 +17,7 @@ const getRules = async () => {
       id: 1,
     },
     {
-      name: "mecanica_ventilatoria",
+      name: KnownRules.MEC_VEN,
       operator: RuleOperator.IN,
       parameter: "regular,mala",
       description: "Mecanica ventilatoria :value evaluar pase a UTI",
@@ -22,7 +27,7 @@ const getRules = async () => {
       id: 2,
     },
     {
-      name: "frecuencia_respiratoria",
+      name: KnownRules.FRE_RESP,
       operator: RuleOperator.GREATER_THAN,
       parameter: 60,
       description:
@@ -33,7 +38,17 @@ const getRules = async () => {
       id: 3,
     },
     {
-      name: "saturación_de_oxígeno",
+      name: KnownRules.SYMP,
+      operator: RuleOperator.EQUAL,
+      description:
+        "Pasaron 10 días desde el inicio de los síntomas. Evaluar ALTA.	",
+      type: RuleType.BOOLEAN,
+      active: true,
+      id: 55,
+      key: KnownRulesKeys.SYMP,
+    },
+    {
+      name: KnownRules.O_SAT,
       operator: RuleOperator.LESS_THAN,
       parameter: 92,
       description:
@@ -44,7 +59,7 @@ const getRules = async () => {
       id: 4,
     },
     {
-      name: "saturación_de_oxígeno_2",
+      name: KnownRules.O_SAT_2,
       operator: RuleOperator.GREATER_THAN_INCLUSIVE,
       parameter: 3,
       description:

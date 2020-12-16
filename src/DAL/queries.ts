@@ -5,7 +5,6 @@ import { Internment } from "../model/Internment";
 import { Patient } from "../model/Patient";
 import { Location } from "../model/Location";
 import { ContactPerson } from "../model/ContactPerson";
-import { Evaluation } from "../model/Evaluation";
 import { Evolution } from "../model/Evolution";
 import { Bed } from "../model/Bed";
 import { RuleType, RuleOperator, KnownRulesKeys, Rule } from "../model/Rule";
@@ -71,14 +70,14 @@ const findContactPersonByPatientID = async (
 
 const lastEvolveByPatientID = async (
   idPatient: number
-): Promise<Evaluation | null> => {
+): Promise<Evolution | null> => {
   const sql = `SELECT *
                 FROM ${dbConfig.database}.evaluation
                 WHERE patientId=? AND id=(SELECT MAX(id)
                                           FROM ${dbConfig.database}.evaluation wHERE patientId=?
                 )
                 LIMIT 1`;
-  return await dbAPI.singleOrDefault<Evaluation | null>(sql, [
+  return await dbAPI.singleOrDefault<Evolution | null>(sql, [
     idPatient,
     idPatient,
   ]);
@@ -399,13 +398,13 @@ const findRoomsFromASystemtByID = async (id: number) => {
   return result;
 };
 
-const findEvolutionByID = async (id: number) => {
+const findEvolutionByID = async (id: number): Promise<Evolution | null> => {
   const sql = `
          SELECT *
   FROM ${dbConfig.database}.evaluation 
   WHERE id=? `;
 
-  const result = await dbAPI.singleOrDefault<Evaluation | null>(sql, [id]);
+  const result = await dbAPI.singleOrDefault<Evolution | null>(sql, [id]);
   return result;
 };
 const returnDoctorsOfSystemForId = async (id: number) => {
@@ -692,8 +691,6 @@ const changeRoleOfUserToDoctor = async (userId: number) => {
 };
 
 const saveAlerts = async (alerts: Alert[]): Promise<boolean[]> => {
-  console.log("estructura de las alertas", alerts);
-
   const sql = `INSERT INTO ${dbConfig.database}.alert`;
   return await Promise.all(alerts.map((aux) => insert(sql, aux)));
 };
@@ -751,8 +748,7 @@ const getRules = async (): Promise<Rule[]> => {
     FROM ${dbConfig.database}.rules rules
     LIMIT 100;
   `;
-  const result = await dbAPI.rawQuery(sql, []);
-  console.log("database rules =>", result);
+  const result = await dbAPI.rawQuery<Rule[]>(sql, []);
   return result;
 };
 
@@ -784,6 +780,15 @@ const setEgressOfInternment = async (fecha: Date, internmentId: number) => {
                 WHERE id = ?`;
   const result = await dbAPI.rawQuery(sql, [fecha, internmentId]);
   return result;
+};
+
+const getLastTenDaysEvolutions = async (
+  patientId: number
+): Promise<Evolution[] | null> => {
+  const sql =
+    "SELECT * FROM evaluation e WHERE e.patientId = ? AND DATE(e.createTime) >  DATE(CURRENT_DATE() - INTERVAL 10 DAY)";
+  const response = await dbAPI.rawQuery<Evolution[] | null>(sql, [patientId]);
+  return response;
 };
 
 // queries.insert('INSERT INTO bed', { name: 'cama 222', logicDelet: null, roomId: 1, patientId: null }).then((ok) => console.log('insertó bien?', ok));
@@ -862,6 +867,7 @@ const queries = {
   lastEvolveByPatientID,
   getAllRules,
   updateStateRule,
+  getLastTenDaysEvolutions,
 };
 
 export default queries;
