@@ -64,6 +64,7 @@ async function rollback(trx: any): Promise<void> {
 
 async function rawQuery(query: string, params: any[]): Promise<any> {
   // await TTPS_DB_POOL.beginTransaction();
+  connection.resume();
   connection.beginTransaction();
   try {
     const [resp = null] = await connection.execute(query, params);
@@ -71,16 +72,18 @@ async function rawQuery(query: string, params: any[]): Promise<any> {
     return resp;
   } catch (err) {
     await connection.rollback();
+    await connection.commit();
     console.warn(err.message);
     throw new Error(err.message + ", in query: " + query);
   } finally {
     console.log("close db connection");
-    connection.end();
+    connection.pause();
   }
 }
 
 async function insert(query: string, params: object): Promise<any> {
   // await TTPS_DB_POOL.beginTransaction();
+  connection.resume();
   connection.beginTransaction();
   const insertQry = processInsert(query.replace(/(\r\n|\n|\r)/gm, ""), params);
   const values = Object.values(params);
@@ -95,11 +98,12 @@ async function insert(query: string, params: object): Promise<any> {
     return result[0];
   } catch (err) {
     await connection.rollback();
+    await connection.commit();
     console.warn(err.message);
     throw new Error(err.message);
   } finally {
     console.log("close db connection");
-    connection.end();
+    connection.pause();
   }
 }
 
