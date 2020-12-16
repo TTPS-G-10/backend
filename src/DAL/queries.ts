@@ -710,13 +710,27 @@ const getAlertsAndPatientByUserId = async (id: number) => {
   INNER JOIN  ${dbConfig.database}.patient  on  patient.id = evaluation.patientId
   INNER JOIN  ${dbConfig.database}.system_change on  system_change.id = evaluation.systemChangeId
   WHERE alert.userId = ?
-  ORDER BY alert.date desc `;
+  ORDER BY alert.readByUser desc,alert.date desc `;
   return await dbAPI.rawQuery(sql, [id]);
 };
 
 const getAlertsnotSeeByUserId = async (id: number) => {
   const sql = `SELECT * FROM ${dbConfig.database}.alert WHERE alert.readByUser = false AND alert.userId = ? ORDER BY alert.date desc`;
   return await dbAPI.rawQuery(sql, [id]);
+};
+
+const updateStateUser = async (id: number, value: boolean) => {
+  const sql = `UPDATE ${dbConfig.database}.rules SET
+                online = ?
+                WHERE id = ?`;
+  const result = await dbAPI.singleOrDefault(sql, [value, id]);
+  return result;
+};
+
+const returnStateUser = async (id: number) => {
+  const sql = `SELECT user.online FROM ${dbConfig.database}.user WHERE user.id = ? `;
+  const result = await dbAPI.singleOrDefault(sql, [id]);
+  return result;
 };
 
 const updateStateRule = async (id: number, value: boolean) => {
@@ -777,6 +791,8 @@ const setEgressOfInternment = async (fecha: Date, internmentId: number) => {
 // queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
 
 const queries = {
+  updateStateUser,
+  returnStateUser,
   getAlertsnotSeeByUserId,
   getAlertsAndPatientByUserId,
   changePatientsOfUserToOtherUser,
