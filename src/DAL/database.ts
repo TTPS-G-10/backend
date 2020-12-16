@@ -65,6 +65,7 @@ async function rawQuery(query: string, params: any[]): Promise<any> {
   const connection = await mysql.createConnection(CON_DATA);
   try {
     const [resp = null] = await connection.execute(query, params);
+    await connection.commit();
     connection.end();
     return resp;
   } catch (err) {
