@@ -1,4 +1,4 @@
-import mysql from "mysql2";
+import mysql from "mysql2/promise";
 import { PoolConnection, ResultSetHeader } from "mysql2/promise";
 
 interface IConnectionData {
@@ -12,12 +12,14 @@ interface IConnectionData {
 
 let db: mysql.Pool;
 let TTPS_DB_POOL: PoolConnection;
+let CON_DATA: IConnectionData;
 
 function getConnectionDB() {
   return db;
 }
 
 async function generateConnection(conData: IConnectionData) {
+  CON_DATA = conData;
   if (db) {
     return db;
   }
@@ -31,12 +33,12 @@ async function generateConnection(conData: IConnectionData) {
     connectTimeout: 30000,
     queueLimit: 10000,
   });
-  TTPS_DB_POOL = await db.promise().getConnection();
+  TTPS_DB_POOL = await db.getConnection();
   return db;
 }
 
 async function createTransaction() {
-  const connection = await db.promise().getConnection();
+  const connection = await db.getConnection();
   await connection.beginTransaction();
   return connection;
 }
@@ -59,14 +61,14 @@ async function rollback(trx: any): Promise<void> {
 }
 
 async function rawQuery(query: string, params: any[]): Promise<any> {
-  await TTPS_DB_POOL.beginTransaction();
+  // await TTPS_DB_POOL.beginTransaction();
+  const connection = await mysql.createConnection(CON_DATA);
   try {
-    const [resp = null] = await TTPS_DB_POOL.query(query, params);
-    await TTPS_DB_POOL.commit();
-    TTPS_DB_POOL.release();
+    const [resp = null] = await connection.execute(query, params);
+    await connection.commit();
     return resp;
   } catch (err) {
-    await TTPS_DB_POOL.rollback();
+    await connection.rollback();
     console.warn(err.message);
     throw new Error(err.message + ", in query: " + query);
   }
