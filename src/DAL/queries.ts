@@ -256,7 +256,7 @@ const returnBedsWithSpaceOfRoomForRoomId = async (id: Number) => {
   const sql = `
          SELECT bd.name,bd.id
         FROM ${dbConfig.database}.bed bd 
-        WHERE (bd.roomId='?') AND (bd.patientId is NULL)
+        WHERE (bd.roomId=?) AND (bd.patientId is NULL)
         GROUP BY bd.id
     `;
   const result = await dbAPI.rawQuery(sql, [id]);
@@ -343,6 +343,9 @@ const returnBedsAndPatientsForRoomId = async (id: number) => {
 };
 
 const returCountFreeBedsInSystemId = async (id: number) => {
+  console.log(
+    "------------------------entro a la consulta para ver la cantidad de camas libres-----------"
+  );
   try {
     const sql = `
     SELECT COUNT(*) as cantFree
@@ -450,14 +453,17 @@ const stillFreeBed = async (
   idBed: number,
   idRoom: number
 ) => {
+  console.log("---------------------la cama sigue vacia??");
+  console.log("me llega a la qry:", idSystem, idBed, idRoom);
   const sql = `
-  SELECT patientId 
+  SELECT ${dbConfig.database}.bed.patientId 
   FROM ${dbConfig.database}.bed
   INNER JOIN ${dbConfig.database}.room ON bed.roomId = room.Id
-  WHERE (room.systemId = '?') AND (bed.id='?') AND (room.id='?')
+  WHERE (room.systemId = ?) AND (bed.id=?) AND (room.id=?)
  `;
 
   const result = await dbAPI.rawQuery(sql, [idSystem, idBed, idRoom]);
+  console.log("reultado de la qry:::", result);
   return result;
 };
 const createSystemChange = async (internmentId: number, systemId: number) => {

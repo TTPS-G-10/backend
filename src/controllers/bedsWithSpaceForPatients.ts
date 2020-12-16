@@ -16,6 +16,7 @@ const bedsWithSpaceForPatients = async (req: Request, res: Response) => {
     }
     try {
       const beds = await queries.returnBedsWithSpaceOfRoomForRoomId(id);
+      console.log("------- EN bedsWithSpaceForPatients: BEDS:", beds);
       if (!beds) {
         console.log("the beds was not found, the system dont have free beds");
         return res.sendStatus(404);

@@ -122,6 +122,7 @@ const createInternmentWithData = async (req: Request, res: Response) => {
       return res.sendStatus(404);
     }
     const systemChiefId = systemChief.id;
+    console.log("le mando a la qry:", systemId, bedN, roomN);
     queries
       .stillFreeBed(systemId, bedN, roomN)
       .then((freeBed) => {
