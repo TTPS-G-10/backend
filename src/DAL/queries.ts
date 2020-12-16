@@ -573,6 +573,7 @@ const insertBedWithPatient = async (
   roomId: number,
   patientId: number
 ) => {
+  console.log("llego al insertar cama con paciente:", name, roomId, patientId);
   const sql = `INSERT INTO ${dbConfig.database}.bed (name,  roomId, patientId)
         VALUES (?, ?, ?)`;
   const result = await dbAPI.rawQuery(sql, [name, roomId, patientId]);
