@@ -29,10 +29,13 @@ const authorization = (req: Request, res: Response, next: NextFunction) => {
         (req as CustomRequest).user = user;
         next();
       } else {
+        console.log("sale por el if del usuario");
         res.sendStatus(401);
       }
     } catch (error) {
       if (error.hasOwnProperty("token")) {
+        console.log("sale por el cach");
+
         res.sendStatus(401);
       } else {
         res.sendStatus(500);
