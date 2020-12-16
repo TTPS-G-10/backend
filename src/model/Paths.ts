@@ -5,6 +5,7 @@ export enum FrontendPaths {
   INTERNMENT = "/internment",
   PATIENT = "/patient",
   EVALUATION = "/evaluation",
+  RULES = "/rules",
 }
 
 export enum ServicePaths {
@@ -20,4 +21,5 @@ export enum ServicePaths {
   DOCTOR = "/doctor",
   ALERTS = "/alerts",
   ALERT_SEEN = "/alert-seen",
+  RULES = "/rules",
 }

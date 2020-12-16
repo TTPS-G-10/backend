@@ -9,6 +9,7 @@ import bed from "./routes/bed";
 import beds from "./routes/beds";
 import room from "./routes/room";
 import rooms from "./routes/rooms";
+import rules from "./routes/rules";
 import system from "./routes/system";
 import patient from "./routes/patient";
 import doctors from "./routes/doctors";
@@ -76,6 +77,7 @@ app.use(doctors);
 app.use(doctor);
 app.use(systemChange);
 app.use(alerts);
+app.use(rules);
 
 app.set("port", process.env.PORT || 9000);
 

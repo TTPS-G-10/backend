@@ -678,6 +678,18 @@ const getAlertsByUserId = async (id: number) => {
   return await dbAPI.rawQuery(sql, [id]);
 };
 
+const updateStateRule = async (id: number, value: boolean) => {
+  const sql = `UPDATE ${dbConfig.database}.rules SET
+                active = ?
+                WHERE id = ?`;
+  const result = await dbAPI.singleOrDefault(sql, [value, id]);
+  return result;
+};
+const getAllRules = async () => {
+  const sql = `SELECT * FROM ${dbConfig.database}.rules `;
+  return await dbAPI.rawQuery(sql, []);
+};
+
 const getRules = async () => {
   const sql = `
     SELECT *
@@ -841,6 +853,8 @@ const queries = {
   getPreviousEvolution,
   setAlertAsSeen,
   lastEvolveByPatientID,
+  getAllRules,
+  updateStateRule,
 };
 
 export default queries;
