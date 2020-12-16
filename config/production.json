@@ -7,5 +7,6 @@
     "connectionLimit": 12,
     "acquireTimeout": 10000
   },
-  "origin": "https://frontend.ttps-g-10.vercel.app"
+  "origin": "https://frontend.ttps-g-10.vercel.app",
+  "domain": "frontend.ttps-g-10.vercel.app"
 }

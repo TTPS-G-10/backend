@@ -41,10 +41,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-const origin =
-  process.env.NODE_ENV === "production"
-    ? "https://frontend.ttps-g-10.vercel.app"
-    : "https://localhost:3000";
+const origin = config.origin;
 
 var corsOptions = {
   origin,

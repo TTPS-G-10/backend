@@ -6,5 +6,6 @@
     "database": "ttps_db",
     "port": 3306
   },
-  "origin": "https://localhost:3000"
+  "origin": "https://localhost:3000",
+  "domain": "localhost"
 }

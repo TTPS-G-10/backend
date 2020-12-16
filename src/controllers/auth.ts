@@ -6,8 +6,9 @@ import * as path from "path";
 import jwt from "jsonwebtoken";
 import md5 from "md5";
 import { FrontendPaths } from "../model/Paths";
+
 const config = require("config");
-const origin = config.get("origin");
+const domain = config.get("domain");
 
 const auth = async (req: Request, res: Response) => {
   console.log("entro al auth");
@@ -42,7 +43,7 @@ const auth = async (req: Request, res: Response) => {
           { algorithm: "RS256" }
         );
         res.cookie("jwt", token, {
-          domain: origin,
+          domain: domain,
           httpOnly: true,
           secure: true,
           maxAge: 2147483647,
