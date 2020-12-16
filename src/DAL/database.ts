@@ -58,7 +58,12 @@ async function rollback(trx: any): Promise<void> {
 }
 
 async function rawQuery(query: string, params: any[]): Promise<any> {
-  await TTPS_DB_POOL.beginTransaction();
+  try {
+    await TTPS_DB_POOL.beginTransaction();
+  } catch {
+    TTPS_DB_POOL = await db.getConnection();
+    TTPS_DB_POOL.beginTransaction();
+  }
   //const connection = await mysql.createConnection(CON_DATA);
   //connection.beginTransaction();
   try {
@@ -82,28 +87,37 @@ async function rawQuery(query: string, params: any[]): Promise<any> {
 }
 
 async function insert(query: string, params: object): Promise<any> {
-  // await TTPS_DB_POOL.beginTransaction();
-  const connection = await mysql.createConnection(CON_DATA);
-  connection.beginTransaction();
+  await TTPS_DB_POOL.beginTransaction();
+  // const connection = await mysql.createConnection(CON_DATA);
+  // connection.beginTransaction();
   const insertQry = processInsert(query.replace(/(\r\n|\n|\r)/gm, ""), params);
   const values = Object.values(params);
 
   try {
-    const sql = connection.format(insertQry, values);
-    const result = (await connection.execute<ResultSetHeader>(
+    //const sql = connection.format(insertQry, values);
+    const sql = TTPS_DB_POOL.format(insertQry, values);
+    // const result = (await connection.execute<ResultSetHeader>(
+    //   sql,
+    //   values
+    // )) as ResultSetHeader[];
+    const result = (await TTPS_DB_POOL.execute<ResultSetHeader>(
       sql,
       values
     )) as ResultSetHeader[];
-    await connection.commit();
+    // await connection.commit();
+    await TTPS_DB_POOL.commit();
     return result[0];
   } catch (err) {
-    await connection.rollback();
-    await connection.commit();
+    // await connection.rollback();
+    // await connection.commit();
+    await TTPS_DB_POOL.rollback();
+    await TTPS_DB_POOL.commit();
     console.warn(err.message);
     throw new Error(err.message);
   } finally {
     console.log("close db connection");
-    connection.end();
+    // connection.end();
+    TTPS_DB_POOL.release();
   }
 }
 
