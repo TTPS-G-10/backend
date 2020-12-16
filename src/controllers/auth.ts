@@ -43,11 +43,11 @@ const auth = async (req: Request, res: Response) => {
           { algorithm: "RS256" }
         );
         res.cookie("jwt", token, {
-          domain: domain,
+          // domain: domain,
           httpOnly: true,
-          secure: true,
           maxAge: 2147483647,
           sameSite: "none",
+          secure: true,
         });
 
         // all ok
