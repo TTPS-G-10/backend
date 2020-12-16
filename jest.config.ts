@@ -71,14 +71,14 @@ export default {
   // ],
 
   // An array of file extensions your modules use
-  // moduleFileExtensions: [
+  //   moduleFileExtensions: [
   //   "js",
   //   "json",
   //   "jsx",
-  //   "ts",
+  // "ts",
   //   "tsx",
   //   "node"
-  // ],
+  //  ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
@@ -117,9 +117,7 @@ export default {
   // rootDir: undefined,
 
   // A list of paths to directories that Jest should use to search for files in
-  // roots: [
-  //   "<rootDir>"
-  // ],
+  roots: ["<rootDir>/src/test"],
 
   // Allows you to use a custom runner instead of Jest's default test runner
   // runner: "jest-runner",
