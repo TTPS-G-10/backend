@@ -8,7 +8,7 @@ import md5 from "md5";
 import { FrontendPaths } from "../model/Paths";
 
 const config = require("config");
-const domain = config.get("domain");
+// const domain = config.get("domain");
 
 const auth = async (req: Request, res: Response) => {
   console.log("entro al auth");
