@@ -126,6 +126,7 @@ const createInternmentWithData = async (req: Request, res: Response) => {
     queries
       .stillFreeBed(systemId, bedN, roomN)
       .then((freeBed) => {
+        console.log("freeBed:", freeBed);
         if (freeBed[0].patientId === null) {
           queries.assignPatientToBed(idPatientN, bedN).then(() => {
             createInternment(

@@ -470,7 +470,7 @@ const stillFreeBed = async (
   SELECT ${dbConfig.database}.bed.patientId 
   FROM ${dbConfig.database}.bed
   INNER JOIN ${dbConfig.database}.room ON bed.roomId = room.Id
-  WHERE (room.systemId = ?) AND (bed.id=?) AND (room.id=?)
+  WHERE (room.systemId =?) AND (bed.id=?) AND (room.id=?)
  `;
 
   const result = await dbAPI.rawQuery(sql, [idSystem, idBed, idRoom]);
