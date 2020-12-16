@@ -42,7 +42,7 @@ const auth = async (req: Request, res: Response) => {
           { algorithm: "RS256" }
         );
         res.cookie("jwt", token, {
-          domain: dbConfig.host,
+          domain: dbConfig.origin,
           httpOnly: true,
           secure: true,
           maxAge: 2147483647,
