@@ -12,28 +12,47 @@ const validatePatient = async (req: Request, res: Response) => {
     if (!errors.isEmpty()) {
       return res.sendStatus(400);
     }
+    const patientData = {
+      name: req.body.name,
+      lastName: req.body.lastName,
+      dni: req.body.dni,
+      birthDate: req.body.birthDate.slice(0, 10),
+      direction: req.body.direction,
+      phone: req.body.phone,
+      email: req.body.email,
+      socialSecurity: req.body.socialSecurity,
+      backgroundClinical: req.body.background_clinical,
+    };
     await queries
-      .insertPatient("INSERT INTO `patient`", {
-        name: req.body.name,
-        lastName: req.body.lastName,
-        dni: req.body.dni,
-        birthDate: req.body.birthDate.slice(0, 10),
-        direction: req.body.direction,
-        phone: req.body.phone,
-        email: req.body.email,
-        socialSecurity: req.body.socialSecurity,
-        backgroundClinical: req.body.background_clinical,
-      })
+      .insertPatient(
+        patientData.name,
+        patientData.lastName,
+        patientData.dni,
+        patientData.birthDate,
+        patientData.direction,
+        patientData.phone,
+        patientData.email,
+        patientData.socialSecurity,
+        patientData.backgroundClinical
+      )
       .then(async (ok) => {
-        const idPatient = ok[0].insertId;
+        console.log(ok);
+        const idPatient = ok.insertId;
+        const contactPerson = {
+          name: req.body.contactPerson_name,
+          lastName: req.body.contactPerson_lastName,
+          relationship: req.body.contactPerson_relationship,
+          phone: req.body.contactPerson_phone,
+          patientId: idPatient,
+        };
         await queries
-          .insertContactPerson("INSERT INTO `contactPerson`", {
-            name: req.body.contactPerson_name,
-            lastName: req.body.contactPerson_lastName,
-            relationship: req.body.contactPerson_relationship,
-            phone: req.body.contactPerson_phone,
-            patientId: idPatient,
-          })
+          .insertContactPerson(
+            contactPerson.name,
+            contactPerson.lastName,
+            contactPerson.relationship,
+            contactPerson.phone,
+            contactPerson.patientId
+          )
           .then(() => {
             return res.json({
               redirect: "/patient/" + idPatient,

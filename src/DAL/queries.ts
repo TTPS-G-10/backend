@@ -575,19 +575,52 @@ const removeSystemChange = async (idSystemChange: number) => {
   const result = await dbAPI.rawQuery(sql, [idSystemChange]);
   return result;
 };
-
-const insertPatient = async (query: string, values: object): Promise<any> => {
-  const result = await dbAPI.insert(query, values);
+const insertPatient = async (
+  name: string,
+  lastName: string,
+  dni: number,
+  birthDate: Date,
+  direction: string,
+  phone: string,
+  email: string,
+  socialSecurity: string,
+  backgroundClinical: string
+) => {
+  const sql = `INSERT INTO ${dbConfig.database}.patient (name,lastName,dni, birthDate,direction,phone,email,socialSecurity,backgroundClinical)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const result = await dbAPI.rawQuery(sql, [
+    name,
+    lastName,
+    dni,
+    birthDate,
+    direction,
+    phone,
+    email,
+    socialSecurity,
+    backgroundClinical,
+  ]);
   return result;
 };
 
 const insertContactPerson = async (
-  query: string,
-  values: object
-): Promise<any> => {
-  const result = await dbAPI.insert(query, values);
+  name: string,
+  lastName: string,
+  relationship: string,
+  phone: string,
+  patientId: number
+) => {
+  const sql = `INSERT INTO ${dbConfig.database}.contact_person (name,lastName,relationship,phone,patientId)
+        VALUES (?, ?, ?, ?, ?)`;
+  const result = await dbAPI.rawQuery(sql, [
+    name,
+    lastName,
+    relationship,
+    phone,
+    patientId,
+  ]);
   return result;
 };
+
 const update = async (
   name: string,
   id: string,
