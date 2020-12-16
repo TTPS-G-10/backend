@@ -47,7 +47,7 @@ const auth = async (req: Request, res: Response) => {
           httpOnly: true,
           secure: true,
           maxAge: 2147483647,
-          sameSite: false,
+          sameSite: "none",
         });
 
         // all ok
