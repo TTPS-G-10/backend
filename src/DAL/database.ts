@@ -66,33 +66,36 @@ async function rawQuery(query: string, params: any[]): Promise<any> {
   try {
     const [resp = null] = await connection.execute(query, params);
     await connection.commit();
-    connection.end();
     return resp;
   } catch (err) {
     await connection.rollback();
     console.warn(err.message);
     throw new Error(err.message + ", in query: " + query);
+  } finally {
+    connection.end();
   }
 }
 
 async function insert(query: string, params: object): Promise<any> {
-  await TTPS_DB_POOL.beginTransaction();
+  // await TTPS_DB_POOL.beginTransaction();
+  const connection = await mysql.createConnection(CON_DATA);
   const insertQry = processInsert(query.replace(/(\r\n|\n|\r)/gm, ""), params);
   const values = Object.values(params);
 
   try {
     const sql = TTPS_DB_POOL.format(insertQry, values);
-    const result = (await TTPS_DB_POOL.query<ResultSetHeader>(
+    const result = (await connection.execute<ResultSetHeader>(
       sql,
       values
     )) as ResultSetHeader[];
-    await TTPS_DB_POOL.commit();
-    TTPS_DB_POOL.release();
+    await connection.commit();
     return result[0];
   } catch (err) {
-    await TTPS_DB_POOL.rollback();
+    await connection.rollback();
     console.warn(err.message);
     throw new Error(err.message);
+  } finally {
+    connection.end();
   }
 }
 
