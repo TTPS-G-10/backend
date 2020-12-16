@@ -77,7 +77,7 @@ async function rawQuery(query: string, params: any[]): Promise<any> {
     throw new Error(err.message + ", in query: " + query);
   } finally {
     console.log("close db connection");
-    connection.pause();
+    connection.end();
   }
 }
 
@@ -103,7 +103,7 @@ async function insert(query: string, params: object): Promise<any> {
     throw new Error(err.message);
   } finally {
     console.log("close db connection");
-    connection.pause();
+    connection.end();
   }
 }
 
