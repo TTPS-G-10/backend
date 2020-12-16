@@ -32,7 +32,7 @@ async function generateConnection(conData: IConnectionData) {
     port: conData.port,
     waitForConnections: true,
     connectTimeout: 30000,
-    queueLimit: 10000,
+    queueLimit: 10,
   });
   // TTPS_DB_POOL = await db.getConnection();
   connection = await mysql.createConnection(CON_DATA);
