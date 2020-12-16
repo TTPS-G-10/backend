@@ -11,7 +11,7 @@ const checkPermissionByRole = (
   res: Response,
   next: NextFunction
 ) => {
-  const allowedRoles = [Role.Doctor];
+  const allowedRoles = [Role.Doctor, Role.SystemChief];
   if (allowedRoles.includes((req as CustomRequest).user.role)) {
     next();
   } else {
@@ -20,7 +20,12 @@ const checkPermissionByRole = (
   }
 };
 
-router.get(ServicePaths.ALERTS, checkPermissionByRole, Alerts.getAlerts);
+router.get(ServicePaths.ALERTS, checkPermissionByRole, Alerts.getAlertsNotSee);
+router.get(
+  ServicePaths.ALERTS + "/all",
+  checkPermissionByRole,
+  Alerts.getAlertsAndPatients
+);
 router.put(
   ServicePaths.ALERT_SEEN,
   checkPermissionByRole,

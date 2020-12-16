@@ -5,6 +5,7 @@ import genNewAlerts from "../../../services/genNewAlerts";
 import EngineRule from "../../../rule-engine/engine";
 import { Evolution } from "../../../model/Evolution";
 import { KnownRules, KnownRulesKeys } from "../../../model/Rule";
+import { User } from "../../../model/User";
 
 const getFactFromEvolution = (
   factName: KnownRules,
@@ -42,21 +43,53 @@ const getFactFromEvolution = (
 };
 
 const create = async (req: Request, res: Response) => {
-  const evolution: Evolution = {
+  const evolution = {
     ...req.body.evolution,
   };
+
+  if (req.body.evolution.type === "maskWithReservoir") {
+    evolution.maskWithReservoir = true;
+    delete evolution.type;
+  }
+
+  if (req.body.evolution.type === "nasalOxygenCannula") {
+    evolution.nasalOxygenCannula = true;
+    delete evolution.type;
+  }
+
   const patientId = req.body.patientId;
   const userId = (req as CustomRequest).user.id;
   const previousEvolution: Evolution | null = await queries.getPreviousEvolution(
     patientId
   );
+  const internament = await queries.findOpenInternmentWithPatientId(patientId);
+  if (!internament) {
+    console.log("no se encontro la internacion");
+    return res.sendStatus(404);
+  }
+  const systemChange = await queries.findSystemChangesOfInternmentWithInternmentId(
+    internament.id
+  );
+  if (!systemChange) {
+    console.log("no se encontro el cambio de sistema");
+    return res.sendStatus(404);
+  }
+
+  const systemChangeId: number = systemChange[0].id;
+  const internmentId: number = systemChange[0].internmentId;
+  console.log("evolution", evolution);
+  console.log("systemChangeId", systemChangeId);
+  console.log("userId", userId);
+  console.log("patientId", patientId);
+
   const evaluationID = await queries.evolvePatient(
     evolution,
-    5, // HARDCODED SystemChange ID
+    systemChangeId,
     userId,
     patientId,
     new Date()
   );
+
   if (!!evaluationID) res.sendStatus(201);
   if (!evaluationID) res.sendStatus(500);
   // Effect => rules evaluations and alerts ---
@@ -71,47 +104,31 @@ const create = async (req: Request, res: Response) => {
       ),
     };
   }, {});
-  const firstRun = await genNewAlerts({
-    userId,
-    evaluationId: patientId,
-    facts: { ...facts },
-  });
-  /*   const secondFacts = {
-    ...firstRun.reduce((acc, current) => {
-      return {
-        ...acc,
-        [current.ruleKey]: current.ruleKey,
-      };
-    }, {}),
-  };
-  const secondRun = await genNewAlerts({
-    userId,
-    evaluationId: patientId,
-    facts: { ...secondFacts },
-  }); */
 
-  // prevenimos que la alerta 6 se guarde si es que saltó la 5
-  // Lo hacemos manualmente porque no pude hacer andar el motor con esta condición
-  const newAlerts = firstRun.filter((alert) => {
-    const found = firstRun.find(
-      (alert) => alert.ruleKey === KnownRulesKeys.O_SAT
-    );
-    if (found) {
-      return alert.ruleKey !== KnownRulesKeys.O_SAT_2;
-    }
-    return true;
-  });
-  queries.saveAlerts(newAlerts);
+  const usersAsigneds = await queries.returnDoctorsIdAssinedToInternmentById(
+    internmentId
+  );
 
-  console.log("active rules => ", rules);
-  console.log("facts => ", facts);
-  console.log("firstRun => ", firstRun);
-  console.log("generetedAlerts => ", newAlerts);
-  //console.log("second run => ", secondRun);
-  //console.log("second facts => ", secondFacts);
-  console.log("evolution => ", evolution);
-  console.log("previousEvolution => ", previousEvolution);
-  //------------
+  return usersAsigneds.map(async (user: User) => {
+    const firstRun = await genNewAlerts({
+      evaluationId: evaluationID,
+      userId: user.id,
+      facts: { ...facts },
+    });
+
+    const newAlerts = firstRun.filter((alert) => {
+      const found = firstRun.find(
+        (alert) => alert.ruleKey === KnownRulesKeys.O_SAT
+      );
+      if (found) {
+        return alert.ruleKey !== KnownRulesKeys.O_SAT_2;
+      }
+      return true;
+    });
+
+    queries.saveAlerts(newAlerts);
+    //------------
+  });
 };
 const Evolution = {
   create,

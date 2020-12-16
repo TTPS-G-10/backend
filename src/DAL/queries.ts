@@ -8,7 +8,7 @@ import { ContactPerson } from "../model/ContactPerson";
 import { Evaluation } from "../model/Evaluation";
 import { Evolution } from "../model/Evolution";
 import { Bed } from "../model/Bed";
-import { RuleType, RuleOperator, KnownRulesKeys } from "../model/Rule";
+import { RuleType, RuleOperator, KnownRulesKeys, Rule } from "../model/Rule";
 import { Alert } from "../model/Alert";
 const config = require("config");
 const dbConfig = config.get("dbConfig");
@@ -116,7 +116,7 @@ const findSystemForEvolution = async (id: number): Promise<String | null> => {
     FROM ${dbConfig.database}.system as syst
     INNER JOIN ${dbConfig.database}.system_change as sc
     ON syst.id = sc.systemId
-    WHERE sc.id='?'
+    WHERE sc.id=?
     LIMIT 1
     `;
   return await dbAPI.singleOrDefault<String | null>(sql, [id]);
@@ -222,13 +222,24 @@ const returnPatientsAssinedToUserById = async (userId: number) => {
   return await dbAPI.rawQuery(sql, [userId]);
 };
 
+const returnDoctorsIdAssinedToInternmentById = async (internmentId: number) => {
+  const sql = `
+  SELECT  user.id
+    FROM ${dbConfig.database}.user
+    INNER JOIN ${dbConfig.database}.assigned_doctor on assigned_doctor.userId = user.id
+    INNER JOIN ${dbConfig.database}.internment on internment.id= assigned_doctor.internmentId
+    WHERE internment.id= ?
+    `;
+  return await dbAPI.rawQuery(sql, [internmentId]);
+};
+
 const findAcotedEvaluationsOfSystemChangeWithSystemChangeId = async (
   internmentId: number
 ) => {
   const sql = `
 SELECT evaluation.id, evaluation.userId, evaluation.patientId, evaluation.systemChangeId, evaluation.createTime
     FROM ${dbConfig.database}.evaluation
-    INNER JOIN ${dbConfig.database}.system_change ON system_change.Id = evaluation.system_changeId
+    INNER JOIN ${dbConfig.database}.system_change ON system_change.Id = evaluation.systemChangeId
     WHERE (system_change.id = ?)
     ORDER BY createTime desc
     `;
@@ -256,7 +267,7 @@ const returnBedsWithSpaceOfRoomForRoomId = async (id: Number) => {
   const sql = `
          SELECT bd.name,bd.id
         FROM ${dbConfig.database}.bed bd 
-        WHERE (bd.roomId='?') AND (bd.patientId is NULL)
+        WHERE (bd.roomId=?) AND (bd.patientId is NULL)
         GROUP BY bd.id
     `;
   const result = await dbAPI.rawQuery(sql, [id]);
@@ -381,7 +392,7 @@ const findRoomsFromASystemtByID = async (id: number) => {
   const sql = `
          SELECT rm.name,rm.id
   FROM  ${dbConfig.database}.room rm 
-  WHERE (rm.systemId='?') 
+  WHERE (rm.systemId=?) 
   GROUP BY rm.id `;
 
   const result = await dbAPI.rawQuery(sql, [id]);
@@ -392,7 +403,7 @@ const findEvolutionByID = async (id: number) => {
   const sql = `
          SELECT *
   FROM ${dbConfig.database}.evaluation 
-  WHERE id='?' `;
+  WHERE id=? `;
 
   const result = await dbAPI.singleOrDefault<Evaluation | null>(sql, [id]);
   return result;
@@ -413,7 +424,7 @@ const patientHasCurrentHospitalization = async (idPatient: number) => {
   const sql = `
   SELECT *
   FROM ${dbConfig.database}.internment
-  WHERE egressDate IS NULL AND obitoDate IS NULL AND patientId='?'`;
+  WHERE egressDate IS NULL AND obitoDate IS NULL AND patientId=?`;
 
   const result = await dbAPI.rawQuery(sql, [idPatient]);
   return result;
@@ -424,7 +435,7 @@ const patienInternmentsByPatientId = async (idPatient: number) => {
   const sql = `
   SELECT internment.id,internment.patientId,internment.dateOfHospitalization,internment.obitoDate,internment.egressDate
   FROM ${dbConfig.database}.internment
-  WHERE  patientId='?'
+  WHERE  patientId=?
   ORDER BY internment.dateOfHospitalization desc
   `;
 
@@ -454,7 +465,7 @@ const stillFreeBed = async (
   SELECT patientId 
   FROM ${dbConfig.database}.bed
   INNER JOIN ${dbConfig.database}.room ON bed.roomId = room.Id
-  WHERE (room.systemId = '?') AND (bed.id='?') AND (room.id='?')
+  WHERE (room.systemId = ?) AND (bed.id=?) AND (room.id=?)
  `;
 
   const result = await dbAPI.rawQuery(sql, [idSystem, idBed, idRoom]);
@@ -503,21 +514,21 @@ const createInternment = async (
 const unassingPatientToInternment = async (idInternment: number) => {
   const sql = `UPDATE ${dbConfig.database}.internment SET
                 patientId = NULL
-                WHERE id = '?'`;
+                WHERE id = ?`;
   const result = await dbAPI.rawQuery(sql, [idInternment]);
   return result;
 };
 
 const deleteInternment = async (idInternment: number) => {
   const sql = `DELETE FROM ${dbConfig.database}.internment
-              WHERE id = '?'`;
+              WHERE id = ?`;
   const result = await dbAPI.rawQuery(sql, [idInternment]);
   return result;
 };
 
 const deleteAssignedDoctors = async (idInternment: number) => {
   const sql = `DELETE FROM ${dbConfig.database}.assigned_doctor
-              WHERE internmentId = '?'`;
+              WHERE internmentId = ?`;
   const result = await dbAPI.rawQuery(sql, [idInternment]);
   return result;
 };
@@ -538,8 +549,8 @@ const insertAndReturnID = async (
 
 const assignPatientToBed = async (idPatient: number, idBed: number) => {
   const sql = `UPDATE ${dbConfig.database}.bed
-              SET patientId = '?'
-              WHERE bed.id='?' `;
+              SET patientId = ?
+              WHERE bed.id=? `;
   const result = await dbAPI.rawQuery(sql, [idPatient, idBed]);
   return result;
 };
@@ -547,7 +558,7 @@ const assignPatientToBed = async (idPatient: number, idBed: number) => {
 const unassingPatientToBed = async (idBed: number) => {
   const sql = `UPDATE ${dbConfig.database}.bed
                SET patientId = NULL
-                WHERE id = '?'`;
+                WHERE id = ?`;
   const result = await dbAPI.rawQuery(sql, [idBed]);
   return result;
 };
@@ -564,14 +575,14 @@ const insertBedWithPatient = async (
 
 const removeBed = async (idBed: number) => {
   const sql = `DELETE FROM ${dbConfig.database}.bed
-              WHERE (id = '?')`;
+              WHERE (id = ?)`;
   const result = await dbAPI.rawQuery(sql, [idBed]);
   return result;
 };
 
 const removeSystemChange = async (idSystemChange: number) => {
   const sql = `DELETE FROM ${dbConfig.database}.system_change
-              WHERE (id = '?')`;
+              WHERE (id = ?)`;
   const result = await dbAPI.rawQuery(sql, [idSystemChange]);
   return result;
 };
@@ -656,92 +667,67 @@ const evolvePatient = async (
 const changeRoleOfUserToSystemChief = async (userId: number) => {
   const sql = `UPDATE ${dbConfig.database}.user
                SET role = "JEFE DE SISTEMA"
-                WHERE id = '?'`;
+                WHERE id = ?`;
   const result = await dbAPI.rawQuery(sql, [userId]);
   return result;
 };
+
+const changePatientsOfUserToOtherUser = async (
+  doctorId: number,
+  systemChiefId: number
+) => {
+  const sql = `UPDATE ${dbConfig.database}.assigned_doctor
+               SET userId = ?
+                WHERE userId = ?`;
+  const result = await dbAPI.rawQuery(sql, [doctorId, systemChiefId]);
+  return result;
+};
+
 const changeRoleOfUserToDoctor = async (userId: number) => {
   const sql = `UPDATE ${dbConfig.database}.user
                SET role ="DOCTOR"
-                WHERE id = '?'`;
+                WHERE id = ?`;
   const result = await dbAPI.rawQuery(sql, [userId]);
   return result;
 };
 
 const saveAlerts = async (alerts: Alert[]): Promise<boolean[]> => {
+  console.log("estructura de las alertas", alerts);
+
   const sql = `INSERT INTO ${dbConfig.database}.alert`;
-  return await Promise.all(alerts.map((alert) => insert(sql, alert)));
+  return await Promise.all(alerts.map((aux) => insert(sql, aux)));
 };
 
 const getAlertsByUserId = async (id: number) => {
-  const sql = `SELECT * FROM ${dbConfig.database}.alert WHERE alert.readByUser = false AND alert.userId = ? `;
+  const sql = `SELECT * FROM ${dbConfig.database}.alert WHERE alert.userId = ? ORDER BY alert.date desc `;
   return await dbAPI.rawQuery(sql, [id]);
 };
 
-const getRules = async () => {
+const getAlertsAndPatientByUserId = async (id: number) => {
+  const sql = `SELECT alert.message,alert.readByUser,alert.id as alertId,evaluation.id as evaluationId,system_change.internmentId as internmentId,alert.date,patient.name,patient.lastName
+  FROM  ${dbConfig.database}.alert 
+  INNER JOIN  ${dbConfig.database}.evaluation  on  evaluation.id = alert.evaluationId
+  INNER JOIN  ${dbConfig.database}.patient  on  patient.id = evaluation.patientId
+  INNER JOIN  ${dbConfig.database}.system_change on  system_change.id = evaluation.systemChangeId
+  WHERE alert.userId = 24
+  ORDER BY alert.date desc `;
+  return await dbAPI.rawQuery(sql, [id]);
+};
+
+const getAlertsnotSeeByUserId = async (id: number) => {
+  const sql = `SELECT * FROM ${dbConfig.database}.alert WHERE alert.readByUser = false AND alert.userId = ? ORDER BY alert.date desc`;
+  return await dbAPI.rawQuery(sql, [id]);
+};
+
+const getRules = async (): Promise<Rule[]> => {
   const sql = `
     SELECT *
     FROM ${dbConfig.database}.rules rules
     LIMIT 100;
   `;
   const result = await dbAPI.rawQuery(sql, []);
-  // console.log("database rules =>", result);
-  // mock temporal
-  return [
-    {
-      name: "somnolencia",
-      operator: RuleOperator.EQUAL,
-      description: "Somnolencia: evaluar pase a UTI",
-      type: RuleType.BOOLEAN,
-      active: true,
-      key: KnownRulesKeys.SOM,
-      id: 1,
-    },
-    {
-      name: "mecanica_ventilatoria",
-      operator: RuleOperator.IN,
-      parameter: "regular,mala",
-      description: "Mecanica ventilatoria :value evaluar pase a UTI",
-      type: RuleType.VALUE_LIST,
-      active: true,
-      key: KnownRulesKeys.MEC_VEN,
-      id: 2,
-    },
-    {
-      name: "frecuencia_respiratoria",
-      operator: RuleOperator.GREATER_THAN,
-      parameter: 60,
-      description:
-        "Frecuencia respiratoria mayor a :value por minuto, evaluar pase a UTI",
-      type: RuleType.NUMERIC,
-      active: true,
-      key: KnownRulesKeys.FRE_RESP,
-      id: 3,
-    },
-    {
-      name: "saturación_de_oxígeno",
-      operator: RuleOperator.LESS_THAN,
-      parameter: 92,
-      description:
-        "Saturacion de oxigeno menor a 92%. Evaluar oxigenoterapia y prono",
-      type: RuleType.NUMERIC,
-      active: true,
-      key: KnownRulesKeys.O_SAT,
-      id: 4,
-    },
-    {
-      name: "saturación_de_oxígeno_2",
-      operator: RuleOperator.GREATER_THAN_INCLUSIVE,
-      parameter: 3,
-      description:
-        "Saturación de oxígeno bajó 3%. Evaluar oxigenoterapia y prono.	",
-      type: RuleType.NUMERIC,
-      active: true,
-      id: 5,
-      key: KnownRulesKeys.O_SAT_2,
-      notRule: [KnownRulesKeys.O_SAT],
-    },
-  ];
+  console.log("database rules =>", result);
+  return result;
 };
 
 const getPreviousEvolution = async (
@@ -760,7 +746,7 @@ const setAlertAsSeen = async (alertID: number): Promise<boolean> => {
 const setObitoOfInternment = async (fecha: Date, internmentId: number) => {
   const sql = `UPDATE ${dbConfig.database}.internment
                SET obitoDate = ?
-                WHERE id = '?'`;
+                WHERE id = ?`;
   const result = await dbAPI.rawQuery(sql, [fecha, internmentId]);
   return result;
 };
@@ -768,7 +754,7 @@ const setObitoOfInternment = async (fecha: Date, internmentId: number) => {
 const setEgressOfInternment = async (fecha: Date, internmentId: number) => {
   const sql = `UPDATE ${dbConfig.database}.internment
                SET egressDate = ?
-                WHERE id = '?'`;
+                WHERE id = ?`;
   const result = await dbAPI.rawQuery(sql, [fecha, internmentId]);
   return result;
 };
@@ -778,10 +764,14 @@ const setEgressOfInternment = async (fecha: Date, internmentId: number) => {
 // queries.remove('bed', 'id', '2').then((ok) => console.log('borró bien?', ok));
 
 const queries = {
+  getAlertsnotSeeByUserId,
+  getAlertsAndPatientByUserId,
+  changePatientsOfUserToOtherUser,
   patienInternmentsByPatientId,
   findObitoInternmentWithPatientId,
   setObitoOfInternment,
   setEgressOfInternment,
+  returnDoctorsIdAssinedToInternmentById,
   changeRoleOfUserToSystemChief,
   returnPatientsAssinedToUserById,
   changeRoleOfUserToDoctor,

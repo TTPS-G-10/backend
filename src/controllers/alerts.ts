@@ -3,8 +3,15 @@ import { Alert } from "../model/Alert";
 import queries from "../DAL/queries";
 import { CustomRequest } from "../model/Request";
 
-const getAlerts = async (req: Request, res: Response) => {
-  const alerts: Alert[] = await queries.getAlertsByUserId(
+const getAlertsNotSee = async (req: Request, res: Response) => {
+  const alerts: Alert[] = await queries.getAlertsnotSeeByUserId(
+    (req as CustomRequest).user.id
+  );
+  res.json(alerts);
+};
+
+const getAlertsAndPatients = async (req: Request, res: Response) => {
+  const alerts: Alert[] = await queries.getAlertsAndPatientByUserId(
     (req as CustomRequest).user.id
   );
   res.json(alerts);
@@ -20,8 +27,10 @@ const setAlertAsSeen = async (req: Request, res: Response) => {
     res.sendStatus(500);
   }
 };
+
 const Alerts = {
-  getAlerts,
+  getAlertsAndPatients,
+  getAlertsNotSee,
   setAlertAsSeen,
 };
 export default Alerts;

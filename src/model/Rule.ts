@@ -22,7 +22,7 @@ export type Rule = {
   active: boolean;
   type: RuleType;
   id: number;
-  notRule?: string[];
+  notRule?: string;
   key: KnownRulesKeys;
 };
 
