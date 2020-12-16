@@ -18,7 +18,7 @@ enum O2SupplementaryType {
   "Mascara con Reservorio",
 }
 
-export type Evaluation = {
+/* export type Evaluation = {
   id: number;
   userId: number;
   patientId: number;
@@ -60,4 +60,4 @@ export type Evaluation = {
     vasopressors: boolean;
     descriptionVasopressors: string;
   };
-};
+}; */

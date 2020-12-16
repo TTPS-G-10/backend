@@ -86,4 +86,20 @@ describe("All Rules Must be Valid to generate Alerts here", () => {
         )
     );
   });
+  it(`should test Rule ${[
+    KnownRules.SYMP,
+  ]} and return as success`, async () => {
+    const fact = {
+      [KnownRules.SYMP]: true,
+    };
+    enginePromise.then((engine) =>
+      engine
+        .run(fact)
+        .then((result) =>
+          expect(
+            result.events.find((event) => event.type === KnownRules.SYMP)
+          ).toBeDefined()
+        )
+    );
+  });
 });

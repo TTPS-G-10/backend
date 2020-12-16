@@ -4,6 +4,7 @@ export enum KnownRules {
   FRE_RESP = "frecuencia_respiratoria",
   O_SAT = "saturación_de_oxígeno",
   O_SAT_2 = "saturación_de_oxígeno_2",
+  SYMP = "inicio_sintomas",
 }
 
 export enum KnownRulesKeys {
@@ -12,6 +13,7 @@ export enum KnownRulesKeys {
   FRE_RESP = "FRE_RESP",
   O_SAT = "O_SAT",
   O_SAT_2 = "O_SAT_2",
+  SYMP = "SYMP",
 }
 
 export type Rule = {

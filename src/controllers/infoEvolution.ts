@@ -1,10 +1,11 @@
 import { validationResult } from "express-validator";
 import queries from "../DAL/queries";
 import { Request, Response } from "express";
-import { Evaluation } from "../model/Evaluation";
+
 import { User } from "../model/User";
 import { CustomRequest } from "../model/Request";
 import { Patient } from "../model/Patient";
+import { Evolution } from "../model/Evolution";
 
 const infoEvolution = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
@@ -17,7 +18,7 @@ const infoEvolution = async (req: Request, res: Response) => {
     }
     try {
       const evolution:
-        | Evaluation
+        | Evolution
         | null
         | undefined = await queries.findEvolutionByID(id);
       if (!evolution) {

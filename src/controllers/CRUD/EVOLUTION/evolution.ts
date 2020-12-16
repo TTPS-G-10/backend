@@ -10,8 +10,23 @@ import { User } from "../../../model/User";
 const getFactFromEvolution = (
   factName: KnownRules,
   evolution: Evolution,
-  previousEvolution?: Evolution
+  previousEvolution?: Evolution,
+  lastTenDaysEvolutions?: Evolution[]
 ): any | undefined => {
+  /**
+   *
+   * @param lastTenDaysEvolutions
+   * acá chequeamos que haya síntomas presentes en las últimas 10 evoluciones. si no los hay, tenemos que alertar
+   */
+  const isSymptomPresent: (arg0: Evolution[]) => boolean = (
+    lastTenDaysEvolutions
+  ) =>
+    lastTenDaysEvolutions.find(
+      (evolution: Evolution) =>
+        evolution.anosmia || evolution.drowsiness || evolution.disagreement
+    )
+      ? true
+      : false;
   switch (factName) {
     case KnownRules.SOM:
       if (evolution.drowsiness) {
@@ -36,6 +51,10 @@ const getFactFromEvolution = (
         evolution.oxygenSaturation
       ) {
         return previousEvolution.oxygenSaturation - evolution.oxygenSaturation;
+      }
+    case KnownRules.SYMP:
+      if (lastTenDaysEvolutions) {
+        return !isSymptomPresent(lastTenDaysEvolutions);
       }
     default:
       return;
@@ -63,6 +82,7 @@ const create = async (req: Request, res: Response) => {
     patientId
   );
   const internament = await queries.findOpenInternmentWithPatientId(patientId);
+  console.log("evolucionado al paciente: ", internament?.patient);
   if (!internament) {
     console.log("no se encontro la internacion");
     return res.sendStatus(404);
@@ -74,6 +94,12 @@ const create = async (req: Request, res: Response) => {
     console.log("no se encontro el cambio de sistema");
     return res.sendStatus(404);
   }
+
+  const lastTenDaysEvolutions:
+    | Evolution[]
+    | null = await queries.getLastTenDaysEvolutions(patientId);
+
+  console.log("lastTenDaysEvolutions", lastTenDaysEvolutions);
 
   const systemChangeId: number = systemChange[0].id;
   const internmentId: number = systemChange[0].internmentId;
@@ -96,10 +122,13 @@ const create = async (req: Request, res: Response) => {
       [current.name]: getFactFromEvolution(
         current.name as KnownRules,
         evolution,
-        previousEvolution ?? undefined
+        previousEvolution ?? undefined,
+        lastTenDaysEvolutions ?? undefined
       ),
     };
   }, {});
+
+  console.log("facts => ", facts);
 
   const usersAsigneds = await queries.returnDoctorsIdAssinedToInternmentById(
     internmentId
