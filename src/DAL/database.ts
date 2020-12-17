@@ -21,9 +21,6 @@ function getConnectionDB() {
 
 async function generateConnection(conData: IConnectionData) {
   CON_DATA = conData;
-  if (db) {
-    return db;
-  }
   db = mysql.createPool({
     ...conData,
     waitForConnections: true,
@@ -31,7 +28,7 @@ async function generateConnection(conData: IConnectionData) {
   });
   TTPS_DB_POOL = await db.getConnection();
   // connection = await mysql.createConnection(CON_DATA);
-  return db;
+  return TTPS_DB_POOL;
 }
 
 async function createTransaction() {
@@ -61,8 +58,8 @@ async function rawQuery<T>(query: string, params: any[]): Promise<T | any> {
   try {
     await TTPS_DB_POOL.beginTransaction();
   } catch {
-    TTPS_DB_POOL = await db.getConnection();
-    TTPS_DB_POOL.beginTransaction();
+    TTPS_DB_POOL = await generateConnection(CON_DATA);
+    await TTPS_DB_POOL.beginTransaction();
   }
   //const connection = await mysql.createConnection(CON_DATA);
   //connection.beginTransaction();
@@ -83,16 +80,18 @@ async function rawQuery<T>(query: string, params: any[]): Promise<T | any> {
     console.warn(err.message);
     throw new Error(err.message + ", in query: " + query);
   } finally {
-    console.log("end connection");
     //connection.end();
     TTPS_DB_POOL.release();
   }
 }
 
 async function insert(query: string, params: object): Promise<any> {
-  await TTPS_DB_POOL.beginTransaction();
-  // const connection = await mysql.createConnection(CON_DATA);
-  // connection.beginTransaction();
+  try {
+    await TTPS_DB_POOL.beginTransaction();
+  } catch {
+    TTPS_DB_POOL = await generateConnection(CON_DATA);
+    await TTPS_DB_POOL.beginTransaction();
+  }
   const insertQry = processInsert(query.replace(/(\r\n|\n|\r)/gm, ""), params);
   const values = Object.values(params);
 
@@ -118,7 +117,6 @@ async function insert(query: string, params: object): Promise<any> {
     console.warn(err.message);
     throw new Error(err.message);
   } finally {
-    console.log("close db connection");
     // connection.end();
     TTPS_DB_POOL.release();
   }
