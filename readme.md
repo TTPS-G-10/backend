@@ -35,4 +35,7 @@ Where Nodejs is used together with Express framework, to create the server. And 
 - npm install
 - npm run dev
 
+## test
+- npm run test
+
 don't forget to start DB service!
