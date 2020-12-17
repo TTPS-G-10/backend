@@ -9,6 +9,7 @@ import { Evolution } from "../model/Evolution";
 import { Bed } from "../model/Bed";
 import { RuleType, RuleOperator, KnownRulesKeys, Rule } from "../model/Rule";
 import { Alert } from "../model/Alert";
+import { SystemChange } from "../model/SystemChange";
 const config = require("config");
 const dbConfig = config.get("dbConfig");
 
@@ -207,6 +208,19 @@ const findSystemChangesOfInternmentWithInternmentId = async (
     ORDER BY createtime desc
     `;
   return await dbAPI.rawQuery(sql, [internmentId]);
+};
+
+const findSystemChangeById = async (
+  systemChangeId: number
+): Promise<SystemChange | null> => {
+  const sql = `
+  SELECT *
+    FROM ${dbConfig.database}.system_change
+    WHERE system_change.id = ?
+    `;
+  return await dbAPI.singleOrDefault<SystemChange | null>(sql, [
+    systemChangeId,
+  ]);
 };
 
 const returnPatientsAssinedToUserById = async (userId: number) => {
@@ -838,6 +852,7 @@ const getLastTenDaysEvolutions = async (
 const queries = {
   updateStateUser,
   returnStateUser,
+  findSystemChangeById,
   getAlertsnotSeeByUserId,
   getAlertsAndPatientByUserId,
   changePatientsOfUserToOtherUser,
