@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { User } from "../model/User";
 import queries from "../DAL/queries";
 import { CustomRequest } from "../model/Request";
+import { Evolution } from "../model/Evolution";
 
 const infoEvolutionAndPatientData = async (req: Request, res: Response) => {
   const user: User = (req as CustomRequest).user;
@@ -15,13 +16,15 @@ const infoEvolutionAndPatientData = async (req: Request, res: Response) => {
         res.sendStatus(403);
       }
       const patient = await queries.findPatientByID(id);
-      const lastEvolve = await queries.lastEvolveByPatientID(id);
+      let lastEvolve: Evolution | null = await queries.lastEvolveByPatientID(
+        id
+      );
       console.log("patient", patient);
       console.log("evolve", lastEvolve);
       res.json({
         name: patient?.name,
         lastName: patient?.lastName,
-        lastEvolve: lastEvolve,
+        lastEvolve: lastEvolve ? lastEvolve : [],
       });
     } catch (err) {
       console.error(err);
