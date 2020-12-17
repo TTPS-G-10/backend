@@ -7,6 +7,9 @@
     "connectionLimit": 9,
     "enableKeepAlive": true
   },
-  "origin": "https://frontend.ttps-g-10.vercel.app",
-  "domain": "frontend.ttps-g-10.vercel.app"
+  "origin": [
+    "https://frontend.ttps-g-10.vercel.app",
+    "https://frontend-mi5fyz9s4.vercel.app"
+  ],
+  "domain": ["frontend.ttps-g-10.vercel.app", "frontend-mi5fyz9s4.vercel.app"]
 }
