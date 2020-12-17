@@ -18,11 +18,10 @@ const createInternment = async (req: Request, res: Response) => {
       console.log("parametro no valido");
       return res.sendStatus(400);
     }
+
     await queries
       .returCountFreeBedsInSystemId(system.id)
       .then(async (camas) => {
-        console.log("camas", camas);
-
         if (camas[0].cantFree > 0) {
           return res.json({ redirect: "/internment/create", createBed: false });
         } else {

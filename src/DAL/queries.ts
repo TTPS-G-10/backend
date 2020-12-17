@@ -353,6 +353,9 @@ const returnBedsAndPatientsForRoomId = async (id: number) => {
 };
 
 const returCountFreeBedsInSystemId = async (id: number) => {
+  console.log(
+    "------------------------entro a la consulta para ver la cantidad de camas libres-----------"
+  );
   try {
     const sql = `
     SELECT COUNT(*) as cantFree
@@ -460,14 +463,17 @@ const stillFreeBed = async (
   idBed: number,
   idRoom: number
 ) => {
+  console.log("---------------------la cama sigue vacia??");
+  console.log("me llega a la qry:", idSystem, idBed, idRoom);
   const sql = `
-  SELECT patientId 
+  SELECT ${dbConfig.database}.bed.patientId 
   FROM ${dbConfig.database}.bed
   INNER JOIN ${dbConfig.database}.room ON bed.roomId = room.Id
-  WHERE (room.systemId = ?) AND (bed.id=?) AND (room.id=?)
+  WHERE (room.systemId =?) AND (bed.id=?) AND (room.id=?)
  `;
 
   const result = await dbAPI.rawQuery(sql, [idSystem, idBed, idRoom]);
+  console.log("reultado de la qry:::", result);
   return result;
 };
 const createSystemChange = async (internmentId: number, systemId: number) => {
@@ -566,6 +572,7 @@ const insertBedWithPatient = async (
   roomId: number,
   patientId: number
 ) => {
+  console.log("llego al insertar cama con paciente:", name, roomId, patientId);
   const sql = `INSERT INTO ${dbConfig.database}.bed (name,  roomId, patientId)
         VALUES (?, ?, ?)`;
   const result = await dbAPI.rawQuery(sql, [name, roomId, patientId]);
@@ -585,19 +592,52 @@ const removeSystemChange = async (idSystemChange: number) => {
   const result = await dbAPI.rawQuery(sql, [idSystemChange]);
   return result;
 };
-
-const insertPatient = async (query: string, values: object): Promise<any> => {
-  const result = await dbAPI.insert(query, values);
+const insertPatient = async (
+  name: string,
+  lastName: string,
+  dni: number,
+  birthDate: Date,
+  direction: string,
+  phone: string,
+  email: string,
+  socialSecurity: string,
+  backgroundClinical: string
+) => {
+  const sql = `INSERT INTO ${dbConfig.database}.patient (name,lastName,dni, birthDate,direction,phone,email,socialSecurity,backgroundClinical)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const result = await dbAPI.rawQuery(sql, [
+    name,
+    lastName,
+    dni,
+    birthDate,
+    direction,
+    phone,
+    email,
+    socialSecurity,
+    backgroundClinical,
+  ]);
   return result;
 };
 
 const insertContactPerson = async (
-  query: string,
-  values: object
-): Promise<any> => {
-  const result = await dbAPI.insert(query, values);
+  name: string,
+  lastName: string,
+  relationship: string,
+  phone: string,
+  patientId: number
+) => {
+  const sql = `INSERT INTO ${dbConfig.database}.contact_person (name,lastName,relationship,phone,patientId)
+        VALUES (?, ?, ?, ?, ?)`;
+  const result = await dbAPI.rawQuery(sql, [
+    name,
+    lastName,
+    relationship,
+    phone,
+    patientId,
+  ]);
   return result;
 };
+
 const update = async (
   name: string,
   id: string,

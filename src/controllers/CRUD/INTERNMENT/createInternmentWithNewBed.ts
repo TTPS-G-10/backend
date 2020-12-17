@@ -52,6 +52,14 @@ function createSystemChangesToPatient(
   systemChiefId: number,
   res: Response<any>
 ) {
+  console.log(
+    "-----createsystemchange:",
+    internmentId,
+    systemId,
+    bedN,
+    idPatient,
+    systemChiefId
+  );
   queries
     .createSystemChange(internmentId, systemId)
     .then(async (o) => {
